@@ -207,8 +207,13 @@ async function runScamCheck(text) {
     legalBoxEl.innerHTML = `<span>⚖️ Legal Protection: <strong>${res.protectionLaw || "Indian Penal Law"}</strong></span>`;
 
   } catch (err) {
-    headlineEl.textContent = "Analysis Error";
-    descEl.textContent = err.message || "Failed to reach backend evaluation service.";
+    badgeEl.className = 'status-badge badge-danger';
+    badgeEl.textContent = 'Notice';
+    ringEl.className = 'gauge-ring';
+    scoreEl.textContent = '0%';
+    headlineEl.textContent = 'Input Required';
+    descEl.textContent = err.message || "Please enter a specific message or URL to analyze.";
+    flagsListEl.innerHTML = '<li class="empty-state">Select any of the 6 specimen buttons above or paste text from SMS/WhatsApp.</li>';
   }
 }
 

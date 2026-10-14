@@ -484,7 +484,67 @@ app.post('/api/telemetry/ingest', (req, res) => {
 });
 
 // ==========================================
-// API 6: CITIZEN SCAM CHECKER ENGINE (Instant Verification)
+// AUTHORITATIVE WHITELISTS & BRAND MATRIX (HCRV ENGINE)
+// ==========================================
+const PROTECTED_DOMAINS_WHITELIST = new Set([
+  // Law Enforcement & Regulators
+  "cybercrime.gov.in", "cbi.gov.in", "enforcementdirectorate.gov.in", "mha.gov.in",
+  "sci.gov.in", "ecourts.gov.in", "rbi.org.in", "sebi.gov.in", "irdai.gov.in",
+  "npci.org.in", "bhimupi.org.in", "uidai.gov.in", "incometax.gov.in", "epfindia.gov.in",
+  "parivahan.gov.in", "echallan.parivahan.gov.in", "digilocker.gov.in", "pmkisan.gov.in",
+  // Banking (Public & Private)
+  "sbi.co.in", "onlinesbi.sbi", "sbi.bank.in", "hdfcbank.com", "icicibank.com",
+  "axisbank.com", "pnbindia.in", "bankofbaroda.in", "kotak.com", "idfcfirstbank.com",
+  "yesbank.in", "unionbankofindia.co.in", "canarabank.com", "indusind.com", "federalbank.co.in",
+  // Payments, E-Commerce & Tech
+  "phonepe.com", "paytm.com", "amazon.in", "amazon.com", "flipkart.com", "google.com",
+  "safemeai.in", "safemeai.com"
+]);
+
+const BRAND_KEYWORDS = [
+  { keyword: "sbi", name: "State Bank of India (SBI)", official: "sbi.co.in" },
+  { keyword: "hdfc", name: "HDFC Bank", official: "hdfcbank.com" },
+  { keyword: "icici", name: "ICICI Bank", official: "icicibank.com" },
+  { keyword: "axis", name: "Axis Bank", official: "axisbank.com" },
+  { keyword: "pnb", name: "Punjab National Bank (PNB)", official: "pnbindia.in" },
+  { keyword: "bob", name: "Bank of Baroda", official: "bankofbaroda.in" },
+  { keyword: "kotak", name: "Kotak Mahindra Bank", official: "kotak.com" },
+  { keyword: "rbi", name: "Reserve Bank of India (RBI)", official: "rbi.org.in" },
+  { keyword: "cbi", name: "Central Bureau of Investigation (CBI)", official: "cbi.gov.in" },
+  { keyword: "police", name: "Police Cyber Cell", official: "cybercrime.gov.in" },
+  { keyword: "cybercrime", name: "National Cyber Crime Portal", official: "cybercrime.gov.in" },
+  { keyword: "pmkisan", name: "PM-KISAN Portal", official: "pmkisan.gov.in" },
+  { keyword: "challan", name: "Parivahan e-Challan", official: "echallan.parivahan.gov.in" },
+  { keyword: "parivahan", name: "Ministry of Road Transport (Parivahan)", official: "parivahan.gov.in" },
+  { keyword: "indiapost", name: "India Post (Department of Posts)", official: "indiapost.gov.in" },
+  { keyword: "speedpost", name: "India Post Speed Post", official: "indiapost.gov.in" },
+  { keyword: "electricity", name: "State Electricity Discom", official: "Official State DISCOM" },
+  { keyword: "bescom", name: "BESCOM Karnataka", official: "bescom.karnataka.gov.in" },
+  { keyword: "mahadiscom", name: "MSEDCL Maharashtra", official: "mahadiscom.in" },
+  { keyword: "uppcl", name: "UPPCL Uttar Pradesh", official: "upenergy.in" },
+  { keyword: "phonepe", name: "PhonePe", official: "phonepe.com" },
+  { keyword: "paytm", name: "Paytm Payments", official: "paytm.com" },
+  { keyword: "gpay", name: "Google Pay", official: "pay.google.com" },
+  { keyword: "fedex", name: "FedEx Express", official: "fedex.com" },
+  { keyword: "dhl", name: "DHL Express", official: "dhl.com" },
+  { keyword: "airtel", name: "Bharti Airtel", official: "airtel.in" },
+  { keyword: "jio", name: "Reliance Jio", official: "jio.com" },
+  { keyword: "trai", name: "Telecom Regulatory Authority of India (TRAI)", official: "trai.gov.in" }
+];
+
+const SUSPICIOUS_TLDS = new Set([
+  "xyz", "top", "buzz", "club", "work", "vip", "tk", "ml", "ga", "cf",
+  "online", "site", "shop", "icu", "link", "cc", "click", "live", "rest", "cam",
+  "biz", "info", "monster", "pro", "fit", "run", "space"
+]);
+
+const URL_SHORTENERS = new Set([
+  "bit.ly", "tinyurl.com", "is.gd", "cutt.ly", "rb.gy", "t.co", "shorturl.at",
+  "wa.me", "page.link", "goo.gl", "ow.ly", "buff.ly", "v.ht", "clck.ru"
+]);
+
+// ==========================================
+// API 6: COMPREHENSIVE CITIZEN SCAM CHECKER ENGINE (Instant Verification)
 // ==========================================
 const CITIZEN_REPORTS = [
   {
@@ -514,178 +574,484 @@ const CITIZEN_REPORTS = [
 ];
 
 app.post('/api/scam/check', (req, res) => {
-  const { text, type } = req.body;
+  const { text } = req.body;
   const raw = (text || "").trim();
   const lower = raw.toLowerCase();
 
-  if (!raw) {
-    return res.status(400).json({ error: "Please provide a message, UPI ID, or URL to analyze." });
+  if (!raw || lower === "enter message, url, or upi id" || raw === "undefined" || raw === "null") {
+    return res.status(400).json({ 
+      error: "Please enter or paste a specific SMS message, suspicious URL, or UPI ID to analyze." 
+    });
   }
 
-  // Heuristic rule matching
-  const hasDigitalArrest = /cbi|arrest|police|supreme court|pmla|mdma|narcotics|customs|dhl|fedex|parcel|escrow|skype|digital arrest|surveillance|verification account/i.test(lower);
-  const hasUpiCollect = /upi pin|enter pin|scan qr|collect request|refund approved|to receive money|cashback credited|refund desk|gpay refund|phonepe refund/i.test(lower);
-  const hasElectricity = /electricity|power cut|power disconnected|bill unpaid|light disconnect|officer\s*\+?91|discom|bill update/i.test(lower);
-  const hasPredatoryLoan = /instant loan|sanctioned in 5 min|7-day|7 day loan|contact list access|gallery access|quick rupee|rupee advance|processing fee upfront/i.test(lower);
-  const hasJobMule = /telegram|like youtube|part time job|earn 3000|earn 5000|prepaid task|deposit 1000|merchant review|hotel review task/i.test(lower);
-  const hasSextortion = /video call recorded|private video|porn video|send 20000|circulate to friends|viral your clip|social media leak/i.test(lower);
-  const hasKycPhishing = /kyc expired|pan expired|account suspended|click here to update|bit\.ly|tinyurl|\.apk|sbi-yono|blocked within 24h/i.test(lower);
-  const isLegitimateBankAlert = /(debited by|credited with|inr [0-9,]+|avail bal|txn on|card ending in|otp is|do not share your otp with anyone)/i.test(lower) && !hasUpiCollect && !hasKycPhishing && !hasDigitalArrest;
+  // -------------------------------------------------------------
+  // STEP 1: EMBEDDED URL & DOMAIN EXTRACTION & HCRV ANALYSIS
+  // -------------------------------------------------------------
+  const urlRegex = /(?:https?:\/\/)?([a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,})(?:\/[^\s]*)?/gi;
+  let extractedUrls = [];
+  let match;
+  while ((match = urlRegex.exec(raw)) !== null) {
+    let domainCandidate = match[1].toLowerCase().replace(/^www\./, '');
+    // Avoid false positives on decimal numbers like 10.5 or v1.8
+    if (!domainCandidate.includes('.') || /^\d+\.\d+$/.test(domainCandidate)) continue;
+    extractedUrls.push({ full: match[0], domain: domainCandidate });
+  }
 
-  let result = {
-    analyzedText: raw.length > 200 ? raw.substring(0, 200) + "..." : raw,
-    timestamp: new Date().toISOString(),
-    riskScore: 10,
-    riskLevel: "SAFE",
-    scamType: "Standard Message / Alert",
-    headline: "No Critical Scam Signals Detected",
-    verdictDescription: "This message appears to be routine communication or standard notification.",
-    flags: [],
-    actionAdvice: [
-      "Always remain cautious and never share your banking OTP or passwords.",
-      "Check official banking apps or verified numbers directly."
-    ],
-    protectionLaw: "RBI Zero Liability Framework"
-  };
+  let phishingDomainDetected = null;
+  for (const item of extractedUrls) {
+    let isWhitelisted = false;
+    for (const d of PROTECTED_DOMAINS_WHITELIST) {
+      if (item.domain === d || item.domain.endsWith('.' + d)) {
+        isWhitelisted = true;
+        break;
+      }
+    }
 
-  if (hasDigitalArrest) {
-    result.riskScore = 99;
-    result.riskLevel = "CRITICAL";
-    result.scamType = "Digital Arrest Extortion (Central Agency Impersonation)";
-    result.headline = "🚨 EXTREME DANGER: Digital Arrest Cybercrime Detected!";
-    result.verdictDescription = "Matches 100% of signatures for fraudulent 'Digital Arrest' extortion. Fraudsters pose as CBI/Police/Customs to extort victims.";
-    result.flags = [
-      "Impersonation of Police / CBI / Customs / Courts",
-      "Coercive video call or surveillance ultimatum",
-      "False claim of contraband, narcotics, or money laundering",
-      "Demand to transfer funds to 'Escrow' or 'Verification' accounts"
+    if (!isWhitelisted) {
+      const parts = item.domain.split('.');
+      const tld = parts[parts.length - 1];
+      const isSuspTld = SUSPICIOUS_TLDS.has(tld);
+      const isShortener = URL_SHORTENERS.has(item.domain) || item.domain.endsWith('.page.link') || item.domain.endsWith('.wa.me');
+      const isApk = raw.toLowerCase().includes('.apk') || item.full.toLowerCase().includes('.apk');
+      
+      // Brand impersonation check
+      for (const brand of BRAND_KEYWORDS) {
+        if (item.domain.includes(brand.keyword)) {
+          phishingDomainDetected = {
+            domain: item.domain,
+            type: "BRAND_IMPERSONATION",
+            brand: brand.name,
+            official: brand.official,
+            tld
+          };
+          break;
+        }
+      }
+
+      if (!phishingDomainDetected) {
+        if (isShortener) {
+          phishingDomainDetected = {
+            domain: item.domain,
+            type: "OBFUSCATED_SHORT_URL",
+            tld,
+            isShortener: true
+          };
+        } else if (isApk || isSuspTld) {
+          phishingDomainDetected = {
+            domain: item.domain,
+            type: isApk ? "MALICIOUS_APK_PAYLOAD" : "HIGH_RISK_TLD",
+            tld,
+            isApk
+          };
+        } else {
+          // Any unwhitelisted external domain in an unsolicited message
+          phishingDomainDetected = {
+            domain: item.domain,
+            type: "UNVERIFIED_EXTERNAL_LINK",
+            tld
+          };
+        }
+      }
+    }
+  }
+
+  // -------------------------------------------------------------
+  // STEP 2: EMBEDDED UPI / VPA HANDLE CHECK
+  // -------------------------------------------------------------
+  const upiRegex = /[a-zA-Z0-9._-]+@(okhdfcbank|okaxis|oksbi|okicici|ybl|ibl|axl|paytm|barodampay|upi)/gi;
+  const hasUpiHandle = upiRegex.test(raw);
+  const upiSuspiciousHandle = /(police|cbi|rbi|escrow|verification|refund|custody|court|gov|customs|fines|official|support|helpdesk|security)@(okhdfcbank|okaxis|oksbi|okicici|ybl|ibl|axl|paytm|upi)/i.test(raw);
+
+  // -------------------------------------------------------------
+  // STEP 3: PATTERN & HEURISTIC ENGINE (PORTED FROM AIAnalyzer.kt)
+  // -------------------------------------------------------------
+  const hasDigitalArrest = /cbi|arrest|police|supreme court|pmla|mdma|narcotics|customs|dhl|fedex|parcel|escrow|skype|digital arrest|surveillance|verification account|cyber cell|high court|warrant/i.test(lower);
+  const hasUpiCollect = /upi pin|enter pin|scan qr|collect request|refund approved|to receive money|cashback credited|refund desk|gpay refund|phonepe refund|reverse payment|mpin|pay to receive/i.test(lower);
+  const hasElectricity = /electricity|power cut|power disconnected|bill unpaid|light disconnect|officer\s*\+?91|discom|bill update|bijli|meter disconnect|power supply/i.test(lower);
+  const hasPredatoryLoan = /instant loan|sanctioned in 5 min|7-day|7 day loan|contact list access|gallery access|quick rupee|rupee advance|processing fee upfront|loan approved|easy credit|no cibil/i.test(lower);
+  const hasJobMule = /telegram|like youtube|part time job|earn 3000|earn 5000|prepaid task|deposit 1000|merchant review|hotel review task|work from home|vip task|daily payout/i.test(lower);
+  const hasSextortion = /video call recorded|private video|porn video|send 20000|circulate to friends|viral your clip|social media leak|compromised video/i.test(lower);
+  const hasKycThreat = /kyc|pan card|pan linked|account blocked|card blocked|account suspended|debit card blocked|netbanking blocked|update your kyc|verify kyc|avoid deactivation|deactivate|deactivated|deactivation|sim blocked|sim deactivated|sim card|sim will be|trai notice|kyc expired|pan expired|blocked within|suspended within|verify identity|customer care/i.test(lower);
+  const hasRemoteAccess = /anydesk|teamviewer|rustdesk|quicksupport|remote support|screen share|install app for support/i.test(lower);
+  const hasRewardsLottery = /lottery|kbc|reward points|redeem points|congratulations you won|claim gift|lucky draw|25 lakh|free recharge|free power scheme|cashback credited|won cash/i.test(lower);
+  const hasTrafficChallan = /echallan|challan pending|traffic fine|court challan|vehicle challan|rto fine/i.test(lower);
+  const hasIndiaPost = /india post|indiapost|speed post|parcel detained|package detained|delivery address|incomplete address|update address|redelivery fee|consignment|customs duty unpaid|postal package/i.test(lower);
+  const hasOtpStealing = /share your otp|verify otp|enter otp to receive|otp for delivery|tell me the otp/i.test(lower);
+
+  // Legitimate Bank Alert Check
+  const hasBankWhitelistPatterns = /(debited by|credited with|inr [0-9,]+|avail bal|txn on|card ending in|swiggy|zomato|uber|ola|transaction successful)/i.test(lower);
+  const isStrictLegitimateBankAlert = hasBankWhitelistPatterns && 
+    !hasDigitalArrest && !hasUpiCollect && !hasKycThreat && !hasPredatoryLoan && 
+    !hasJobMule && !hasElectricity && !hasRemoteAccess && !hasOtpStealing && !hasIndiaPost &&
+    !phishingDomainDetected && !upiSuspiciousHandle;
+
+  // -------------------------------------------------------------
+  // STEP 4: VERDICT GENERATION
+  // -------------------------------------------------------------
+  let result = null;
+
+  if (phishingDomainDetected) {
+    const d = phishingDomainDetected;
+    let scamType = "Malicious URL / Sideload Trap";
+    let headline = `🚨 MALICIOUS DOMAIN: High-Risk URL (${d.domain})`;
+    let desc = `This message directs you to '${d.domain}', an unauthorized host designed for credential theft or malware distribution.`;
+    let risk = 98;
+    let flags = [
+      "URL extracted directly from message payload",
+      "Attempts to harvest NetBanking logins, OTPs, or install malicious APK"
     ];
-    result.actionAdvice = [
-      "🚨 HANG UP IMMEDIATELY. Disconnect Skype or WhatsApp video call.",
-      "🛑 UNDER INDIAN LAW: No police or court ever arrests citizens over video calls or demands money.",
-      "📞 Dial 1930 immediately (National Cyber Crime Helpline) or report on cybercrime.gov.in.",
-      "🛡️ SafeMeAI Android app automatically detects and blocks these fraudulent video overlay streams."
-    ];
-    result.protectionLaw = "BNSS 2023 & IT Act Section 66D (Cheating by Impersonation)";
+
+    if (d.type === "BRAND_IMPERSONATION") {
+      scamType = `Phishing Site Impersonating ${d.brand}`;
+      headline = `🚨 CRITICAL PHISHING: Fake ${d.brand} Domain!`;
+      desc = `This message mimics ${d.brand} but points to fraudulent domain '${d.domain}'.`;
+      flags.unshift(`Unverified host mimicking ${d.brand} (Official is ${d.official})`);
+    } else if (d.type === "OBFUSCATED_SHORT_URL") {
+      scamType = "Obfuscated / Shortened URL Trap";
+      headline = `🚨 SUSPICIOUS LINK: Obfuscated Short URL (${d.domain})`;
+      desc = `This message uses URL shortener '${d.domain}' to hide the true phishing destination. Under TRAI regulations, legitimate banks in India never send shortened links.`;
+      flags.unshift(`Shortened link obfuscates the true destination website`);
+      risk = 96;
+    } else if (d.type === "UNVERIFIED_EXTERNAL_LINK") {
+      scamType = "Unverified External Domain Link";
+      headline = `⚠️ UNVERIFIED LINK: External Host (${d.domain})`;
+      desc = `The link points to '${d.domain}', which is not registered in official Indian government or banking directories.`;
+      flags.unshift(`Domain '${d.domain}' is not on the national BFSI whitelist`);
+      risk = 91;
+    } else {
+      flags.unshift(`High-risk disposable TLD (.${d.tld}) or APK payload`);
+    }
+
+    result = {
+      analyzedText: raw.length > 200 ? raw.substring(0, 200) + "..." : raw,
+      timestamp: new Date().toISOString(),
+      riskScore: risk,
+      riskLevel: risk >= 80 ? "CRITICAL" : "HIGH",
+      scamType: scamType,
+      headline: headline,
+      verdictDescription: desc,
+      flags: flags,
+      actionAdvice: [
+        `🛑 DO NOT CLICK THE LINK: Never open '${d.domain}'.`,
+        `✅ If you need services, visit the official website directly: ${d.official || "official app on Google Play"}.`,
+        "🛡️ Block the sender and report to 1930."
+      ],
+      protectionLaw: "IT Act Section 66D (Cheating by Personation) & Section 43"
+    };
+  } else if (upiSuspiciousHandle) {
+    result = {
+      analyzedText: raw.length > 200 ? raw.substring(0, 200) + "..." : raw,
+      timestamp: new Date().toISOString(),
+      riskScore: 99,
+      riskLevel: "CRITICAL",
+      scamType: "Fake Government / Bank UPI Handle",
+      headline: "🚨 FRAUDULENT UPI HANDLE: Fake Authority Impersonation!",
+      verdictDescription: "The UPI ID in this message uses deceptive words (police, rbi, escrow, refund) to trick citizens into transferring funds.",
+      flags: [
+        "Unregistered personal UPI handle pretending to be Government/RBI",
+        "Classic money mule destination account",
+        "RBI, CBI, and Police NEVER accept UPI transfers from citizens"
+      ],
+      actionAdvice: [
+        "🛑 DO NOT SEND ANY MONEY: Transfers to this UPI handle go directly into a scammer's mule account.",
+        "🛑 Decline any payment request on PhonePe / Google Pay / Paytm.",
+        "📞 Report this UPI ID immediately to 1930."
+      ],
+      protectionLaw: "NPCI UPI Security Guidelines & PMLA Section 3"
+    };
+  } else if (hasDigitalArrest) {
+    result = {
+      analyzedText: raw.length > 200 ? raw.substring(0, 200) + "..." : raw,
+      timestamp: new Date().toISOString(),
+      riskScore: 99,
+      riskLevel: "CRITICAL",
+      scamType: "Digital Arrest Extortion (Central Agency Impersonation)",
+      headline: "🚨 EXTREME DANGER: Digital Arrest Cybercrime Detected!",
+      verdictDescription: "Matches 100% of signatures for fraudulent 'Digital Arrest' extortion. Fraudsters pose as CBI/Police/Customs to extort victims.",
+      flags: [
+        "Impersonation of Police / CBI / Customs / Courts",
+        "Coercive video call or surveillance ultimatum",
+        "False claim of contraband, narcotics, or money laundering",
+        "Demand to transfer funds to 'Escrow' or 'Verification' accounts"
+      ],
+      actionAdvice: [
+        "🚨 HANG UP IMMEDIATELY. Disconnect Skype or WhatsApp video call.",
+        "🛑 UNDER INDIAN LAW: No police or court ever arrests citizens over video calls or demands money.",
+        "📞 Dial 1930 immediately (National Cyber Crime Helpline) or report on cybercrime.gov.in.",
+        "🛡️ SafeMeAI Android app automatically detects and blocks these fraudulent video overlay streams."
+      ],
+      protectionLaw: "BNSS 2023 & IT Act Section 66D (Cheating by Impersonation)"
+    };
   } else if (hasUpiCollect) {
-    result.riskScore = 96;
-    result.riskLevel = "CRITICAL";
-    result.scamType = "UPI Collect Inversion / PIN Trap Scam";
-    result.headline = "⚡ CRITICAL FRAUD: Attempt to Drain Bank Account via UPI PIN";
-    result.verdictDescription = "Scammers send a Collect Request or QR code pretending you are 'receiving' a refund or cashback.";
-    result.flags = [
-      "Reverse Collect Request (Paying to receive)",
-      "Misleading urgency ('Refund expiring', 'Cashback available')",
-      "Requesting UPI PIN or QR scan for inbound funds"
-    ];
-    result.actionAdvice = [
-      "🛑 DO NOT ENTER YOUR UPI PIN: Entering your UPI PIN ALWAYS DEDUCTS money from your account.",
-      "❌ Decline the collect request on Google Pay / PhonePe / Paytm immediately.",
-      "🚫 You NEVER need a PIN or QR code to receive money in India.",
-      "🛡️ SafeMeAI's on-device sensor places a protective barrier over fraudulent UPI collect windows."
-    ];
-    result.protectionLaw = "NPCI UPI Safety Guidelines & RBI Master Directions on Fraud Prevention";
+    result = {
+      analyzedText: raw.length > 200 ? raw.substring(0, 200) + "..." : raw,
+      timestamp: new Date().toISOString(),
+      riskScore: 96,
+      riskLevel: "CRITICAL",
+      scamType: "UPI Collect Inversion / PIN Trap Scam",
+      headline: "⚡ CRITICAL FRAUD: Attempt to Drain Bank Account via UPI PIN",
+      verdictDescription: "Scammers send a Collect Request or QR code pretending you are 'receiving' a refund or cashback.",
+      flags: [
+        "Reverse Collect Request (Paying to receive)",
+        "Misleading urgency ('Refund expiring', 'Cashback available')",
+        "Requesting UPI PIN or QR scan for inbound funds"
+      ],
+      actionAdvice: [
+        "🛑 DO NOT ENTER YOUR UPI PIN: Entering your UPI PIN ALWAYS DEDUCTS money from your account.",
+        "❌ Decline the collect request on Google Pay / PhonePe / Paytm immediately.",
+        "🚫 You NEVER need a PIN or QR code to receive money in India.",
+        "🛡️ SafeMeAI's on-device sensor places a protective barrier over fraudulent UPI collect windows."
+      ],
+      protectionLaw: "NPCI UPI Safety Guidelines & RBI Master Directions on Fraud Prevention"
+    };
   } else if (hasElectricity) {
-    result.riskScore = 93;
-    result.riskLevel = "HIGH";
-    result.scamType = "Fake Electricity / Utility Disconnection Scam";
-    result.headline = "⚠️ HIGH FRAUD RISK: Fake Utility Disconnection Notice";
-    result.verdictDescription = "Mass SMS fraud threatening power cutoff at night to panic citizens into calling a scammer or downloading a remote APK.";
-    result.flags = [
-      "Imminent cutoff panic threat ('disconnected at 9:30 PM')",
-      "Unofficial personal mobile number given for 'Electricity Officer'",
-      "Pressure to pay via third-party link or install an app"
-    ];
-    result.actionAdvice = [
-      "🛑 Do NOT call the phone number in the SMS.",
-      "🛑 Power companies NEVER disconnect electricity without official physical postal notices.",
-      "✅ Check your power bill directly on the official state DISCOM portal or your electricity bill app.",
-      "🛡️ Block the sender number."
-    ];
-    result.protectionLaw = "Electricity Act 2003 (Notice Requirements) & IT Act 66D";
+    result = {
+      analyzedText: raw.length > 200 ? raw.substring(0, 200) + "..." : raw,
+      timestamp: new Date().toISOString(),
+      riskScore: 95,
+      riskLevel: "CRITICAL",
+      scamType: "Fake Electricity / Utility Disconnection Scam",
+      headline: "⚠️ HIGH FRAUD RISK: Fake Utility Disconnection Notice",
+      verdictDescription: "Mass SMS fraud threatening power cutoff at night to panic citizens into calling a scammer or downloading a remote APK.",
+      flags: [
+        "Imminent cutoff panic threat ('disconnected at 9:30 PM')",
+        "Unofficial personal mobile number given for 'Electricity Officer'",
+        "Pressure to pay via third-party link or install an app"
+      ],
+      actionAdvice: [
+        "🛑 Do NOT call the phone number in the SMS.",
+        "🛑 Power companies NEVER disconnect electricity without official physical postal notices.",
+        "✅ Check your power bill directly on the official state DISCOM portal or your electricity bill app.",
+        "🛡️ Block the sender number."
+      ],
+      protectionLaw: "Electricity Act 2003 (Notice Requirements) & IT Act 66D"
+    };
+  } else if (hasKycThreat) {
+    result = {
+      analyzedText: raw.length > 200 ? raw.substring(0, 200) + "..." : raw,
+      timestamp: new Date().toISOString(),
+      riskScore: 94,
+      riskLevel: "CRITICAL",
+      scamType: "Banking / SIM KYC Suspension Threat",
+      headline: "⚠️ DANGER: Coercive KYC / Account Deactivation Scam",
+      verdictDescription: "Scammers threaten that your bank account, debit card, or SIM card will be deactivated within 24 hours.",
+      flags: [
+        "Coercive deactivation ultimatum ('blocked within 24h', 'kyc expired')",
+        "Urges clicking links or calling unofficial mobile numbers",
+        "Banks & telecom operators never cancel accounts without physical branch notices"
+      ],
+      actionAdvice: [
+        "🛑 DO NOT click links in the SMS or call the number provided.",
+        "✅ Open your verified banking app or visit your bank branch directly.",
+        "🛡️ Banks never send link-based KYC updates via unverified SMS."
+      ],
+      protectionLaw: "RBI Master Direction on Customer KYC & IT Act 66D"
+    };
+  } else if (hasRemoteAccess) {
+    result = {
+      analyzedText: raw.length > 200 ? raw.substring(0, 200) + "..." : raw,
+      timestamp: new Date().toISOString(),
+      riskScore: 98,
+      riskLevel: "CRITICAL",
+      scamType: "Remote Access Screen-Takeover Trojan",
+      headline: "🚨 EXTREME DANGER: Remote Access App Trap (AnyDesk/TeamViewer)",
+      verdictDescription: "Scammers instruct victims to install remote desktop tools to take over their phone and transfer bank funds.",
+      flags: [
+        "Instructions to install AnyDesk, TeamViewer, or QuickSupport",
+        "Attempts to bypass Android screen protections and view OTPs",
+        "Total loss of device control and NetBanking balance"
+      ],
+      actionAdvice: [
+        "🛑 NEVER install AnyDesk or TeamViewer on the instructions of any caller.",
+        "🛑 Disconnect any active remote screen sharing session immediately.",
+        "🔒 Turn on Airplane Mode if you have already shared your 9-digit code."
+      ],
+      protectionLaw: "IT Act Section 43/66 (Unauthorized Access to Computer System)"
+    };
   } else if (hasPredatoryLoan) {
-    result.riskScore = 91;
-    result.riskLevel = "HIGH";
-    result.scamType = "Predatory 7-Day Instant Loan Extortion App";
-    result.headline = "⚠️ DANGER: Illegal Chinese / Unregulated Loan App Trap";
-    result.verdictDescription = "Predatory lending fraud that deducts 30-40% upfront and blackmails users using contacts and gallery photos.";
-    result.flags = [
-      "Ultra-short 7-day tenure with exorbitant hidden interest",
-      "Demands intrusive access to Contact List and Gallery/Photos",
-      "Unregistered NBFC operating outside RBI regulations"
-    ];
-    result.actionAdvice = [
-      "🛑 NEVER install APKs sent via WhatsApp or unverified SMS links.",
-      "🛑 Do NOT pay extortion demands via unofficial personal UPI handles.",
-      "✅ Regulated RBI lenders are legally barred from accessing your phone contacts or photos.",
-      "🛡️ SafeMeAI provides automated sideload blocking and harassment call shielding."
-    ];
-    result.protectionLaw = "RBI Digital Lending Guidelines (2022) & BNS Section 351";
+    result = {
+      analyzedText: raw.length > 200 ? raw.substring(0, 200) + "..." : raw,
+      timestamp: new Date().toISOString(),
+      riskScore: 92,
+      riskLevel: "HIGH",
+      scamType: "Predatory Instant Loan Extortion App",
+      headline: "⚠️ DANGER: Illegal Chinese / Unregulated Loan App Trap",
+      verdictDescription: "Predatory lending fraud that deducts 30-40% upfront and blackmails users using contacts and gallery photos.",
+      flags: [
+        "Ultra-short 7-day tenure with exorbitant hidden interest",
+        "Demands intrusive access to Contact List and Gallery/Photos",
+        "Unregistered NBFC operating outside RBI regulations"
+      ],
+      actionAdvice: [
+        "🛑 NEVER install APKs sent via WhatsApp or unverified SMS links.",
+        "🛑 Do NOT pay extortion demands via unofficial personal UPI handles.",
+        "✅ Regulated RBI lenders are legally barred from accessing your phone contacts or photos.",
+        "🛡️ SafeMeAI provides automated sideload blocking and harassment call shielding."
+      ],
+      protectionLaw: "RBI Digital Lending Guidelines (2022) & BNS Section 351"
+    };
   } else if (hasJobMule) {
-    result.riskScore = 88;
-    result.riskLevel = "HIGH";
-    result.scamType = "Telegram Task / Money Mule Recruitment Trap";
-    result.headline = "⚠️ FRAUDULENT LURE: 'Part-Time Job / Like YouTube' Scam";
-    result.verdictDescription = "Scammers bait victims with small initial payouts (₹150-₹500) then force high-value deposits on fake crypto or merchant portals.";
-    result.flags = [
-      "Unrealistic income promise (₹3,000–₹5,000/day for trivial tasks)",
-      "Funneling victims into private Telegram or WhatsApp groups",
-      "Prepaid task requirement demanding money transfers to stranger accounts"
-    ];
-    result.actionAdvice = [
-      "🛑 Exit and block the Telegram group immediately.",
-      "🛑 Legitimate companies NEVER ask you to deposit money to work or receive payouts.",
-      "⚠️ Transferring money to their accounts implicates you in money mule networks.",
-      "📞 Report the numbers to 1930."
-    ];
-    result.protectionLaw = "PMLA Section 3 (Offence of Money Laundering) & IT Act";
+    result = {
+      analyzedText: raw.length > 200 ? raw.substring(0, 200) + "..." : raw,
+      timestamp: new Date().toISOString(),
+      riskScore: 90,
+      riskLevel: "HIGH",
+      scamType: "Telegram Task / Money Mule Recruitment Trap",
+      headline: "⚠️ FRAUDULENT LURE: 'Part-Time Job / Like YouTube' Scam",
+      verdictDescription: "Scammers bait victims with small initial payouts (₹150-₹500) then force high-value deposits on fake crypto or merchant portals.",
+      flags: [
+        "Unrealistic income promise (₹3,000–₹5,000/day for trivial tasks)",
+        "Funneling victims into private Telegram or WhatsApp groups",
+        "Prepaid task requirement demanding money transfers to stranger accounts"
+      ],
+      actionAdvice: [
+        "🛑 Exit and block the Telegram group immediately.",
+        "🛑 Legitimate companies NEVER ask you to deposit money to work or receive payouts.",
+        "⚠️ Transferring money to their accounts implicates you in money mule networks.",
+        "📞 Report the numbers to 1930."
+      ],
+      protectionLaw: "PMLA Section 3 (Offence of Money Laundering) & IT Act"
+    };
+  } else if (hasRewardsLottery) {
+    result = {
+      analyzedText: raw.length > 200 ? raw.substring(0, 200) + "..." : raw,
+      timestamp: new Date().toISOString(),
+      riskScore: 89,
+      riskLevel: "HIGH",
+      scamType: "Counterfeit Reward / Lottery / KBC Scam",
+      headline: "⚠️ PHISHING LURE: Fake Reward Points or Lottery Prize",
+      verdictDescription: "Scammers promise cash prizes, KBC lotteries, or reward points to induce you into paying 'processing fees' or entering card credentials.",
+      flags: [
+        "Unsolicited prize or lottery claim without ticket purchase",
+        "Pressure to redeem points before false expiration deadline",
+        "Demands registration fee or bank details to 'release' funds"
+      ],
+      actionAdvice: [
+        "🛑 Do NOT pay any processing fee or tax to claim prizes.",
+        "🛑 Genuine banks never send external links to redeem reward points.",
+        "🛡️ Block the sender."
+      ],
+      protectionLaw: "Lotteries (Regulation) Act & IT Act 66D"
+    };
+  } else if (hasTrafficChallan) {
+    result = {
+      analyzedText: raw.length > 200 ? raw.substring(0, 200) + "..." : raw,
+      timestamp: new Date().toISOString(),
+      riskScore: 93,
+      riskLevel: "HIGH",
+      scamType: "Fake Traffic e-Challan Phishing Scam",
+      headline: "⚠️ HIGH FRAUD RISK: Fake Traffic Challan Link",
+      verdictDescription: "Fraudsters send SMS claiming your vehicle has an unpaid traffic challan with a link leading to a cloned government portal.",
+      flags: [
+        "Deceptive link mimicking echallan.parivahan.gov.in",
+        "Threat of court warrant or vehicle impoundment",
+        "Official e-Challans only end in '.gov.in' or '.nic.in'"
+      ],
+      actionAdvice: [
+        "🛑 NEVER pay challans on unofficial private links.",
+        "✅ Check real challans only on the official national portal: https://echallan.parivahan.gov.in.",
+        "🛡️ Delete the message and block sender."
+      ],
+      protectionLaw: "Motor Vehicles Act 2019 & IT Act 66D"
+    };
   } else if (hasSextortion) {
-    result.riskScore = 97;
-    result.riskLevel = "CRITICAL";
-    result.scamType = "Cyber Sextortion & Morphed Video Blackmail";
-    result.headline = "🚨 BLACKMAIL THREAT: Video Call Extortion / Fake Cyber Cell";
-    result.verdictDescription = "Fraudsters record or morph video clips and threaten social media dissemination or fake police arrest.";
-    result.flags = [
-      "Threat to circulate video to family/contacts",
-      "Demand for immediate ransom transfer to UPI",
-      "Fake police officer accomplice calling next"
-    ];
-    result.actionAdvice = [
-      "🛑 DO NOT PAY ANY MONEY: Paying will only invite repeated higher ransom demands.",
-      "🔒 Immediately privatize your social media profiles.",
-      "📞 Call 1930 or visit cybercrime.gov.in to report cyber blackmail (CFCFRMS).",
-      "🛡️ You are the victim of an organized syndicate; do not succumb to panic."
-    ];
-    result.protectionLaw = "IT Act Section 66E / 67A & BNS Section 308 (Extortion)";
-  } else if (hasKycPhishing) {
-    result.riskScore = 90;
-    result.riskLevel = "HIGH";
-    result.scamType = "Banking KYC Phishing / Sideload APK Scam";
-    result.headline = "⚠️ SUSPICIOUS: Fake Banking Link / APK Malware Vector";
-    result.verdictDescription = "Fake urgent message intended to steal banking credentials, passwords, or install Trojan spyware.";
-    result.flags = [
-      "Shortened URL or fake domain mimicking a bank",
-      "False urgency threatening account suspension",
-      "Request to enter NetBanking credentials or install an APK file"
-    ];
-    result.actionAdvice = [
-      "🛑 NEVER click unknown links or install APKs outside Google Play.",
-      "✅ Open your official bank app directly from your home screen.",
-      "🛡️ Banks never send link-based KYC updates via SMS."
-    ];
-    result.protectionLaw = "IT Act Section 43/66 (Computer Contaminant & Hacking)";
-  } else if (isLegitimateBankAlert) {
-    result.riskScore = 5;
-    result.riskLevel = "SAFE";
-    result.scamType = "Legitimate Banking Transaction / Alert";
-    result.headline = "✅ SAFE: Standard Financial Notification";
-    result.verdictDescription = "This message adheres to authorized banking notification standards and does not request sensitive actions.";
-    result.flags = ["Standard transaction metadata format", "No suspicious URLs or unverified collect demands"];
-    result.actionAdvice = [
-      "Message looks genuine.",
-      "Remember: Never share OTPs even with bank staff."
-    ];
-    result.protectionLaw = "RBI Fair Practices Code";
+    result = {
+      analyzedText: raw.length > 200 ? raw.substring(0, 200) + "..." : raw,
+      timestamp: new Date().toISOString(),
+      riskScore: 97,
+      riskLevel: "CRITICAL",
+      scamType: "Cyber Sextortion & Morphed Video Blackmail",
+      headline: "🚨 BLACKMAIL THREAT: Video Call Extortion / Fake Cyber Cell",
+      verdictDescription: "Fraudsters record or morph video clips and threaten social media dissemination or fake police arrest.",
+      flags: [
+        "Threat to circulate video to family/contacts",
+        "Demand for immediate ransom transfer to UPI",
+        "Fake police officer accomplice calling next"
+      ],
+      actionAdvice: [
+        "🛑 DO NOT PAY ANY MONEY: Paying will only invite repeated higher ransom demands.",
+        "🔒 Immediately privatize your social media profiles.",
+        "📞 Call 1930 or visit cybercrime.gov.in to report cyber blackmail (CFCFRMS).",
+        "🛡️ You are the victim of an organized syndicate; do not succumb to panic."
+      ],
+      protectionLaw: "IT Act Section 66E / 67A & BNS Section 308 (Extortion)"
+    };
+  } else if (hasIndiaPost) {
+    result = {
+      analyzedText: raw.length > 200 ? raw.substring(0, 200) + "..." : raw,
+      timestamp: new Date().toISOString(),
+      riskScore: 96,
+      riskLevel: "CRITICAL",
+      scamType: "Fake India Post / Courier Redelivery Phishing",
+      headline: "🚨 CRITICAL FRAUD: Fake India Post / Courier Notice",
+      verdictDescription: "Mass cyber-fraud campaign mimicking India Post / Speed Post claiming a parcel cannot be delivered without an address update or payment.",
+      flags: [
+        "Impersonation of India Post / Speed Post logistics",
+        "Fake delivery failure or address update ultimatum",
+        "Demands link click or fee payment to release non-existent parcel"
+      ],
+      actionAdvice: [
+        "🛑 DO NOT click links in the message.",
+        "🛑 India Post NEVER sends SMS asking for address updates or credit card payments.",
+        "✅ Verify real tracking numbers only at the official portal: https://www.indiapost.gov.in.",
+        "🛡️ Block the sender and report to 1930."
+      ],
+      protectionLaw: "Indian Post Office Act & IT Act 66D"
+    };
+  } else if (isStrictLegitimateBankAlert) {
+    result = {
+      analyzedText: raw.length > 200 ? raw.substring(0, 200) + "..." : raw,
+      timestamp: new Date().toISOString(),
+      riskScore: 5,
+      riskLevel: "SAFE",
+      scamType: "Legitimate Banking Transaction / Alert",
+      headline: "✅ SAFE: Standard Financial Notification",
+      verdictDescription: "This message adheres to authorized banking notification standards and does not request sensitive actions.",
+      flags: ["Standard transaction metadata format", "No suspicious URLs or unverified collect demands"],
+      actionAdvice: [
+        "Message appears genuine.",
+        "Remember: Never share OTPs or passwords even with bank staff."
+      ],
+      protectionLaw: "RBI Fair Practices Code"
+    };
+  } else {
+    // -------------------------------------------------------------
+    // DEFAULT SAFEGUARD: UNVERIFIED THIRD-PARTY COMMUNICATION
+    // -------------------------------------------------------------
+    // NEVER give a clean bill of health to unknown, unverified text!
+    const hasPhonePattern = /\b\d{10}\b|\+\d{1,4}[\s-]?\d{6,14}\b/.test(raw);
+    const hasUrgency = /urgent|immediate|fast|quick|today|within 24 hours|attention|warning|notice/i.test(lower);
+
+    let baseRisk = 65;
+    let flags = ["Message origin is unverified against official BFSI directories"];
+    if (hasPhonePattern) {
+      baseRisk += 15;
+      flags.push("Contains unverified personal/mobile phone number for callback");
+    }
+    if (hasUrgency) {
+      baseRisk += 10;
+      flags.push("Contains artificial urgency or pressure keywords");
+    }
+
+    result = {
+      analyzedText: raw.length > 200 ? raw.substring(0, 200) + "..." : raw,
+      timestamp: new Date().toISOString(),
+      riskScore: Math.min(baseRisk, 85),
+      riskLevel: baseRisk >= 75 ? "CRITICAL" : "HIGH",
+      scamType: "Unverified Communication (Caution Advised)",
+      headline: baseRisk >= 75 
+        ? "🚨 HIGH RISK: Unverified Message with Threat / Urgency Signals" 
+        : "⚠️ SUSPICIOUS: Unverified Third-Party Message",
+      verdictDescription: "This message has NOT been verified against approved institutional directories. In India, cyber fraudsters frequently use unverified SMS and messaging probes.",
+      flags: flags,
+      actionAdvice: [
+        "🛑 DO NOT click unknown links, install APKs, or transfer money.",
+        "🛑 DO NOT call phone numbers provided directly in unverified messages.",
+        "✅ Always verify inquiries directly through your official banking app or the customer care number on your physical card.",
+        "📞 If anyone demands money or sensitive details, report immediately to 1930."
+      ],
+      protectionLaw: "Indian Cyber Security & Consumer Protection Directives"
+    };
   }
 
   res.json({
@@ -751,41 +1117,6 @@ app.post('/api/emergency/digital-arrest-screen', (req, res) => {
 // ==========================================
 // API 9: HYBRID CROSS-REFERENCE DOMAIN & URL CHECKER (HCRV ENGINE)
 // ==========================================
-const PROTECTED_DOMAINS_WHITELIST = new Set([
-  // Law & Regulators
-  "cybercrime.gov.in", "cbi.gov.in", "enforcementdirectorate.gov.in", "mha.gov.in",
-  "sci.gov.in", "ecourts.gov.in", "rbi.org.in", "sebi.gov.in", "irdai.gov.in",
-  "npci.org.in", "bhimupi.org.in", "uidai.gov.in", "incometax.gov.in", "epfindia.gov.in",
-  "parivahan.gov.in", "echallan.parivahan.gov.in", "digilocker.gov.in", "pmkisan.gov.in",
-  // Banking
-  "sbi.co.in", "onlinesbi.sbi", "sbi.bank.in", "hdfcbank.com", "icicibank.com",
-  "axisbank.com", "pnbindia.in", "bankofbaroda.in", "kotak.com", "idfcfirstbank.com",
-  "yesbank.in", "unionbankofindia.co.in", "canarabank.com", "indusind.com", "federalbank.co.in",
-  // Payments & Tech
-  "phonepe.com", "paytm.com", "amazon.in", "amazon.com", "flipkart.com", "google.com",
-  "safemeai.in", "safemeai.com"
-]);
-
-const BRAND_KEYWORDS = [
-  { keyword: "sbi", name: "State Bank of India (SBI)", official: "sbi.co.in" },
-  { keyword: "hdfc", name: "HDFC Bank", official: "hdfcbank.com" },
-  { keyword: "icici", name: "ICICI Bank", official: "icicibank.com" },
-  { keyword: "rbi", name: "Reserve Bank of India (RBI)", official: "rbi.org.in" },
-  { keyword: "cbi", name: "Central Bureau of Investigation (CBI)", official: "cbi.gov.in" },
-  { keyword: "police", name: "Police Cyber Cell", official: "cybercrime.gov.in" },
-  { keyword: "pmkisan", name: "PM-KISAN Portal", official: "pmkisan.gov.in" },
-  { keyword: "challan", name: "Parivahan e-Challan", official: "echallan.parivahan.gov.in" },
-  { keyword: "electricity", name: "State Electricity Discom", official: "Official State DISCOM" },
-  { keyword: "phonepe", name: "PhonePe", official: "phonepe.com" },
-  { keyword: "paytm", name: "Paytm Payments", official: "paytm.com" },
-  { keyword: "fedex", name: "FedEx Express", official: "fedex.com" }
-];
-
-const SUSPICIOUS_TLDS = new Set([
-  "xyz", "top", "buzz", "club", "work", "vip", "tk", "ml", "ga", "cf",
-  "online", "site", "shop", "icu", "link", "cc", "click", "live", "rest", "cam"
-]);
-
 app.post('/api/domain/check', (req, res) => {
   const rawInput = (req.body.url || req.body.domain || "").trim();
   if (!rawInput) {
