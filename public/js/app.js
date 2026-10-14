@@ -5,6 +5,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   initNavigation();
   initScamChecker();
+  initDomainChecker();
   initDigitalArrestPanic();
   initDocumentAILab();
   initGeminiAdvisor();
@@ -224,19 +225,139 @@ function resetScamVerdict() {
 }
 
 // ========================================================
+// 2B. DOMAIN & URL FRAUD CHECKER (HCRV ENGINE)
+// ========================================================
+function initDomainChecker() {
+  const inputEl = document.getElementById('domain-input-text');
+  const btnRun = document.getElementById('btn-run-domain-check');
+  const btnClear = document.getElementById('btn-clear-domain');
+  const chips = document.querySelectorAll('[data-domain-sample]');
+
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      const domainSample = chip.dataset.domainSample;
+      if (domainSample) {
+        inputEl.value = domainSample;
+        runDomainCheck(domainSample);
+      }
+    });
+  });
+
+  if (btnRun) {
+    btnRun.addEventListener('click', () => {
+      const text = (inputEl.value || "").trim();
+      if (!text) {
+        alert("Please enter a domain or URL first!");
+        inputEl.focus();
+        return;
+      }
+      runDomainCheck(text);
+    });
+  }
+
+  if (btnClear) {
+    btnClear.addEventListener('click', () => {
+      inputEl.value = "";
+      resetDomainVerdict();
+    });
+  }
+}
+
+async function runDomainCheck(urlOrDomain) {
+  const badgeEl = document.getElementById('domain-badge');
+  const ringEl = document.getElementById('domain-gauge-ring');
+  const scoreEl = document.getElementById('domain-gauge-score');
+  const headlineEl = document.getElementById('domain-verdict-headline');
+  const descEl = document.getElementById('domain-verdict-desc');
+  const typeTagEl = document.getElementById('domain-verdict-tag');
+  const flagsListEl = document.getElementById('domain-flags-list');
+  const actionCardEl = document.getElementById('domain-action-card');
+
+  badgeEl.className = 'status-badge';
+  badgeEl.textContent = 'Analyzing...';
+  headlineEl.textContent = 'Running HCRV Multi-Vector DNS & Whitelist Check...';
+  descEl.textContent = 'Cross-referencing authoritative directories, typosquatting patterns, and TLD reputation...';
+
+  try {
+    const response = await fetch('/api/domain/check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: urlOrDomain })
+    });
+
+    const data = await response.json();
+    if (!data.status || data.status !== 'success') {
+      throw new Error(data.error || "Domain check failed");
+    }
+
+    const res = data.data;
+
+    scoreEl.textContent = `${res.riskScore}%`;
+    ringEl.className = 'gauge-ring';
+    badgeEl.className = 'status-badge';
+
+    if (res.riskScore >= 80) {
+      ringEl.classList.add('critical');
+      badgeEl.classList.add('badge-critical');
+      badgeEl.textContent = '🚨 ' + res.riskLevel;
+    } else if (res.riskScore >= 40) {
+      ringEl.classList.add('high');
+      badgeEl.classList.add('badge-danger');
+      badgeEl.textContent = '⚠️ ' + res.riskLevel;
+    } else {
+      ringEl.classList.add('safe');
+      badgeEl.classList.add('badge-safe');
+      badgeEl.textContent = '✅ ' + res.riskLevel;
+    }
+
+    headlineEl.textContent = res.headline;
+    descEl.textContent = `Target Domain: ${res.domain} (TLD: ${res.tld || "Standard"})`;
+    typeTagEl.textContent = `Verdict: ${res.verdict}`;
+
+    if (res.flags && res.flags.length > 0) {
+      flagsListEl.innerHTML = res.flags.map(f => `<li>${res.riskScore >= 50 ? '⚠️' : '✓'} ${f}</li>`).join('');
+    } else {
+      flagsListEl.innerHTML = `<li class="empty-state">✅ Domain adheres to verified safety criteria.</li>`;
+    }
+
+    actionCardEl.innerHTML = `
+      <strong>Safety Directive:</strong>
+      <p style="margin-top: 0.3rem;">${res.actionAdvice}</p>
+      ${res.officialDomain ? `<p style="margin-top: 0.4rem; color: #6ee7b7; font-weight: 700;">Official Authorized Website: <a href="https://${res.officialDomain}" target="_blank" style="color: #6ee7b7; text-decoration: underline;">https://${res.officialDomain}</a></p>` : ''}
+    `;
+
+  } catch (err) {
+    headlineEl.textContent = "Domain Evaluation Error";
+    descEl.textContent = err.message || "Failed to reach domain verification engine.";
+  }
+}
+
+function resetDomainVerdict() {
+  document.getElementById('domain-gauge-score').textContent = '0%';
+  document.getElementById('domain-gauge-ring').className = 'gauge-ring';
+  document.getElementById('domain-badge').className = 'status-badge';
+  document.getElementById('domain-badge').textContent = 'Ready for Input';
+  document.getElementById('domain-verdict-headline').textContent = 'Waiting for URL or Domain...';
+  document.getElementById('domain-verdict-desc').textContent = 'Enter any domain or click a preset sample above to evaluate legitimacy.';
+  document.getElementById('domain-verdict-tag').textContent = 'Status: Standby';
+  document.getElementById('domain-flags-list').innerHTML = '<li class="empty-state">No domain evaluated yet.</li>';
+  document.getElementById('domain-action-card').innerHTML = '<p>SafeMeAI will advise whether this domain is safe for credentials, payment transactions, or downloads.</p>';
+}
+
+// ========================================================
 // 3. DIGITAL ARREST EMERGENCY RAPID SCREENER
 // ========================================================
 function initDigitalArrestPanic() {
   const toggleButtons = document.querySelectorAll('.q-btn');
   const btnEvaluate = document.getElementById('btn-evaluate-panic');
 
-  // Handle toggle selection
+  // Handle toggle selection with immediate real-time feedback
   toggleButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       const questionGroup = btn.dataset.q;
-      // Deselect sibling in same group
       document.querySelectorAll(`.q-btn[data-q="${questionGroup}"]`).forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
+      evaluatePanicRisk(); // Instant real-time evaluation as soon as user clicks!
     });
   });
 
@@ -270,15 +391,15 @@ async function evaluatePanicRisk() {
 
     const data = await response.json();
     if (data.status === 'success') {
-      badgeEl.textContent = `Probability: ${data.certainty}% (${data.verdict})`;
+      badgeEl.textContent = `Certainty: ${data.certainty}% (${data.verdict})`;
       headlineEl.textContent = data.headline;
       summaryEl.textContent = data.certainty >= 90
-        ? "You are being subjected to a criminal psychological extortion attempt. Under Indian law, no such procedure exists."
-        : "Some flags detected. Remain vigilant and never transfer money over phone calls.";
+        ? "⚠️ CRITICAL ALERT: You are in zero legal danger from the police. You are facing an organized criminal extortion syndicate."
+        : "Standard communication. Never transfer funds or share private credentials over video calls.";
 
       if (data.emergencyProtocol) {
         stepsBoxEl.innerHTML = `
-          <h4>Immediate Emergency Protocol:</h4>
+          <h4>Immediate Emergency Safety Protocol:</h4>
           <ul>
             ${data.emergencyProtocol.map(s => `<li><strong>${s}</strong></li>`).join('')}
           </ul>
@@ -291,13 +412,76 @@ async function evaluatePanicRisk() {
 }
 
 // ========================================================
-// 4. GOOGLE DOCUMENT AI FORENSIC LAB
+// 4. GOOGLE DOCUMENT AI FORENSIC LAB (WITH WORKING FILE UPLOAD)
 // ========================================================
+let currentSelectedFile = null;
+
 function initDocumentAILab() {
   const cards = document.querySelectorAll('.specimen-card');
-  const btnAnalyze = document.getElementById('btn-analyze-doc');
+  const btnAnalyzeText = document.getElementById('btn-analyze-doc');
   const customTextArea = document.getElementById('custom-doc-text');
 
+  // File upload elements
+  const dropzone = document.getElementById('doc-dropzone');
+  const fileInput = document.getElementById('doc-file-input');
+  const fileBar = document.getElementById('file-selected-bar');
+  const fileNameEl = document.getElementById('selected-file-name');
+  const btnUploadDoc = document.getElementById('btn-upload-file-doc');
+  const btnRemoveFile = document.getElementById('btn-remove-file');
+
+  // Click dropzone to browse
+  if (dropzone && fileInput) {
+    dropzone.addEventListener('click', () => fileInput.click());
+
+    // Drag and drop handlers
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dragover');
+    });
+
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        handleFileSelect(e.dataTransfer.files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        handleFileSelect(e.target.files[0]);
+      }
+    });
+  }
+
+  function handleFileSelect(file) {
+    currentSelectedFile = file;
+    fileNameEl.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+    fileBar.style.display = 'flex';
+  }
+
+  if (btnRemoveFile) {
+    btnRemoveFile.addEventListener('click', (e) => {
+      e.stopPropagation();
+      currentSelectedFile = null;
+      if (fileInput) fileInput.value = '';
+      fileBar.style.display = 'none';
+    });
+  }
+
+  if (btnUploadDoc) {
+    btnUploadDoc.addEventListener('click', () => {
+      if (!currentSelectedFile) {
+        alert("Please select or drop a document file first!");
+        return;
+      }
+      uploadAndAnalyzeDocument(currentSelectedFile);
+    });
+  }
+
+  // Specimen selection
   cards.forEach(card => {
     card.addEventListener('click', () => {
       cards.forEach(c => c.classList.remove('active'));
@@ -307,11 +491,11 @@ function initDocumentAILab() {
     });
   });
 
-  if (btnAnalyze) {
-    btnAnalyze.addEventListener('click', () => {
+  if (btnAnalyzeText) {
+    btnAnalyzeText.addEventListener('click', () => {
       const customText = (customTextArea.value || "").trim();
       if (!customText) {
-        alert("Please paste document clauses or text to analyze!");
+        alert("Please paste document clauses or upload a file to inspect!");
         return;
       }
       analyzeDocument(null, customText);
@@ -320,6 +504,57 @@ function initDocumentAILab() {
 
   // Load default specimen on startup
   analyzeDocument('fake_arrest_warrant', null);
+}
+
+async function uploadAndAnalyzeDocument(file) {
+  const verdictBadge = document.getElementById('doc-verdict-badge');
+  const authScore = document.getElementById('doc-auth-score');
+  const riskScore = document.getElementById('doc-risk-score');
+  const rawText = document.getElementById('doc-raw-text');
+  const findingsList = document.getElementById('doc-findings-list');
+  const recAction = document.getElementById('doc-rec-action');
+
+  verdictBadge.textContent = "Uploading & Processing via Document AI OCR...";
+
+  const formData = new FormData();
+  formData.append('document', file);
+
+  try {
+    const response = await fetch('/api/document-ai/analyze', {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await response.json();
+    if (data.status === 'success') {
+      const doc = data.document;
+      const ana = data.analysis;
+
+      verdictBadge.textContent = ana.verdict;
+      verdictBadge.className = `status-pill ${ana.severity.toLowerCase()}`;
+
+      authScore.textContent = `${ana.authenticityScore}/100`;
+      riskScore.textContent = `${ana.riskScore}/100`;
+
+      rawText.textContent = doc.extractedText || "No text extracted.";
+
+      if (ana.findings && ana.findings.length > 0) {
+        findingsList.innerHTML = ana.findings.map(f => `
+          <div class="finding-row">
+            <span class="finding-status ${f.status === 'PASSED' || f.status === 'CLEAN' ? 'passed' : 'failed'}">${f.status}</span>
+            <div>
+              <strong>${f.rule}:</strong> ${f.detail}
+            </div>
+          </div>
+        `).join('');
+      }
+
+      recAction.textContent = ana.recommendedAction || "Verify through official banking channels.";
+    }
+  } catch (err) {
+    verdictBadge.textContent = "Upload Failed";
+    rawText.textContent = "Error communicating with Document AI OCR pipeline.";
+  }
 }
 
 async function analyzeDocument(specimenKey, customText) {

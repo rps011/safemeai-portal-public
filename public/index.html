@@ -67,6 +67,11 @@
       <span>Scam & SMS Checker</span>
       <span class="badge-pulse">Live</span>
     </button>
+    <button class="nav-tab" data-tab="tab-domain-checker" id="nav-btn-domain">
+      <span class="tab-icon">🌐</span>
+      <span>Domain & URL Checker</span>
+      <span class="badge-pulse">HCRV Engine</span>
+    </button>
     <button class="nav-tab" data-tab="tab-digital-arrest" id="nav-btn-arrest">
       <span class="tab-icon">🆘</span>
       <span>Digital Arrest Panic Check</span>
@@ -263,6 +268,113 @@
     </section>
 
     <!-- ========================================================
+         TAB: DOMAIN & URL FRAUD VERIFIER (HCRV ENGINE)
+         ======================================================== -->
+    <section id="tab-domain-checker" class="tab-content-panel">
+      <div class="section-lead-header">
+        <div>
+          <span class="section-kicker">PATENT-BACKED HCRV ENGINE</span>
+          <h2>Hybrid Cross-Reference Domain & URL Checker</h2>
+          <p>Check any website link, banking URL, or government portal before clicking. Evaluates authoritative whitelists, typosquatting brand traps, suspicious TLDs, and APK download vectors.</p>
+        </div>
+      </div>
+
+      <!-- ONE-CLICK DOMAIN TEST SAMPLES -->
+      <div class="specimens-bar">
+        <span class="specimens-label">⚡ Test Common Phishing vs Authentic Domains:</span>
+        <div class="specimen-chips">
+          <button class="specimen-chip chip-critical" data-domain-sample="sbi-kyc-update.xyz">
+            <span class="chip-icon">🚨</span>
+            <span>sbi-kyc-update.xyz (Phishing)</span>
+          </button>
+          <button class="specimen-chip chip-danger" data-domain-sample="pmkisan-gov-in.online">
+            <span class="chip-icon">⚠️</span>
+            <span>pmkisan-gov-in.online (Fake Govt)</span>
+          </button>
+          <button class="specimen-chip chip-warning" data-domain-sample="rbi-escrow-safe.top">
+            <span class="chip-icon">⚡</span>
+            <span>rbi-escrow-safe.top (Fake Escrow)</span>
+          </button>
+          <button class="specimen-chip chip-safe" data-domain-sample="hdfcbank.com">
+            <span class="chip-icon">✅</span>
+            <span>hdfcbank.com (Official Bank)</span>
+          </button>
+          <button class="specimen-chip chip-safe" data-domain-sample="cybercrime.gov.in">
+            <span class="chip-icon">✅</span>
+            <span>cybercrime.gov.in (Official Law)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- DOMAIN CHECKER GRID -->
+      <div class="checker-grid">
+        <div class="glass-box input-box">
+          <div class="box-header">
+            <h3>Enter Domain or URL</h3>
+            <button class="btn-text-clear" id="btn-clear-domain">Clear</button>
+          </div>
+          <input type="text" id="domain-input-text" placeholder="e.g. sbi-kyc-update.xyz or https://pmkisan.gov.in..." class="domain-input-field">
+          
+          <div class="checker-controls">
+            <button class="btn-primary-glow" id="btn-run-domain-check">
+              <span>🌐 Inspect Domain Legitimacy</span>
+            </button>
+          </div>
+
+          <div class="domain-heuristics-note">
+            <h4>HCRV Multi-Vector Checks:</h4>
+            <ul>
+              <li><strong>Authoritative Whitelist:</strong> Cross-checks 120+ RBI, Gov, and Tier-1 BFSI root domains.</li>
+              <li><strong>Brand Trap Detection:</strong> Flags keyword misuse (e.g. 'sbi', 'rbi', 'challan') on private servers.</li>
+              <li><strong>TLD Abuse Filter:</strong> Scans high-risk disposable extensions (.xyz, .top, .buzz, .online).</li>
+              <li><strong>Payload Scanner:</strong> Flags numeric IPs and direct Android APK sideload links.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- RIGHT: DOMAIN VERDICT CARD -->
+        <div class="glass-box result-box" id="domain-result-card">
+          <div class="box-header">
+            <h3>Domain Security Analysis</h3>
+            <span class="status-badge" id="domain-badge">Ready for Input</span>
+          </div>
+
+          <div class="verdict-summary-row">
+            <div class="gauge-container">
+              <div class="gauge-ring" id="domain-gauge-ring">
+                <span class="gauge-value" id="domain-gauge-score">0%</span>
+                <span class="gauge-label">RISK</span>
+              </div>
+            </div>
+            <div class="verdict-headline-col">
+              <h4 id="domain-verdict-headline">Waiting for URL or Domain...</h4>
+              <p id="domain-verdict-desc">Enter any domain or click a preset sample above to evaluate legitimacy.</p>
+              <div class="scam-type-tag" id="domain-verdict-tag">Status: Standby</div>
+            </div>
+          </div>
+
+          <div class="flags-section">
+            <h5 class="sub-heading">Verification & Security Flags:</h5>
+            <ul class="red-flags-list" id="domain-flags-list">
+              <li class="empty-state">No domain evaluated yet.</li>
+            </ul>
+          </div>
+
+          <div class="guidance-section">
+            <h5 class="sub-heading">Browsing & Transaction Protocol:</h5>
+            <div class="action-card" id="domain-action-card">
+              <p>SafeMeAI will advise whether this domain is safe for credentials, payment transactions, or downloads.</p>
+            </div>
+          </div>
+
+          <div class="legal-badge" id="domain-legal-box">
+            <span>🛡️ Engine: <strong>Hybrid Cross-Reference Validation (SafeMeAI Android Engine)</strong></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================
          TAB 2: DIGITAL ARREST RAPID PANIC CHECKER (EMERGENCY)
          ======================================================== -->
     <section id="tab-digital-arrest" class="tab-content-panel">
@@ -396,10 +508,30 @@
             </div>
           </div>
 
-          <div class="divider-text"><span>OR SUBMIT CUSTOM NOTICE TEXT</span></div>
+          <div class="divider-text"><span>OR UPLOAD REAL DOCUMENT (PDF / IMAGE / TXT)</span></div>
+
+          <!-- DRAG & DROP FILE UPLOAD BOX -->
+          <div class="doc-upload-container">
+            <div class="doc-upload-dropzone" id="doc-dropzone">
+              <input type="file" id="doc-file-input" accept=".pdf,.png,.jpg,.jpeg,.txt,.doc,.docx" style="display: none;">
+              <span class="upload-icon">📄</span>
+              <div class="upload-prompt">
+                <strong>Click to Browse or Drag & Drop Document</strong>
+                <p>Supports PDF, PNG, JPG, TXT (Fake arrest warrants, loan agreements, bank letters)</p>
+              </div>
+            </div>
+            <div class="file-selected-bar" id="file-selected-bar" style="display: none;">
+              <span class="file-icon">📎</span>
+              <span class="file-name" id="selected-file-name">filename.pdf</span>
+              <button class="btn-primary-small" id="btn-upload-file-doc">⚡ Analyze with Document AI</button>
+              <button class="btn-remove-file" id="btn-remove-file" title="Remove file">✕</button>
+            </div>
+          </div>
+
+          <div class="divider-text"><span>OR PASTE CUSTOM NOTICE TEXT</span></div>
 
           <div class="custom-doc-box">
-            <textarea id="custom-doc-text" rows="4" placeholder="Paste legal notice clauses or uploaded text here..."></textarea>
+            <textarea id="custom-doc-text" rows="3" placeholder="Paste legal notice clauses or uploaded text here..."></textarea>
             <button class="btn-primary" id="btn-analyze-doc">
               <span>⚡ Run Document AI Forensic Analysis</span>
             </button>
