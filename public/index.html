@@ -36,13 +36,13 @@
         <span class="dot pulse-blue"></span>
         <span class="stack-label">Vertex AI</span>
       </div>
-      <div class="stack-item" title="Document AI Forensic Parser">
+      <div class="stack-item" title="Document AI OCR (active only when a processor is configured)">
         <span class="dot pulse-purple"></span>
         <span class="stack-label">Document AI</span>
       </div>
-      <div class="stack-item" title="Real-Time Anomaly Stream on BigQuery">
+      <div class="stack-item" title="BigQuery analytics (demo data unless connected)">
         <span class="dot pulse-cyan"></span>
-        <span class="stack-label">BigQuery ML</span>
+        <span class="stack-label">BigQuery</span>
       </div>
     </div>
 
@@ -108,23 +108,23 @@
     <div class="hero-content">
       <div class="hero-tagline">
         <span class="hero-tag-badge">🛡️ Google Cloud AI Hackathon Showcase</span>
-        <span class="hero-status-pill">Active Edge Sensor Network: 24,510 Android Devices</span>
+        <span class="hero-status-pill" title="Illustrative demo figure, not live telemetry">Edge sensor network: 24,510 devices (demo figure)</span>
       </div>
       <h1 class="hero-title">
         Real-Time Cyber Fraud & Scam Defense on Your Phone.
       </h1>
       <p class="hero-subtitle">
-        SafeMeAI shields citizens and banking customers from <strong>Digital Arrests, UPI collect traps, predatory loan harassment, and fake government warrants</strong>. Powered by on-device Android edge intelligence backed by Google Cloud Run, Vertex AI, Document AI, and BigQuery ML.
+        SafeMeAI shields citizens and banking customers from <strong>Digital Arrests, UPI collect traps, predatory loan harassment, and fake government warrants</strong>. Built on Google Cloud Run, Vertex AI Gemini and Google Web Risk; Document AI and BigQuery integrations activate when configured (see the data-source notes on each tab).
       </p>
 
       <div class="hero-actions-row">
-        <a href="#tab-scam-checker" onclick="switchTab('tab-scam-checker')" class="btn-hero-primary">
+        <a href="#tab-scam-checker" data-switch-tab="tab-scam-checker" class="btn-hero-primary">
           <span>⚡ Check If You Are Being Scammed (Free Tool)</span>
         </a>
         <a href="downloads/safemeai-app.apk" download class="btn-hero-secondary">
           <span>📲 Download SafeMeAI (v1.8 APK)</span>
         </a>
-        <a href="#tab-digital-arrest" onclick="switchTab('tab-digital-arrest')" class="btn-hero-panic">
+        <a href="#tab-digital-arrest" data-switch-tab="tab-digital-arrest" class="btn-hero-panic">
           <span>🆘 "Police On Video Call?" Panic Test</span>
         </a>
       </div>
@@ -148,6 +148,7 @@
           <span class="metric-lbl">Mule Clusters Tracked</span>
         </div>
       </div>
+      <p class="datasource-note">Headline figures above are illustrative demo values, not measured production results.</p>
     </div>
   </section>
 
@@ -207,7 +208,7 @@
             <h3>1. Enter Message, URL, or UPI ID</h3>
             <button class="btn-text-clear" id="btn-clear-checker">Clear</button>
           </div>
-          <textarea id="checker-input-text" rows="7" placeholder="Paste suspicious SMS, WhatsApp notice, Telegram job text, UPI ID (e.g. police.escrow@okhdfcbank), or phishing link here..."></textarea>
+          <textarea id="checker-input-text" aria-label="Suspicious message, URL or UPI ID" maxlength="5000" rows="7" placeholder="Paste suspicious SMS, WhatsApp notice, Telegram job text, UPI ID (e.g. police.escrow@okhdfcbank), or phishing link here..."></textarea>
           
           <div class="checker-controls">
             <button class="btn-primary-glow" id="btn-run-check">
@@ -217,7 +218,7 @@
 
           <div class="tip-box">
             <span class="tip-icon">💡</span>
-            <span class="tip-text">SafeMeAI performs deterministic edge heuristic scoring before invoking Vertex AI for semantic contextual reasoning.</span>
+            <span class="tip-text">SafeMeAI scores messages with deterministic rules first. Vertex AI Gemini is consulted only when configured; results say which engine was used.</span>
           </div>
         </div>
 
@@ -330,9 +331,10 @@
             <ul>
               <li><strong>Live Google Public DNS (DoH):</strong> Resolves active A records and detects Fast-Flux DNS and NXDOMAIN sinkholes.</li>
               <li><strong>Live TLS / SSL Port 443 Audit:</strong> Extracts X.509 Certificate Organization (EV/OV vs free DV) and cert issuance age.</li>
-              <li><strong>OpenPhish Global Community Feed:</strong> Cross-checks 300+ live zero-day active phishing attacks in real time.</li>
+              <li><strong>OpenPhish Global Community Feed:</strong> Cross-checks the target against the public OpenPhish feed (refreshed every 10 minutes; absence from the feed is not proof of safety).</li>
               <li><strong>Information Theory ML:</strong> Shannon Lexical Entropy mathematically detects Domain Generation Algorithms (DGA).</li>
-              <li><strong>Gemini 1.5 Threat Hunter:</strong> Contextual forensic reasoning and compliance verification.</li>
+              <li><strong>Domain age (RDAP) and Google Web Risk:</strong> Newly registered or Google-flagged sites are escalated.</li>
+              <li><strong>Gemini (Vertex AI):</strong> Used only to escalate suspicious results, never to mark an unverified site safe. If Gemini is unreachable the badge reads "rules fallback".</li>
             </ul>
           </div>
         </div>
@@ -374,8 +376,12 @@
                 <span class="telemetry-val" id="telemetry-ssl-val">Inspecting...</span>
               </div>
               <div class="telemetry-item">
-                <span class="telemetry-lbl">📡 OpenPhish Global Zero-Day Feed</span>
+                <span class="telemetry-lbl">📡 OpenPhish Feed + Google Web Risk</span>
                 <span class="telemetry-val" id="telemetry-feed-val">Cross-referencing...</span>
+              </div>
+              <div class="telemetry-item">
+                <span class="telemetry-lbl">📅 Domain Age (RDAP)</span>
+                <span class="telemetry-val" id="telemetry-age-val">Looking up...</span>
               </div>
               <div class="telemetry-item">
                 <span class="telemetry-lbl">🧠 Information Theory & DGA ML</span>
@@ -402,7 +408,7 @@
           </div>
 
           <div class="legal-badge" id="domain-legal-box">
-            <span>🛡️ Engine: <strong>Real-Time Threat Intelligence & Gemini 1.5 Threat Hunter (Vertex AI)</strong></span>
+            <span>🛡️ Engine: <strong>Layered verification: allow-list + DNS, RDAP age, Web Risk, OpenPhish, TLS, Gemini escalation</strong></span>
           </div>
         </div>
       </div>
@@ -512,7 +518,7 @@
         <div>
           <span class="section-kicker">GOOGLE CLOUD DOCUMENT AI LAB</span>
           <h2>Forensic Legal Document & Warrant Scanner</h2>
-          <p>Powered by <strong>Google Document AI & Vertex AI Vision</strong>. Instantly audits arrest warrants, court summons, predatory loan agreements, and KYC documents for stamp distortion, illegal usury, and forgery signatures.</p>
+          <p>Specimens are pre-written <strong>demo examples</strong>; uploads use <strong>Google Document AI</strong> OCR when configured, then keyword rules. Checks arrest warrants, court summons, predatory loan agreements, and KYC documents for stamp distortion, illegal usury, and forgery signatures.</p>
         </div>
       </div>
 
@@ -546,19 +552,19 @@
 
           <!-- DRAG & DROP FILE UPLOAD BOX -->
           <div class="doc-upload-container">
-            <div class="doc-upload-dropzone" id="doc-dropzone">
-              <input type="file" id="doc-file-input" accept=".pdf,.png,.jpg,.jpeg,.txt,.doc,.docx" style="display: none;">
+            <div class="doc-upload-dropzone" id="doc-dropzone" role="button" tabindex="0" aria-label="Choose or drop a document to analyze">
+              <input type="file" id="doc-file-input" accept=".pdf,.png,.jpg,.jpeg,.txt" aria-label="Document file" style="display: none;">
               <span class="upload-icon">📄</span>
               <div class="upload-prompt">
                 <strong>Click to Browse or Drag & Drop Document</strong>
-                <p>Supports PDF, PNG, JPG, TXT (Fake arrest warrants, loan agreements, bank letters)</p>
+                <p>PDF, PNG, JPG or TXT, max 5 MB. Images/PDFs are OCR-read only if Google Document AI is configured on the server; otherwise only the filename is assessed.</p>
               </div>
             </div>
             <div class="file-selected-bar" id="file-selected-bar" style="display: none;">
               <span class="file-icon">📎</span>
               <span class="file-name" id="selected-file-name">filename.pdf</span>
-              <button class="btn-primary-small" id="btn-upload-file-doc">⚡ Analyze with Document AI</button>
-              <button class="btn-remove-file" id="btn-remove-file" title="Remove file">✕</button>
+              <button class="btn-primary-small" id="btn-upload-file-doc">⚡ Analyze document</button>
+              <button class="btn-remove-file" id="btn-remove-file" title="Remove file" aria-label="Remove file">✕</button>
             </div>
           </div>
 
@@ -567,7 +573,7 @@
           <div class="custom-doc-box">
             <textarea id="custom-doc-text" rows="3" placeholder="Paste legal notice clauses or uploaded text here..."></textarea>
             <button class="btn-primary" id="btn-analyze-doc">
-              <span>⚡ Run Document AI Forensic Analysis</span>
+              <span>⚡ Run Forensic Analysis</span>
             </button>
           </div>
         </div>
@@ -575,7 +581,7 @@
         <!-- RIGHT: FORENSIC VERDICT & EXTRACTION REPORT -->
         <div class="glass-box" id="doc-results-panel">
           <div class="box-header">
-            <h3>2. Document AI Forensic Inspection Report</h3>
+            <h3>2. Forensic Inspection Report</h3>
             <span class="status-pill danger" id="doc-verdict-badge">COUNTERFEIT_MALICIOUS</span>
           </div>
 
@@ -593,7 +599,7 @@
           </div>
 
           <div class="report-box">
-            <h4>Extracted Raw Text (Document AI OCR):</h4>
+            <h4>Extracted Text:</h4>
             <pre class="terminal-view" id="doc-raw-text">Loading extracted text...</pre>
           </div>
 
@@ -622,7 +628,7 @@
         <div>
           <span class="section-kicker">VERTEX AI COGNITIVE REASONING</span>
           <h2>Gemini Fraud Intelligence Assistant</h2>
-          <p>Direct conversational interface with <strong>Gemini 1.5 on Vertex AI</strong>. Ask any question about suspicious communications, legal procedures, or banking safety in natural language.</p>
+          <p>Conversational fraud advisor backed by <strong>Gemini on Vertex AI</strong> (falls back to fixed rules, clearly labelled, if Gemini is unreachable). Ask any question about suspicious communications, legal procedures, or banking safety in natural language.</p>
         </div>
       </div>
 
@@ -649,15 +655,15 @@
             <div class="msg-avatar">🛡️</div>
             <div class="msg-body">
               <strong>SafeMeAI Gemini Reasoner:</strong>
-              <p>Welcome! I am connected to Google Vertex AI. You can describe any suspicious phone call, WhatsApp notice, banking alert, or recovery agent threat to evaluate its legitimacy.</p>
+              <p>Welcome! I use Gemini on Vertex AI when it is available, and say so on every answer. You can describe any suspicious phone call, WhatsApp notice, banking alert, or recovery agent threat to evaluate its legitimacy.</p>
             </div>
           </div>
         </div>
 
         <div class="chat-input-row">
-          <input type="text" id="gemini-input-field" placeholder="Ask Gemini about any cyber threat or suspicious request...">
+          <input type="text" id="gemini-input-field" aria-label="Describe the suspicious situation" maxlength="2000" placeholder="Ask Gemini about any cyber threat or suspicious request...">
           <button class="btn-primary" id="btn-send-gemini">
-            <span>Ask Vertex AI ➔</span>
+            <span>Ask Advisor ➔</span>
           </button>
         </div>
       </div>
@@ -671,7 +677,8 @@
         <div>
           <span class="section-kicker">HIGH-THROUGHPUT ANALYTICS</span>
           <h2>BigQuery Mule Matrix & National Threat Intelligence</h2>
-          <p>Analyzing high-velocity edge telemetry from 24,000+ Android sensors using <strong>Google Cloud BigQuery ML</strong> to detect money mule syndicates and coordinated cybercrime networks.</p>
+          <p>Dashboard layout for BigQuery-backed mule-network analytics. <strong>Figures here are demo data</strong> unless the server is connected to BigQuery (see the note below).</p>
+          <p class="datasource-note" id="bq-source-note">Loading data source...</p>
         </div>
       </div>
 
@@ -680,13 +687,13 @@
         <div class="glass-box">
           <div class="box-header">
             <h3>Top Scam Vectors in India (24-Hour Telemetry)</h3>
-            <span class="tag-tech">BigQuery Partitioned Stream</span>
+            <span class="tag-tech">Demo data</span>
           </div>
           <div class="threat-bars-list" id="threat-bars-container">
             <!-- Dynamically populated -->
           </div>
           <div class="insight-box">
-            <strong>💡 BigQuery ML Insight:</strong> Digital Arrest and UPI Collect Inversion account for over 67% of retail fund drain in India. SafeMeAI stops attacks on the Android edge before funds leave the user's account.
+            <strong>Illustrative insight (demo data):</strong> the sample shows Digital Arrest and UPI Collect scams as the largest vectors.
           </div>
         </div>
 
@@ -694,7 +701,7 @@
         <div class="glass-box">
           <div class="box-header">
             <h3>Active Money Mule Syndicates (ML Anomaly Isolation)</h3>
-            <span class="tag-tech">K-Means & Isolation Forest</span>
+            <span class="tag-tech">Demo data</span>
           </div>
           <div class="mule-clusters-table-wrap">
             <table class="mule-table" id="mule-clusters-table">
@@ -714,7 +721,7 @@
           </div>
 
           <div class="bq-sql-preview">
-            <span class="sql-label">Active BigQuery ML Detection Query:</span>
+            <span class="sql-label">Illustrative detection query (sample, not executed):</span>
             <pre class="sql-code">SELECT payer_vpa, payee_vpa, amount,
   ML.DETECT_ANOMALIES(MODEL `safeme_bfsi.mule_isolation_forest`,
     TABLE `safeme_bfsi.realtime_upi_stream`) AS anomaly_status
@@ -789,8 +796,8 @@ ORDER BY anomaly_score DESC LIMIT 50;</pre>
         <!-- RECENT REPORTS TICKER -->
         <div class="glass-box">
           <div class="box-header">
-            <h3>Recent Citizen Reports (Live Feed)</h3>
-            <span class="tag-live">Pushed to 24,000+ Devices</span>
+            <h3>Recent Citizen Reports (Demo Feed)</h3>
+            <span class="tag-live">In-memory demo, not pushed to devices</span>
           </div>
           <div class="reports-feed-list" id="citizen-reports-list">
             <!-- Dynamically populated -->
@@ -939,9 +946,9 @@ ORDER BY anomaly_score DESC LIMIT 50;</pre>
         <h4>Emergency Cyber Contacts</h4>
         <ul class="footer-links">
           <li>🚨 National Cyber Crime Helpline: <a href="tel:1930"><strong>1930</strong> (Toll Free)</a></li>
-          <li>🌐 National Cyber Crime Portal: <a href="https://cybercrime.gov.in" target="_blank">cybercrime.gov.in</a></li>
-          <li>🏦 RBI Complaint Portal: <a href="https://cms.rbi.org.in" target="_blank">cms.rbi.org.in</a></li>
-          <li>📞 Sanchar Saathi (Lost/Stolen Phones): <a href="https://sancharsaathi.gov.in" target="_blank">sancharsaathi.gov.in</a></li>
+          <li>🌐 National Cyber Crime Portal: <a href="https://cybercrime.gov.in" target="_blank" rel="noopener noreferrer">cybercrime.gov.in</a></li>
+          <li>🏦 RBI Complaint Portal: <a href="https://cms.rbi.org.in" target="_blank" rel="noopener noreferrer">cms.rbi.org.in</a></li>
+          <li>📞 Sanchar Saathi (Lost/Stolen Phones): <a href="https://sancharsaathi.gov.in" target="_blank" rel="noopener noreferrer">sancharsaathi.gov.in</a></li>
         </ul>
       </div>
 
@@ -949,9 +956,9 @@ ORDER BY anomaly_score DESC LIMIT 50;</pre>
         <h4>Google Cloud Architecture</h4>
         <ul class="footer-links">
           <li>⚡ <strong>Google Cloud Run:</strong> Low-latency autoscaling container runtime</li>
-          <li>🧠 <strong>Vertex AI (Gemini 1.5):</strong> Deep fraud reasoning & threat synthesis</li>
-          <li>📄 <strong>Google Document AI:</strong> Forensic OCR, layout parsing & warrant audit</li>
-          <li>📊 <strong>Google BigQuery ML:</strong> High-velocity mule transaction anomaly clustering</li>
+          <li>🧠 <strong>Vertex AI (Gemini):</strong> Escalation reasoning and the fraud advisor (live when configured)</li>
+          <li>📄 <strong>Google Document AI:</strong> OCR for uploads (optional, env-configured)</li>
+          <li>📊 <strong>Google BigQuery:</strong> Threat-vector analytics (optional; demo data by default)</li>
         </ul>
       </div>
     </div>

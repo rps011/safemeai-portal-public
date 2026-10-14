@@ -11,7 +11,82 @@ document.addEventListener('DOMContentLoaded', () => {
   initGeminiAdvisor();
   initBigQueryMatrix();
   initCitizenReporting();
+  // CSP forbids inline handlers: hero links use data-switch-tab instead of onclick.
+  document.querySelectorAll('[data-switch-tab]').forEach(a => a.addEventListener('click', () => switchTab(a.dataset.switchTab)));
 });
+
+// ========================================================
+// 0. SHARED HELPERS (escaping, fail-closed fetch, race control)
+// ========================================================
+const ESC_MAP = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;' };
+// Escape ANY server-supplied or user-supplied string before it goes into innerHTML.
+function esc(v) {
+  return String(v == null ? '' : v).replace(/[&<>"'`]/g, c => ESC_MAP[c]);
+}
+// Only allow plain http(s) hostnames in links built from server data.
+function safeHost(h) {
+  return /^[a-z0-9.-]{1,253}$/i.test(String(h || '')) ? String(h) : '';
+}
+
+const FAIL_CLOSED = 'Could not verify. Treat this as UNVERIFIED and do not act on it until checked through an official channel.';
+const reqSeq = {};   // per-feature sequence number: only the newest request may update the UI
+
+// POST/GET JSON with timeout; throws Error(message) that is safe to show. Resolves null if superseded.
+async function api(key, url, { method = 'POST', json, form, timeoutMs = 20000 } = {}) {
+  const seq = (reqSeq[key] = (reqSeq[key] || 0) + 1);
+  const ac = new AbortController();
+  const timer = setTimeout(() => ac.abort(), timeoutMs);
+  try {
+    const opts = { method, signal: ac.signal };
+    if (json !== undefined) { opts.headers = { 'Content-Type': 'application/json' }; opts.body = JSON.stringify(json); }
+    if (form) opts.body = form;
+    let resp;
+    try { resp = await fetch(url, opts); }
+    catch (e) { throw new Error(e.name === 'AbortError' ? 'The request timed out. ' + FAIL_CLOSED : 'Network error. ' + FAIL_CLOSED); }
+    let data = null;
+    try { data = await resp.json(); } catch (_) { /* non-JSON error page */ }
+    if (seq !== reqSeq[key]) return null;                    // stale response
+    if (resp.status === 429) throw new Error('Too many requests. Please wait a minute and try again.');
+    if (!resp.ok || !data || data.status !== 'success') {
+      const why = (data && data.error) ? data.error : `Server error (${resp.status}).`;
+      throw new Error(resp.status >= 500 ? `${why} ${FAIL_CLOSED}` : why);
+    }
+    return data;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function setBusy(btn, busy, label) {
+  if (!btn) return;
+  btn.disabled = busy;
+  btn.setAttribute('aria-busy', busy ? 'true' : 'false');
+  if (label !== undefined) {
+    const span = btn.querySelector('span') || btn;
+    if (busy) { btn.dataset.label = span.textContent; span.textContent = label; }
+    else if (btn.dataset.label) { span.textContent = btn.dataset.label; }
+  }
+}
+
+// Visual class for a verdict. Green is reserved for explicitly VERIFIED/safe results; low-score
+// but unconfirmed results are amber "UNVERIFIED" and never get a green check.
+function classifyVerdict(res, { requireVerified }) {
+  const score = Number(res.riskScore);
+  const level = String(res.riskLevel || '').toUpperCase();
+  if (score >= 80) return { ring: 'critical', badge: 'badge-critical', icon: '🚨', text: res.riskLevel };
+  if (score >= 40) return { ring: 'high', badge: 'badge-danger', icon: '⚠️', text: res.riskLevel };
+  const green = requireVerified ? res.verified === true : (/^(SAFE|LOW|VERIFIED)$/.test(level) && res.verified !== false);
+  if (green) return { ring: 'safe', badge: 'badge-safe', icon: '✅', text: res.verified === true ? 'VERIFIED' : res.riskLevel };
+  return { ring: 'unverified', badge: 'badge-unverified', icon: '❓', text: 'UNVERIFIED' };
+}
+
+function sourceBadge(grounded) {
+  return grounded
+    ? '<span class="src-badge src-live" title="Answer produced by Gemini on Vertex AI">Gemini live</span>'
+    : '<span class="src-badge src-rules" title="Gemini was not used; deterministic rules produced this result">rules fallback</span>';
+}
+
+
 
 // ========================================================
 // 1. GLOBAL NAVIGATION & TAB SWITCHING
@@ -100,9 +175,8 @@ function initScamChecker() {
   const inputEl = document.getElementById('checker-input-text');
   const btnRun = document.getElementById('btn-run-check');
   const btnClear = document.getElementById('btn-clear-checker');
-  const chips = document.querySelectorAll('.specimen-chip');
+  const chips = document.querySelectorAll('.specimen-chip[data-sample]');
 
-  // One-click specimen chips
   chips.forEach(chip => {
     chip.addEventListener('click', () => {
       const sampleKey = chip.dataset.sample;
@@ -115,105 +189,70 @@ function initScamChecker() {
 
   if (btnRun) {
     btnRun.addEventListener('click', () => {
-      const text = (inputEl.value || "").trim();
-      if (!text) {
-        alert("Please paste a suspicious message, SMS, URL, or UPI ID first!");
-        inputEl.focus();
-        return;
-      }
+      const text = (inputEl.value || '').trim();
+      if (!text) { showScamNotice('Input required', 'Please paste a suspicious message, SMS, URL, or UPI ID first.'); inputEl.focus(); return; }
       runScamCheck(text);
     });
   }
+  if (btnClear) btnClear.addEventListener('click', () => { inputEl.value = ''; reqSeq.scam = (reqSeq.scam || 0) + 1; resetScamVerdict(); });
+}
 
-  if (btnClear) {
-    btnClear.addEventListener('click', () => {
-      inputEl.value = "";
-      resetScamVerdict();
-    });
-  }
+function showScamNotice(headline, desc) {
+  const badgeEl = document.getElementById('checker-badge');
+  badgeEl.className = 'status-badge badge-unverified';
+  badgeEl.textContent = '❓ UNVERIFIED';
+  document.getElementById('gauge-ring').className = 'gauge-ring unverified';
+  document.getElementById('gauge-score').textContent = '?';
+  document.getElementById('verdict-headline').textContent = headline;
+  document.getElementById('verdict-desc').textContent = desc;
+  document.getElementById('verdict-type-tag').textContent = 'Category: Not assessed';
 }
 
 async function runScamCheck(text) {
+  const btnRun = document.getElementById('btn-run-check');
   const badgeEl = document.getElementById('checker-badge');
   const ringEl = document.getElementById('gauge-ring');
   const scoreEl = document.getElementById('gauge-score');
-  const headlineEl = document.getElementById('verdict-headline');
-  const descEl = document.getElementById('verdict-desc');
-  const typeTagEl = document.getElementById('verdict-type-tag');
   const flagsListEl = document.getElementById('red-flags-list');
   const actionCardEl = document.getElementById('action-steps-card');
   const legalBoxEl = document.getElementById('legal-citation-box');
 
-  // Loading state
+  setBusy(btnRun, true, 'Analyzing...');
   badgeEl.className = 'status-badge';
   badgeEl.textContent = 'Analyzing...';
-  headlineEl.textContent = 'Running SafeMeAI Multi-Layer Detection...';
-  descEl.textContent = 'Scanning for keyword triggers, UPI inversion patterns, coercive legal pressure, and unauthorized accounts...';
+  document.getElementById('verdict-headline').textContent = 'Running SafeMeAI Multi-Layer Detection...';
+  document.getElementById('verdict-desc').textContent = 'Scanning for scam patterns, link reputation and impersonation signals...';
 
   try {
-    const response = await fetch('/api/scam/check', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text })
-    });
-
-    const data = await response.json();
-    if (!data.status || data.status !== 'success') {
-      throw new Error(data.error || "Analysis failed");
-    }
-
+    const data = await api('scam', '/api/scam/check', { json: { text }, timeoutMs: 25000 });
+    if (!data) return;                       // superseded by a newer click
     const res = data.data;
+    const v = classifyVerdict(res, { requireVerified: false });
 
-    // Update gauge
-    scoreEl.textContent = `${res.riskScore}%`;
-    ringEl.className = 'gauge-ring';
-    badgeEl.className = 'status-badge';
+    scoreEl.textContent = `${Number(res.riskScore) || 0}%`;
+    ringEl.className = 'gauge-ring ' + v.ring;
+    badgeEl.className = 'status-badge ' + v.badge;
+    badgeEl.textContent = `${v.icon} ${v.text}`;
 
-    if (res.riskScore >= 80) {
-      ringEl.classList.add('critical');
-      badgeEl.classList.add('badge-critical');
-      badgeEl.textContent = '🚨 ' + res.riskLevel;
-    } else if (res.riskScore >= 40) {
-      ringEl.classList.add('high');
-      badgeEl.classList.add('badge-danger');
-      badgeEl.textContent = '⚠️ ' + res.riskLevel;
-    } else {
-      ringEl.classList.add('safe');
-      badgeEl.classList.add('badge-safe');
-      badgeEl.textContent = '✅ ' + res.riskLevel;
+    document.getElementById('verdict-headline').textContent = res.headline || '';
+    document.getElementById('verdict-desc').textContent = res.verdictDescription || '';
+    document.getElementById('verdict-type-tag').textContent = `Scam Category: ${res.scamType || 'n/a'}`;
+
+    const flags = Array.isArray(res.flags) ? res.flags : [];
+    flagsListEl.innerHTML = flags.length
+      ? flags.map(f => `<li>⚠️ ${esc(f)}</li>`).join('')
+      : `<li class="empty-state">No anomalies found by the automated checks. This is not proof the message is safe.</li>`;
+
+    const advice = Array.isArray(res.actionAdvice) ? res.actionAdvice : [];
+    if (advice.length) {
+      actionCardEl.innerHTML = `<strong>Safety Recommendations:</strong><ul>${advice.map(a => `<li>${esc(a)}</li>`).join('')}</ul>`;
     }
-
-    headlineEl.textContent = res.headline;
-    descEl.textContent = res.verdictDescription;
-    typeTagEl.textContent = `Scam Category: ${res.scamType}`;
-
-    // Render flags
-    if (res.flags && res.flags.length > 0) {
-      flagsListEl.innerHTML = res.flags.map(f => `<li>⚠️ ${f}</li>`).join('');
-    } else {
-      flagsListEl.innerHTML = `<li class="empty-state">✅ No anomalies detected in message structure.</li>`;
-    }
-
-    // Render guidance
-    if (res.actionAdvice && res.actionAdvice.length > 0) {
-      actionCardEl.innerHTML = `
-        <strong>Safety Recommendations:</strong>
-        <ul>
-          ${res.actionAdvice.map(a => `<li>${a}</li>`).join('')}
-        </ul>
-      `;
-    }
-
-    legalBoxEl.innerHTML = `<span>⚖️ Legal Protection: <strong>${res.protectionLaw || "Indian Penal Law"}</strong></span>`;
-
+    legalBoxEl.innerHTML = `<span>⚖️ Legal Protection: <strong>${esc(res.protectionLaw || 'Indian Penal Law')}</strong></span>`;
   } catch (err) {
-    badgeEl.className = 'status-badge badge-danger';
-    badgeEl.textContent = 'Notice';
-    ringEl.className = 'gauge-ring';
-    scoreEl.textContent = '0%';
-    headlineEl.textContent = 'Input Required';
-    descEl.textContent = err.message || "Please enter a specific message or URL to analyze.";
-    flagsListEl.innerHTML = '<li class="empty-state">Select any of the 6 specimen buttons above or paste text from SMS/WhatsApp.</li>';
+    showScamNotice('Could not verify', err.message);
+    flagsListEl.innerHTML = '<li class="empty-state">No result. Do not assume this message is safe.</li>';
+  } finally {
+    setBusy(btnRun, false);
   }
 }
 
@@ -236,171 +275,146 @@ function initDomainChecker() {
   const inputEl = document.getElementById('domain-input-text');
   const btnRun = document.getElementById('btn-run-domain-check');
   const btnClear = document.getElementById('btn-clear-domain');
-  const chips = document.querySelectorAll('[data-domain-sample]');
 
-  chips.forEach(chip => {
+  document.querySelectorAll('[data-domain-sample]').forEach(chip => {
     chip.addEventListener('click', () => {
-      const domainSample = chip.dataset.domainSample;
-      if (domainSample) {
-        inputEl.value = domainSample;
-        runDomainCheck(domainSample);
-      }
+      const d = chip.dataset.domainSample;
+      if (d) { inputEl.value = d; runDomainCheck(d); }
     });
   });
-
   if (btnRun) {
     btnRun.addEventListener('click', () => {
-      const text = (inputEl.value || "").trim();
-      if (!text) {
-        alert("Please enter a domain or URL first!");
-        inputEl.focus();
-        return;
-      }
+      const text = (inputEl.value || '').trim();
+      if (!text) { inputEl.focus(); inputEl.setAttribute('aria-invalid', 'true'); return; }
+      inputEl.removeAttribute('aria-invalid');
       runDomainCheck(text);
     });
   }
+  if (inputEl) inputEl.addEventListener('keydown', e => { if (e.key === 'Enter') btnRun && btnRun.click(); });
+  if (btnClear) btnClear.addEventListener('click', () => { inputEl.value = ''; reqSeq.domain = (reqSeq.domain || 0) + 1; resetDomainVerdict(); });
+}
 
-  if (btnClear) {
-    btnClear.addEventListener('click', () => {
-      inputEl.value = "";
-      resetDomainVerdict();
-    });
+function renderTelemetry(t) {
+  const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+  const dns = t.dns, ssl = t.ssl, feed = t.threatFeeds, ml = t.mlDiagnostics, ai = t.agenticAi;
+
+  if (dns) {
+    const ips = Array.isArray(dns.ips) ? dns.ips : [];
+    set('telemetry-dns-val', dns.resolved
+      ? `<span class="badge-safe">✅ ${esc(dns.status)}</span> · ${esc(ips.slice(0, 2).join(', '))}${ips.length > 2 ? ' +' + (ips.length - 2) : ''} <small>(TTL: ${esc(dns.ttl == null ? 'n/a' : dns.ttl)}s${dns.isFastFlux ? ' · ⚠️ Fast-Flux' : ''})</small>`
+      : `<span class="badge-crit">⚠️ ${esc(dns.status || 'UNRESOLVED')}</span> · <small>Not resolvable via Google Public DNS</small>`);
+  }
+
+  if (ssl) {
+    if (ssl.supported && ssl.hasValidSsl) {
+      if (ssl.isEV_OV) set('telemetry-ssl-val', `<span class="badge-safe">🏛️ Organisation-validated TLS</span> · <strong>${esc(ssl.subjectOrg)}</strong> <small>(${esc(ssl.issuer)})</small>`);
+      else if (ssl.isFreeDV) set('telemetry-ssl-val', `<span class="badge-warn">⚠️ Free DV TLS</span> · ${esc(ssl.issuer)} <small>(${ssl.ageDays != null ? esc(ssl.ageDays) + 'd old' : 'active'}${ssl.isNewlyIssued ? ' · 🚨 Newly issued' : ''})</small>`);
+      else set('telemetry-ssl-val', `<span class="badge-warn">Valid TLS</span> · ${esc(ssl.issuer)} <small>(age ${ssl.ageDays != null ? esc(ssl.ageDays) + 'd' : 'n/a'})</small>`);
+    } else {
+      set('telemetry-ssl-val', `<span class="badge-crit">🚨 ${esc(ssl.error || 'No secure TLS')}</span> · <small>Port 443 check failed</small>`);
+    }
+  }
+
+  const ageEl = document.getElementById('telemetry-age-val');
+  const age = t.domainAge;
+  if (ageEl) {
+    if (age && age.available && age.ageDays != null) {
+      const cls = age.ageDays < 30 ? 'badge-crit' : (age.ageDays < 180 ? 'badge-warn' : 'badge-safe');
+      ageEl.innerHTML = `<span class="${cls}">${esc(age.ageDays)} days old</span> · <small>${esc(age.registrar || 'registrar n/a')}</small>`;
+    } else if (age && age.notRegistered) {
+      ageEl.innerHTML = '<span class="badge-crit">Not registered</span>';
+    } else {
+      ageEl.innerHTML = `<span class="badge-warn">Unknown</span> · <small>${esc((age && age.error) || 'RDAP lookup unavailable')}</small>`;
+    }
+  }
+
+  if (feed) {
+    const wr = feed.webRisk || {};
+    const wrHtml = wr.available
+      ? (wr.flagged ? `<span class="badge-crit">🚨 Google Web Risk: ${esc((wr.threatTypes || []).join(', '))}</span>` : '<span class="badge-safe">Web Risk: no match</span>')
+      : `<span class="badge-warn">Web Risk not checked</span> <small>(${esc(wr.reason || 'unavailable')})</small>`;
+    const opHtml = feed.openPhishMatch
+      ? '<span class="badge-crit">🚨 Listed in OpenPhish feed</span>'
+      : (feed.feedLive
+        ? `<span class="badge-warn">Not in OpenPhish feed</span> <small>(${esc(feed.activeIndicators)} indicators; absence is not proof of safety)</small>`
+        : '<span class="badge-warn">OpenPhish feed offline</span>');
+    set('telemetry-feed-val', `${opHtml}<br>${wrHtml}`);
+  }
+
+  if (ml) {
+    const cls = ml.isDGA ? 'badge-crit' : (ml.shannonEntropy > 3.4 ? 'badge-warn' : 'badge-safe');
+    set('telemetry-ml-val', `<span class="${cls}">${esc(ml.entropyRating)}</span> · <small>Shannon entropy ${esc(ml.shannonEntropy)}</small>`);
+  }
+
+  if (ai) {
+    set('telemetry-rationale-val', `
+      <div class="ai-head">
+        <strong>🧠 ${esc(ai.model)}</strong> ${sourceBadge(ai.grounded === true)}
+        <span class="ai-conf">Confidence: ${esc(ai.confidence)}</span>
+      </div>
+      <div class="ai-body">${esc(ai.rationale)}</div>`);
   }
 }
 
 async function runDomainCheck(urlOrDomain) {
+  const btnRun = document.getElementById('btn-run-domain-check');
   const badgeEl = document.getElementById('domain-badge');
   const ringEl = document.getElementById('domain-gauge-ring');
   const scoreEl = document.getElementById('domain-gauge-score');
   const headlineEl = document.getElementById('domain-verdict-headline');
   const descEl = document.getElementById('domain-verdict-desc');
-  const typeTagEl = document.getElementById('domain-verdict-tag');
   const flagsListEl = document.getElementById('domain-flags-list');
   const actionCardEl = document.getElementById('domain-action-card');
+  const realtimeBox = document.getElementById('domain-realtime-box');
 
+  setBusy(btnRun, true, 'Checking...');
   badgeEl.className = 'status-badge';
   badgeEl.textContent = 'Analyzing...';
-  headlineEl.textContent = 'Running HCRV Multi-Vector DNS & Whitelist Check...';
-  descEl.textContent = 'Cross-referencing authoritative directories, typosquatting patterns, and TLD reputation...';
+  headlineEl.textContent = 'Running layered domain verification...';
+  descEl.textContent = 'Allow-list + DNS, domain age, Google Web Risk, OpenPhish, TLS and Gemini (escalation only)...';
+  if (realtimeBox) realtimeBox.style.display = 'none';
 
   try {
-    const response = await fetch('/api/domain/check', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url: urlOrDomain })
-    });
-
-    const data = await response.json();
-    if (!data.status || data.status !== 'success') {
-      throw new Error(data.error || "Domain check failed");
-    }
-
+    const data = await api('domain', '/api/domain/check', { json: { url: urlOrDomain }, timeoutMs: 30000 });
+    if (!data) return;
     const res = data.data;
+    const v = classifyVerdict(res, { requireVerified: true });
 
-    scoreEl.textContent = `${res.riskScore}%`;
-    ringEl.className = 'gauge-ring';
-    badgeEl.className = 'status-badge';
+    scoreEl.textContent = `${Number(res.riskScore) || 0}%`;
+    ringEl.className = 'gauge-ring ' + v.ring;
+    badgeEl.className = 'status-badge ' + v.badge;
+    badgeEl.textContent = `${v.icon} ${v.text}`;
 
-    if (res.riskScore >= 80) {
-      ringEl.classList.add('critical');
-      badgeEl.classList.add('badge-critical');
-      badgeEl.textContent = '🚨 ' + res.riskLevel;
-    } else if (res.riskScore >= 40) {
-      ringEl.classList.add('high');
-      badgeEl.classList.add('badge-danger');
-      badgeEl.textContent = '⚠️ ' + res.riskLevel;
-    } else {
-      ringEl.classList.add('safe');
-      badgeEl.classList.add('badge-safe');
-      badgeEl.textContent = '✅ ' + res.riskLevel;
-    }
+    headlineEl.textContent = res.headline || '';
+    descEl.textContent = `Target Domain: ${res.domain} (TLD: ${res.tld || 'n/a'})`;
+    document.getElementById('domain-verdict-tag').textContent = `Verdict: ${res.verdict}`;
 
-    headlineEl.textContent = res.headline;
-    descEl.textContent = `Target Domain: ${res.domain} (TLD: ${res.tld || "Standard"})`;
-    typeTagEl.textContent = `Verdict: ${res.verdict}`;
+    const flags = Array.isArray(res.flags) ? res.flags : [];
+    flagsListEl.innerHTML = flags.length
+      ? flags.map(f => `<li>${res.verified ? '✓' : (res.riskScore >= 50 ? '⚠️' : '•')} ${esc(f)}</li>`).join('')
+      : `<li class="empty-state">No flags raised. This domain is not confirmed as official.</li>`;
 
-    if (res.flags && res.flags.length > 0) {
-      flagsListEl.innerHTML = res.flags.map(f => `<li>${res.riskScore >= 50 ? '⚠️' : '✓'} ${f}</li>`).join('');
-    } else {
-      flagsListEl.innerHTML = `<li class="empty-state">✅ Domain adheres to verified safety criteria.</li>`;
-    }
-
+    const host = safeHost(res.officialDomain);
     actionCardEl.innerHTML = `
       <strong>Safety Directive:</strong>
-      <p style="margin-top: 0.3rem;">${res.actionAdvice}</p>
-      ${res.officialDomain ? `<p style="margin-top: 0.4rem; color: #6ee7b7; font-weight: 700;">Official Authorized Website: <a href="https://${res.officialDomain}" target="_blank" style="color: #6ee7b7; text-decoration: underline;">https://${res.officialDomain}</a></p>` : ''}
-    `;
-
-    // Render Real-Time Telemetry & Agentic Forensics
-    const realtimeBox = document.getElementById('domain-realtime-box');
-    const dnsVal = document.getElementById('telemetry-dns-val');
-    const sslVal = document.getElementById('telemetry-ssl-val');
-    const feedVal = document.getElementById('telemetry-feed-val');
-    const mlVal = document.getElementById('telemetry-ml-val');
-    const rationaleVal = document.getElementById('telemetry-rationale-val');
+      <p class="mt-s">${esc(res.actionAdvice)}</p>
+      ${host ? `<p class="official-link">Official website: <a href="https://${esc(host)}" target="_blank" rel="noopener noreferrer">https://${esc(host)}</a></p>` : ''}`;
 
     if (res.realtimeTelemetry && realtimeBox) {
       realtimeBox.style.display = 'block';
-
-      // DNS Tile
-      if (dnsVal && res.realtimeTelemetry.dns) {
-        const dns = res.realtimeTelemetry.dns;
-        if (dns.resolved) {
-          dnsVal.innerHTML = `<span class="badge-safe">✅ ${dns.status}</span> · ${dns.ips.slice(0, 2).join(', ')}${dns.ips.length > 2 ? ' +' + (dns.ips.length - 2) : ''} <small>(TTL: ${dns.ttl || 60}s${dns.isFastFlux ? ' · ⚠️ Fast-Flux' : ''})</small>`;
-        } else {
-          dnsVal.innerHTML = `<span class="badge-crit">⚠️ ${dns.status || 'UNRESOLVED'}</span> · <small>Not reachable on Google Public DNS</small>`;
-        }
-      }
-
-      // SSL Tile
-      if (sslVal && res.realtimeTelemetry.ssl) {
-        const ssl = res.realtimeTelemetry.ssl;
-        if (ssl.supported && ssl.hasValidSsl) {
-          if (ssl.isEV_OV) {
-            sslVal.innerHTML = `<span class="badge-safe">🏛️ EV/OV Certified</span> · <strong>${ssl.subjectOrg}</strong> <small>(${ssl.issuer})</small>`;
-          } else if (ssl.isFreeDV) {
-            sslVal.innerHTML = `<span class="badge-warn">⚠️ Free DV TLS</span> · ${ssl.issuer} <small>(${ssl.ageDays !== null ? ssl.ageDays + 'd old' : 'active'}${ssl.isNewlyIssued ? ' · 🚨 Newly Issued' : ''})</small>`;
-          } else {
-            sslVal.innerHTML = `<span class="badge-safe">✅ Valid TLS</span> · ${ssl.issuer} <small>(Age: ${ssl.ageDays !== null ? ssl.ageDays + 'd' : 'active'})</small>`;
-          }
-        } else {
-          sslVal.innerHTML = `<span class="badge-crit">🚨 ${ssl.error || 'No Secure TLS'}</span> · <small>Port 443 handshake failed</small>`;
-        }
-      }
-
-      // OpenPhish Feed Tile
-      if (feedVal && res.realtimeTelemetry.threatFeeds) {
-        const feed = res.realtimeTelemetry.threatFeeds;
-        if (feed.openPhishMatch) {
-          feedVal.innerHTML = `<span class="badge-crit">🚨 ACTIVE ZERO-DAY THREAT</span> · <small>Flagged in live OpenPhish community stream</small>`;
-        } else {
-          feedVal.innerHTML = `<span class="badge-safe">✅ Threat Feed Clean</span> · <small>Passed OpenPhish real-time stream (${feed.activeIndicators} active IOCs)</small>`;
-        }
-      }
-
-      // ML Diagnostics Tile
-      if (mlVal && res.realtimeTelemetry.mlDiagnostics) {
-        const ml = res.realtimeTelemetry.mlDiagnostics;
-        const badgeClass = ml.isDGA ? 'badge-crit' : (ml.shannonEntropy > 3.4 ? 'badge-warn' : 'badge-safe');
-        mlVal.innerHTML = `<span class="${badgeClass}">${ml.entropyRating}</span> · <small>Shannon Entropy: ${ml.shannonEntropy}</small>`;
-      }
-
-      // Agentic AI Rationale Box
-      if (rationaleVal && res.realtimeTelemetry.agenticAi) {
-        const ai = res.realtimeTelemetry.agenticAi;
-        rationaleVal.innerHTML = `
-          <div style="margin-bottom: 0.35rem; display: flex; align-items: center; justify-content: space-between;">
-            <strong style="color: #38bdf8;">🧠 ${ai.model}</strong>
-            <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); padding: 0.1rem 0.4rem; border-radius: 4px; color: #7dd3fc;">Confidence: ${ai.confidence}</span>
-          </div>
-          <div style="color: #cbd5e1; font-size: 0.82rem; line-height: 1.4;">${ai.rationale}</div>
-        `;
-      }
+      renderTelemetry(res.realtimeTelemetry);
     }
-
   } catch (err) {
-    headlineEl.textContent = "Domain Evaluation Error";
-    descEl.textContent = err.message || "Failed to reach domain verification engine.";
+    scoreEl.textContent = '?';
+    ringEl.className = 'gauge-ring unverified';
+    badgeEl.className = 'status-badge badge-unverified';
+    badgeEl.textContent = '❓ UNVERIFIED';
+    headlineEl.textContent = 'Could not verify this domain';
+    descEl.textContent = err.message;
+    document.getElementById('domain-verdict-tag').textContent = 'Verdict: UNVERIFIED';
+    flagsListEl.innerHTML = '<li class="empty-state">No result. Treat this domain as unverified.</li>';
+  } finally {
+    setBusy(btnRun, false);
   }
 }
 
@@ -422,80 +436,54 @@ function resetDomainVerdict() {
 // 3. DIGITAL ARREST EMERGENCY RAPID SCREENER
 // ========================================================
 function initDigitalArrestPanic() {
-  const toggleButtons = document.querySelectorAll('.q-btn');
-  const btnEvaluate = document.getElementById('btn-evaluate-panic');
-
-  // Handle toggle selection with immediate real-time feedback
-  toggleButtons.forEach(btn => {
+  document.querySelectorAll('.q-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const questionGroup = btn.dataset.q;
-      document.querySelectorAll(`.q-btn[data-q="${questionGroup}"]`).forEach(b => b.classList.remove('active'));
+      document.querySelectorAll(`.q-btn[data-q="${btn.dataset.q}"]`).forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
       btn.classList.add('active');
-      evaluatePanicRisk(); // Instant real-time evaluation as soon as user clicks!
+      btn.setAttribute('aria-pressed', 'true');
+      evaluatePanicRisk();
     });
   });
-
-  if (btnEvaluate) {
-    btnEvaluate.addEventListener('click', evaluatePanicRisk);
-  }
+  const btnEvaluate = document.getElementById('btn-evaluate-panic');
+  if (btnEvaluate) btnEvaluate.addEventListener('click', evaluatePanicRisk);
 }
 
 async function evaluatePanicRisk() {
-  const isQ1 = document.querySelector('.q-btn[data-q="q1"].active')?.dataset.val === 'yes';
-  const isQ2 = document.querySelector('.q-btn[data-q="q2"].active')?.dataset.val === 'yes';
-  const isQ3 = document.querySelector('.q-btn[data-q="q3"].active')?.dataset.val === 'yes';
-  const isQ4 = document.querySelector('.q-btn[data-q="q4"].active')?.dataset.val === 'yes';
-
+  const yes = q => document.querySelector(`.q-btn[data-q="${q}"].active`)?.dataset.val === 'yes';
   const badgeEl = document.getElementById('panic-badge');
   const headlineEl = document.getElementById('panic-headline');
   const summaryEl = document.getElementById('panic-summary');
   const stepsBoxEl = document.getElementById('panic-steps-box');
-
   try {
-    const response = await fetch('/api/emergency/digital-arrest-screen', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        isUniformOrAgency: isQ1,
-        isCoerciveSurveillance: isQ3,
-        isContrabandOrPMLA: isQ2,
-        isMoneyDemand: isQ4
-      })
+    const data = await api('panic', '/api/emergency/digital-arrest-screen', {
+      json: { isUniformOrAgency: yes('q1'), isContrabandOrPMLA: yes('q2'), isCoerciveSurveillance: yes('q3'), isMoneyDemand: yes('q4') },
+      timeoutMs: 10000
     });
-
-    const data = await response.json();
-    if (data.status === 'success') {
-      badgeEl.textContent = `Certainty: ${data.certainty}% (${data.verdict})`;
-      headlineEl.textContent = data.headline;
-      summaryEl.textContent = data.certainty >= 90
-        ? "⚠️ CRITICAL ALERT: You are in zero legal danger from the police. You are facing an organized criminal extortion syndicate."
-        : "Standard communication. Never transfer funds or share private credentials over video calls.";
-
-      if (data.emergencyProtocol) {
-        stepsBoxEl.innerHTML = `
-          <h4>Immediate Emergency Safety Protocol:</h4>
-          <ul>
-            ${data.emergencyProtocol.map(s => `<li><strong>${s}</strong></li>`).join('')}
-          </ul>
-        `;
-      }
+    if (!data) return;
+    badgeEl.textContent = `Certainty: ${data.certainty}% (${data.verdict})`;
+    headlineEl.textContent = data.headline;
+    summaryEl.textContent = data.certainty >= 90
+      ? 'CRITICAL ALERT: You are in no legal danger from the police. You are facing an organized criminal extortion attempt.'
+      : 'No coercion signals selected. Never transfer funds or share credentials on a call, and if in doubt dial 1930.';
+    if (Array.isArray(data.emergencyProtocol)) {
+      stepsBoxEl.innerHTML = `<h4>Immediate Emergency Safety Protocol:</h4><ul>${data.emergencyProtocol.map(s => `<li><strong>${esc(s)}</strong></li>`).join('')}</ul>`;
     }
   } catch (err) {
-    console.error("Panic evaluation failed", err);
+    headlineEl.textContent = 'Could not run the screener';
+    summaryEl.textContent = 'If anyone is demanding money or asking you to stay on a video call, hang up and dial 1930 now.';
   }
 }
 
 // ========================================================
-// 4. GOOGLE DOCUMENT AI FORENSIC LAB (WITH WORKING FILE UPLOAD)
+// 4. DOCUMENT FORENSIC LAB (Document AI only if the server has a processor configured)
 // ========================================================
 let currentSelectedFile = null;
+const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 
 function initDocumentAILab() {
   const cards = document.querySelectorAll('.specimen-card');
   const btnAnalyzeText = document.getElementById('btn-analyze-doc');
   const customTextArea = document.getElementById('custom-doc-text');
-
-  // File upload elements
   const dropzone = document.getElementById('doc-dropzone');
   const fileInput = document.getElementById('doc-file-input');
   const fileBar = document.getElementById('file-selected-bar');
@@ -503,326 +491,169 @@ function initDocumentAILab() {
   const btnUploadDoc = document.getElementById('btn-upload-file-doc');
   const btnRemoveFile = document.getElementById('btn-remove-file');
 
-  // Click dropzone to browse
-  if (dropzone && fileInput) {
-    dropzone.addEventListener('click', () => fileInput.click());
-
-    // Drag and drop handlers
-    dropzone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropzone.classList.add('dragover');
-    });
-
-    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
-
-    dropzone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropzone.classList.remove('dragover');
-      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-        handleFileSelect(e.dataTransfer.files[0]);
-      }
-    });
-
-    fileInput.addEventListener('change', (e) => {
-      if (e.target.files && e.target.files[0]) {
-        handleFileSelect(e.target.files[0]);
-      }
-    });
-  }
-
   function handleFileSelect(file) {
+    if (file.size > MAX_UPLOAD_BYTES) { showDocError('File is larger than 5 MB.'); return; }
     currentSelectedFile = file;
     fileNameEl.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
     fileBar.style.display = 'flex';
   }
 
+  if (dropzone && fileInput) {
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); } });
+    dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('dragover'); });
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+    dropzone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) handleFileSelect(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', e => { if (e.target.files && e.target.files[0]) handleFileSelect(e.target.files[0]); });
+  }
   if (btnRemoveFile) {
-    btnRemoveFile.addEventListener('click', (e) => {
+    btnRemoveFile.addEventListener('click', e => {
       e.stopPropagation();
       currentSelectedFile = null;
       if (fileInput) fileInput.value = '';
       fileBar.style.display = 'none';
     });
   }
-
   if (btnUploadDoc) {
     btnUploadDoc.addEventListener('click', () => {
-      if (!currentSelectedFile) {
-        alert("Please select or drop a document file first!");
-        return;
-      }
-      uploadAndAnalyzeDocument(currentSelectedFile);
+      if (!currentSelectedFile) { showDocError('Please select or drop a document file first.'); return; }
+      const fd = new FormData();
+      fd.append('document', currentSelectedFile);
+      renderDocument({ form: fd }, btnUploadDoc);
     });
   }
-
-  // Specimen selection
   cards.forEach(card => {
     card.addEventListener('click', () => {
       cards.forEach(c => c.classList.remove('active'));
       card.classList.add('active');
-      const specimenKey = card.dataset.specimen;
-      analyzeDocument(specimenKey, null);
+      renderDocument({ json: { specimenKey: card.dataset.specimen } });
     });
   });
-
   if (btnAnalyzeText) {
     btnAnalyzeText.addEventListener('click', () => {
-      const customText = (customTextArea.value || "").trim();
-      if (!customText) {
-        alert("Please paste document clauses or upload a file to inspect!");
-        return;
-      }
-      analyzeDocument(null, customText);
+      const customText = (customTextArea.value || '').trim();
+      if (!customText) { showDocError('Please paste document text or upload a file to inspect.'); return; }
+      renderDocument({ json: { customText } }, btnAnalyzeText);
     });
   }
-
-  // Load default specimen on startup
-  analyzeDocument('fake_arrest_warrant', null);
+  renderDocument({ json: { specimenKey: 'fake_arrest_warrant' } });
 }
 
-async function uploadAndAnalyzeDocument(file) {
-  const verdictBadge = document.getElementById('doc-verdict-badge');
-  const authScore = document.getElementById('doc-auth-score');
-  const riskScore = document.getElementById('doc-risk-score');
-  const rawText = document.getElementById('doc-raw-text');
-  const findingsList = document.getElementById('doc-findings-list');
-  const recAction = document.getElementById('doc-rec-action');
-
-  verdictBadge.textContent = "Uploading & Processing via Document AI OCR...";
-
-  const formData = new FormData();
-  formData.append('document', file);
-
-  try {
-    const response = await fetch('/api/document-ai/analyze', {
-      method: 'POST',
-      body: formData
-    });
-
-    const data = await response.json();
-    if (data.status === 'success') {
-      const doc = data.document;
-      const ana = data.analysis;
-
-      verdictBadge.textContent = ana.verdict;
-      verdictBadge.className = `status-pill ${ana.severity.toLowerCase()}`;
-
-      authScore.textContent = `${ana.authenticityScore}/100`;
-      riskScore.textContent = `${ana.riskScore}/100`;
-
-      rawText.textContent = doc.extractedText || "No text extracted.";
-
-      if (ana.findings && ana.findings.length > 0) {
-        findingsList.innerHTML = ana.findings.map(f => `
-          <div class="finding-row">
-            <span class="finding-status ${f.status === 'PASSED' || f.status === 'CLEAN' ? 'passed' : 'failed'}">${f.status}</span>
-            <div>
-              <strong>${f.rule}:</strong> ${f.detail}
-            </div>
-          </div>
-        `).join('');
-      }
-
-      recAction.textContent = ana.recommendedAction || "Verify through official banking channels.";
-    }
-  } catch (err) {
-    verdictBadge.textContent = "Upload Failed";
-    rawText.textContent = "Error communicating with Document AI OCR pipeline.";
-  }
+function showDocError(msg) {
+  document.getElementById('doc-verdict-badge').textContent = 'Could not analyze';
+  document.getElementById('doc-raw-text').textContent = msg;
 }
 
-async function analyzeDocument(specimenKey, customText) {
+async function renderDocument(payload, btn) {
   const verdictBadge = document.getElementById('doc-verdict-badge');
-  const authScore = document.getElementById('doc-auth-score');
-  const riskScore = document.getElementById('doc-risk-score');
-  const rawText = document.getElementById('doc-raw-text');
-  const findingsList = document.getElementById('doc-findings-list');
-  const recAction = document.getElementById('doc-rec-action');
-
-  verdictBadge.textContent = "Analyzing via Document AI...";
-
+  verdictBadge.className = 'status-pill';
+  verdictBadge.textContent = 'Analyzing...';
+  setBusy(btn, true);
   try {
-    const response = await fetch('/api/document-ai/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ specimenKey, customText })
-    });
-
-    const data = await response.json();
-    if (data.status === 'success') {
-      const doc = data.document;
-      const ana = data.analysis;
-
-      verdictBadge.textContent = ana.verdict;
-      verdictBadge.className = `status-pill ${ana.severity.toLowerCase()}`;
-
-      authScore.textContent = `${ana.authenticityScore}/100`;
-      riskScore.textContent = `${ana.riskScore}/100`;
-
-      rawText.textContent = doc.extractedText || "No text extracted.";
-
-      if (ana.findings && ana.findings.length > 0) {
-        findingsList.innerHTML = ana.findings.map(f => `
-          <div class="finding-row">
-            <span class="finding-status ${f.status === 'PASSED' || f.status === 'CLEAN' ? 'passed' : 'failed'}">${f.status}</span>
-            <div>
-              <strong>${f.rule}:</strong> ${f.detail}
-            </div>
-          </div>
-        `).join('');
-      }
-
-      recAction.textContent = ana.recommendedAction || "Verify through official banking channels.";
-    }
+    const data = await api('doc', '/api/document-ai/analyze', { ...payload, timeoutMs: 40000 });
+    if (!data) return;
+    const ana = data.analysis;
+    verdictBadge.textContent = ana.verdict;
+    verdictBadge.className = `status-pill ${String(ana.severity || '').toLowerCase().replace(/[^a-z]/g, '')}`;
+    document.getElementById('doc-auth-score').textContent = `${ana.authenticityScore}/100`;
+    document.getElementById('doc-risk-score').textContent = `${ana.riskScore}/100`;
+    document.getElementById('doc-raw-text').textContent = data.document.extractedText || 'No text extracted.';
+    document.getElementById('doc-findings-list').innerHTML = (ana.findings || []).map(f => {
+      const ok = ['PASSED', 'CLEAN', 'NO_MATCH'].includes(f.status);
+      return `<div class="finding-row"><span class="finding-status ${ok ? 'passed' : 'failed'}">${esc(f.status)}</span><div><strong>${esc(f.rule)}:</strong> ${esc(f.detail)}</div></div>`;
+    }).join('') + `<div class="datasource-note">${esc(data.dataSource === 'demo-simulated' ? 'DEMO SPECIMEN: ' : 'Source: ')}${esc(data.dataSourceNote || data.dataSource)}</div>`;
+    document.getElementById('doc-rec-action').textContent = ana.recommendedAction || 'Verify through official banking channels.';
   } catch (err) {
-    console.error("Document AI inspection failed", err);
+    verdictBadge.className = 'status-pill';
+    verdictBadge.textContent = 'Could not analyze';
+    document.getElementById('doc-raw-text').textContent = err.message;
+  } finally {
+    setBusy(btn, false);
   }
 }
 
 // ========================================================
-// 5. GEMINI FRAUD REASONER (VERTEX AI CHATBOT)
+// 5. GEMINI FRAUD REASONER
 // ========================================================
 function initGeminiAdvisor() {
-  const pills = document.querySelectorAll('.gemini-pill');
   const inputEl = document.getElementById('gemini-input-field');
   const sendBtn = document.getElementById('btn-send-gemini');
-  const display = document.getElementById('gemini-chat-display');
+  const submit = () => {
+    const text = (inputEl.value || '').trim();
+    if (!text || sendBtn.disabled) return;
+    inputEl.value = '';
+    askGemini(text);
+  };
+  document.querySelectorAll('.gemini-pill').forEach(pill => pill.addEventListener('click', () => { if (!sendBtn.disabled) askGemini(pill.dataset.prompt); }));
+  if (sendBtn) sendBtn.addEventListener('click', submit);
+  if (inputEl) inputEl.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
+}
 
-  pills.forEach(pill => {
-    pill.addEventListener('click', () => {
-      const prompt = pill.dataset.prompt;
-      inputEl.value = prompt;
-      askGemini(prompt);
-    });
-  });
-
-  if (sendBtn) {
-    sendBtn.addEventListener('click', () => {
-      const text = (inputEl.value || "").trim();
-      if (!text) return;
-      askGemini(text);
-      inputEl.value = "";
-    });
-  }
-
-  if (inputEl) {
-    inputEl.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        const text = (inputEl.value || "").trim();
-        if (!text) return;
-        askGemini(text);
-        inputEl.value = "";
-      }
-    });
-  }
+function chatMsg(cls, avatar, bodyHtml) {
+  const d = document.createElement('div');
+  d.className = 'chat-message ' + cls;
+  d.innerHTML = `<div class="msg-avatar">${avatar}</div><div class="msg-body">${bodyHtml}</div>`;
+  return d;
 }
 
 async function askGemini(prompt) {
   const display = document.getElementById('gemini-chat-display');
-
-  // Add User Message
-  const userMsg = document.createElement('div');
-  userMsg.className = 'chat-message user';
-  userMsg.innerHTML = `
-    <div class="msg-avatar">👤</div>
-    <div class="msg-body">
-      <strong>You:</strong>
-      <p>${prompt}</p>
-    </div>
-  `;
-  display.appendChild(userMsg);
-
-  // Add Assistant Loading Placeholder
-  const loadingMsg = document.createElement('div');
-  loadingMsg.className = 'chat-message assistant';
-  loadingMsg.innerHTML = `
-    <div class="msg-avatar">🧠</div>
-    <div class="msg-body">
-      <strong>Gemini 1.5 Reasoner:</strong>
-      <p>Consulting Vertex AI fraud graph and BFSI regulatory knowledge...</p>
-    </div>
-  `;
-  display.appendChild(loadingMsg);
+  const sendBtn = document.getElementById('btn-send-gemini');
+  display.appendChild(chatMsg('user', '👤', `<strong>You:</strong><p>${esc(prompt)}</p>`));
+  const loading = chatMsg('assistant', '🧠', '<strong>SafeMeAI Advisor:</strong><p>Analyzing...</p>');
+  display.appendChild(loading);
   display.scrollTop = display.scrollHeight;
-
+  setBusy(sendBtn, true);
   try {
-    const response = await fetch('/api/gemini/advisor', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
-    });
-
-    const data = await response.json();
-    if (data.status === 'success') {
-      const res = data.data;
-      loadingMsg.innerHTML = `
-        <div class="msg-avatar">🛡️</div>
-        <div class="msg-body">
-          <strong>Gemini 1.5 (Risk Assessment: <span style="color: ${res.riskLevel === 'CRITICAL' ? '#f87171' : '#38bdf8'}">${res.riskLevel}</span>):</strong>
-          <p>${res.reasoning}</p>
-          ${res.signals && res.signals.length > 0 ? `
-            <div style="margin-top: 0.6rem; font-size: 0.8rem; color: #94a3b8;">
-              <strong>Key Fraud Signals:</strong>
-              <ul style="padding-left: 1.2rem; margin-top: 0.2rem;">
-                ${res.signals.map(s => `<li>${s}</li>`).join('')}
-              </ul>
-            </div>
-          ` : ''}
-          <div style="margin-top: 0.6rem; padding: 0.5rem; background: rgba(16, 185, 129, 0.1); border-left: 3px solid #10b981; border-radius: 4px; font-size: 0.82rem; color: #6ee7b7;">
-            <strong>Immediate Protocol:</strong> ${res.recommendedAction}
-          </div>
-        </div>
-      `;
-    }
+    const data = await api('advisor', '/api/gemini/advisor', { json: { prompt }, timeoutMs: 30000 });
+    if (!data) return;
+    const r = data.data;
+    const color = r.riskLevel === 'CRITICAL' || r.riskLevel === 'HIGH' ? '#f87171' : (r.riskLevel === 'MEDIUM' ? '#fbbf24' : '#38bdf8');
+    const signals = Array.isArray(r.signals) ? r.signals : [];
+    loading.innerHTML = `<div class="msg-avatar">🛡️</div><div class="msg-body">
+      <strong>${esc(r.model)} ${sourceBadge(r.grounded === true)} · Risk: <span style="color:${color}">${esc(r.riskLevel)}</span></strong>
+      <p>${esc(r.reasoning)}</p>
+      ${signals.length ? `<div class="adv-signals"><strong>Key Fraud Signals:</strong><ul>${signals.map(s => `<li>${esc(s)}</li>`).join('')}</ul></div>` : ''}
+      <div class="adv-action"><strong>Recommended action:</strong> <span class="pre">${esc(r.recommendedAction)}</span></div>
+      ${r.grounded ? '' : `<div class="datasource-note">Gemini was not used (${esc(r.fallbackReason || 'unavailable')}). This answer comes from fixed keyword rules.</div>`}
+    </div>`;
   } catch (err) {
-    loadingMsg.querySelector('.msg-body p').textContent = "Failed to communicate with Vertex AI service.";
+    loading.querySelector('.msg-body').innerHTML = `<strong>SafeMeAI Advisor:</strong><p>${esc(err.message)}</p>`;
+  } finally {
+    setBusy(sendBtn, false);
+    display.scrollTop = display.scrollHeight;
   }
-
-  display.scrollTop = display.scrollHeight;
 }
 
 // ========================================================
-// 6. BIGQUERY MULE MATRIX & SOC ANALYTICS
+// 6. THREAT ANALYTICS (demo data unless BigQuery is connected server-side)
 // ========================================================
 async function initBigQueryMatrix() {
   const threatBars = document.getElementById('threat-bars-container');
   const muleTable = document.getElementById('mule-table-body');
-
   try {
-    const response = await fetch('/api/bigquery/analytics');
-    const data = await response.json();
-
-    if (data.status === 'success') {
-      // Render Threat Vectors
-      if (threatBars && data.topVectors) {
-        threatBars.innerHTML = data.topVectors.map(v => `
-          <div class="threat-bar-item">
-            <div class="bar-meta">
-              <span>${v.vector}</span>
-              <span>${v.share}% (${v.count} incidents)</span>
-            </div>
-            <div class="bar-track">
-              <div class="bar-fill" style="width: ${v.share}%"></div>
-            </div>
-          </div>
-        `).join('');
-      }
-
-      // Render Mule Clusters Table
-      if (muleTable && data.liveMuleClusters) {
-        muleTable.innerHTML = data.liveMuleClusters.map(m => `
-          <tr>
-            <td><strong>${m.clusterId}</strong></td>
-            <td>${m.nodes} Accounts</td>
-            <td>${m.volumeINR}</td>
-            <td><span style="color: #f87171; font-weight: 700;">${m.riskScore}%</span></td>
-            <td><span class="finding-status failed">${m.status}</span></td>
-          </tr>
-        `).join('');
-      }
+    const data = await api('bq', '/api/bigquery/analytics', { method: 'GET', timeoutMs: 15000 });
+    if (!data) return;
+    const note = document.getElementById('bq-source-note');
+    if (note) note.textContent = data.dataSourceNote || '';
+    if (threatBars && data.topVectors) {
+      threatBars.innerHTML = data.topVectors.map(v => {
+        const w = Math.max(0, Math.min(100, Number(v.share) || 0));
+        return `<div class="threat-bar-item"><div class="bar-meta"><span>${esc(v.vector)}</span><span>${w}% (${esc(v.count)} incidents)</span></div><div class="bar-track"><div class="bar-fill" style="width:${w}%"></div></div></div>`;
+      }).join('');
+    }
+    if (muleTable && data.liveMuleClusters) {
+      muleTable.innerHTML = data.liveMuleClusters.map(m => `<tr>
+        <td><strong>${esc(m.clusterId)}</strong></td><td>${esc(m.nodes)} Accounts</td><td>${esc(m.volumeINR)}</td>
+        <td><span class="risk-pct">${esc(m.riskScore)}%</span></td><td><span class="finding-status failed">${esc(m.status)}</span></td></tr>`).join('');
     }
   } catch (err) {
-    console.error("Failed to load BigQuery analytics", err);
+    const note = document.getElementById('bq-source-note');
+    if (note) note.textContent = 'Analytics unavailable: ' + err.message;
   }
 }
 
@@ -831,70 +662,47 @@ async function initBigQueryMatrix() {
 // ========================================================
 async function initCitizenReporting() {
   const form = document.getElementById('scam-report-form');
-  const feedList = document.getElementById('citizen-reports-list');
   const successMsg = document.getElementById('report-success-msg');
-
-  // Load existing reports
   loadCitizenReports();
-
-  if (form) {
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const type = document.getElementById('report-type').value;
-      const target = document.getElementById('report-target').value;
-      const details = document.getElementById('report-details').value;
-      const name = document.getElementById('report-name').value;
-      const phone = document.getElementById('report-phone').value;
-
-      try {
-        const response = await fetch('/api/scam/report', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            scamType: type,
-            scamTarget: target,
-            scamDetails: details,
-            reporterName: name,
-            reporterPhone: phone
-          })
-        });
-
-        const data = await response.json();
-        if (data.status === 'success') {
-          form.reset();
-          successMsg.style.display = 'block';
-          setTimeout(() => { successMsg.style.display = 'none'; }, 4000);
-          loadCitizenReports();
-        }
-      } catch (err) {
-        alert("Failed to submit report. Please try again.");
-      }
-    });
-  }
+  if (!form) return;
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = document.getElementById('btn-submit-report');
+    const val = id => document.getElementById(id).value;
+    setBusy(btn, true);
+    try {
+      const data = await api('report', '/api/scam/report', {
+        json: { scamType: val('report-type'), scamTarget: val('report-target'), scamDetails: val('report-details'), reporterName: val('report-name'), reporterPhone: val('report-phone') },
+        timeoutMs: 10000
+      });
+      if (!data) return;
+      form.reset();
+      successMsg.style.display = 'block';
+      setTimeout(() => { successMsg.style.display = 'none'; }, 4000);
+      loadCitizenReports();
+    } catch (err) {
+      successMsg.style.display = 'block';
+      successMsg.textContent = err.message;
+      setTimeout(() => { successMsg.style.display = 'none'; }, 5000);
+    } finally {
+      setBusy(btn, false);
+    }
+  });
 }
 
 async function loadCitizenReports() {
   const feedList = document.getElementById('citizen-reports-list');
   if (!feedList) return;
-
   try {
-    const response = await fetch('/api/scam/reports');
-    const data = await response.json();
-
-    if (data.status === 'success' && data.data) {
-      feedList.innerHTML = data.data.map(r => `
-        <div class="report-feed-item">
-          <div class="feed-item-top">
-            <span class="feed-item-badge">${r.scamType}</span>
-            <span class="feed-item-time">${r.time}</span>
-          </div>
-          <div class="feed-item-target">${r.target}</div>
-          <div class="feed-item-desc">${r.details}</div>
-        </div>
-      `).join('');
-    }
+    const data = await api('reports', '/api/scam/reports', { method: 'GET', timeoutMs: 10000 });
+    if (!data || !data.data) return;
+    feedList.innerHTML = data.data.map(r => `
+      <div class="report-feed-item">
+        <div class="feed-item-top"><span class="feed-item-badge">${esc(r.scamType)}</span><span class="feed-item-time">${esc(r.time)}</span></div>
+        <div class="feed-item-target">${esc(r.target)}</div>
+        <div class="feed-item-desc">${esc(r.details)}</div>
+      </div>`).join('');
   } catch (err) {
-    console.error("Failed to load citizen reports", err);
+    feedList.innerHTML = '<div class="datasource-note">Could not load reports.</div>';
   }
 }

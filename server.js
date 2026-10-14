@@ -4,43 +4,94 @@ const path = require('path');
 const multer = require('multer');
 const fs = require('fs');
 const tls = require('tls');
+const dns = require('dns').promises;
+const gcp = require('./lib/gcp');
+const { geminiAdvise } = require('./lib/geminiAdvisor');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-app.use(cors());
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Production In-Memory Rate Limiter for API endpoints
-const ipRequests = new Map();
-const RATE_LIMIT_WINDOW_MS = 60 * 1000;
-const MAX_REQUESTS_PER_WINDOW = 60;
+// ---- Hardening: proxy trust, security headers, CORS, body limits, rate limiting ----
+app.set('trust proxy', 1);          // Cloud Run: exactly one trusted hop (Google front end)
+app.disable('x-powered-by');
 
 app.use((req, res, next) => {
-  if (req.path.startsWith('/api/')) {
-    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
-    const now = Date.now();
-    const clientData = ipRequests.get(ip) || { count: 0, resetTime: now + RATE_LIMIT_WINDOW_MS };
-
-    if (now > clientData.resetTime) {
-      clientData.count = 1;
-      clientData.resetTime = now + RATE_LIMIT_WINDOW_MS;
-    } else {
-      clientData.count++;
-      if (clientData.count > MAX_REQUESTS_PER_WINDOW) {
-        return res.status(429).json({ error: 'Too many requests. Please try again in a minute.' });
-      }
-    }
-    ipRequests.set(ip, clientData);
-  }
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  res.setHeader('Content-Security-Policy', [
+    "default-src 'self'",
+    "script-src 'self'",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' https://fonts.gstatic.com",
+    "img-src 'self' data: https://api.qrserver.com",
+    "connect-src 'self'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'none'"
+  ].join('; '));
   next();
 });
 
-const upload = multer({ dest: path.join(__dirname, 'uploads/') });
-if (!fs.existsSync(path.join(__dirname, 'uploads'))) {
-  fs.mkdirSync(path.join(__dirname, 'uploads'), { recursive: true });
-}
+// CORS: same-origin by default. Set CORS_ORIGINS="https://a.example,https://b.example" to allow others.
+const CORS_ORIGINS = (process.env.CORS_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
+app.use(cors({
+  origin: (origin, cb) => cb(null, !origin ? false : CORS_ORIGINS.includes(origin)),
+  methods: ['GET', 'POST'],
+  maxAge: 600
+}));
+
+app.get('/healthz', (req, res) => res.json({ status: 'ok', uptimeSec: Math.round(process.uptime()) }));
+
+app.use(express.json({ limit: '64kb' }));
+app.use(express.static(path.join(__dirname, 'public'), { dotfiles: 'ignore', index: 'index.html' }));
+
+// In-memory per-IP rate limiter (per Cloud Run instance; use Cloud Armor for a global limit).
+const ipRequests = new Map();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const MAX_REQUESTS_PER_WINDOW = 60;       // cheap routes
+const MAX_EXPENSIVE_PER_WINDOW = 15;      // routes that call Gemini / DNS / TLS / OCR
+const EXPENSIVE_ROUTES = /^\/api\/(scam\/check|domain\/check|gemini\/|document-ai\/analyze)/;
+
+app.use((req, res, next) => {
+  if (!req.path.startsWith('/api/')) return next();
+  const expensive = EXPENSIVE_ROUTES.test(req.path);
+  const key = (expensive ? 'x:' : 'c:') + (req.ip || 'unknown');
+  const limit = expensive ? MAX_EXPENSIVE_PER_WINDOW : MAX_REQUESTS_PER_WINDOW;
+  const now = Date.now();
+  let c = ipRequests.get(key);
+  if (!c || now > c.resetTime) c = { count: 0, resetTime: now + RATE_LIMIT_WINDOW_MS };
+  c.count++;
+  ipRequests.set(key, c);
+  if (c.count > limit) {
+    res.setHeader('Retry-After', Math.ceil((c.resetTime - now) / 1000));
+    return res.status(429).json({ error: 'Too many requests. Please try again in a minute.' });
+  }
+  next();
+});
+setInterval(() => {
+  const now = Date.now();
+  for (const [k, v] of ipRequests) if (now > v.resetTime) ipRequests.delete(k);
+}, 60 * 1000).unref();
+
+// Uploads: 5 MB, allow-listed types, random server-side names, temp files deleted after processing.
+const UPLOAD_DIR = path.join(__dirname, 'uploads');
+if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+const ALLOWED_UPLOAD = { '.pdf': 'application/pdf', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.txt': 'text/plain' };
+const upload = multer({
+  dest: UPLOAD_DIR,
+  limits: { fileSize: 5 * 1024 * 1024, files: 1, fields: 10, fieldSize: 64 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const ext = path.extname(file.originalname || '').toLowerCase();
+    if (!ALLOWED_UPLOAD[ext]) return cb(Object.assign(new Error('Unsupported file type. Use PDF, PNG, JPG or TXT.'), { status: 415 }));
+    cb(null, true);
+  }
+});
+const safeName = n => path.basename(String(n || 'document')).replace(/[^\w.\- ]/g, '_').slice(0, 80);
+const rmTemp = f => { if (f && f.path) fs.unlink(f.path, () => {}); };
 
 // ==========================================
 // PRESET SPECIMEN DOCUMENTS FOR INSTANT JUDGE TESTING
@@ -197,142 +248,148 @@ app.get('/api/document-ai/specimens', (req, res) => {
   });
 });
 
-app.post('/api/document-ai/analyze', upload.single('document'), (req, res) => {
-  const specimenKey = req.body.specimenKey;
+app.post('/api/document-ai/analyze', upload.single('document'), async (req, res) => {
+  const body = req.body || {};
+  const specimenKey = body.specimenKey;
+  const tmp = req.file;
+  try {
+    if (specimenKey && Object.prototype.hasOwnProperty.call(SPECIMENS, specimenKey)) {
+      const specimen = SPECIMENS[specimenKey];
+      return res.json({
+        status: 'success',
+        mode: 'PRESET_SPECIMEN',
+        dataSource: 'demo-simulated',
+        dataSourceNote: 'Built-in specimen with pre-written forensic findings. Not produced by Document AI.',
+        timestamp: new Date().toISOString(),
+        document: { id: specimen.id, title: specimen.title, type: specimen.type, extractedText: specimen.rawText },
+        analysis: specimen.forensicAnalysis
+      });
+    }
 
-  if (specimenKey && SPECIMENS[specimenKey]) {
-    const specimen = SPECIMENS[specimenKey];
-    return res.json({
-      status: 'success',
-      mode: 'PRESET_SPECIMEN',
-      timestamp: new Date().toISOString(),
-      document: {
-        id: specimen.id,
-        title: specimen.title,
-        type: specimen.type,
-        extractedText: specimen.rawText
-      },
-      analysis: specimen.forensicAnalysis
-    });
-  }
+    let customText = String(body.customText || '').slice(0, 20000);
+    let filename = 'User Submitted Document';
+    let ocr = { available: false, reason: 'no file uploaded' };
+    let ocrNote = 'Text pasted by user; analysed by keyword rules.';
 
-  // If user uploaded a custom file or custom text
-  let customText = req.body.customText || "";
-  let filename = "User Submitted Document";
-
-  if (req.file) {
-    filename = req.file.originalname;
-    try {
-      const fileExt = path.extname(req.file.originalname).toLowerCase();
-      if (fileExt === '.txt' || fileExt === '.json' || fileExt === '.csv') {
-        customText = fs.readFileSync(req.file.path, 'utf8');
+    if (req.file) {
+      filename = safeName(req.file.originalname);
+      const ext = path.extname(filename).toLowerCase();
+      if (ext === '.txt') {
+        customText = fs.readFileSync(req.file.path, 'utf8').slice(0, 20000);
+        ocrNote = 'Plain text read directly; analysed by keyword rules.';
       } else {
-        // Image or PDF document: Document AI OCR extraction simulation
-        customText = `[Google Document AI OCR Parser - ${req.file.originalname}]\n` +
-          `File Size: ${(req.file.size / 1024).toFixed(1)} KB | MIME: ${req.file.mimetype}\n` +
-          `Extracted Optical Content:\n`;
-        
-        // If filename or custom text contains keywords
-        const lowerName = filename.toLowerCase();
-        if (lowerName.includes("warrant") || lowerName.includes("cbi") || lowerName.includes("arrest") || lowerName.includes("police")) {
-          customText += `SPECIAL INVESTIGATION NOTICE - CENTRAL BUREAU OF INVESTIGATION\n` +
-            `ORDER FOR IMMEDIATE BANKING ESCROW TRANSFER\n` +
-            `Subject: Interception of banned narcotics. Target placed under digital custody. Transfer liquid assets to verification account.`;
-        } else if (lowerName.includes("loan") || lowerName.includes("credit") || lowerName.includes("sanction")) {
-          customText += `INSTANT CASH LOAN AGREEMENT - 7 DAY TERM\n` +
-            `Deduction: 35% upfront processing fees. Consent: Full synchronization of mobile phone contact book and photo gallery.`;
+        ocr = await gcp.documentAiOcr(fs.readFileSync(req.file.path), ALLOWED_UPLOAD[ext]);
+        if (ocr.available) {
+          customText = ocr.text;
+          ocrNote = 'Text extracted by Google Document AI; analysed by keyword rules.';
         } else {
-          customText += `Standard document scanned via Document AI OCR layout processor.\n` +
-            `Visual seal detected: Pending cryptographic signature verification against national registry.`;
+          customText = `[OCR unavailable: ${ocr.reason}. Only the filename "${filename}" (${(req.file.size / 1024).toFixed(1)} KB) could be assessed.]`;
+          ocrNote = `Document AI not used (${ocr.reason}). Verdict is based on filename only and is NOT a document analysis.`;
         }
       }
-    } catch (e) {
-      customText = `File: ${req.file.originalname} parsed via Document AI OCR.`;
     }
-  }
-  
-  // Dynamic forensic evaluation logic
-  const isDigitalArrest = /cbi|arrest|police|supreme court|pmla|mdma|customs|escrow|skype|surveillance|verification account|escrow/i.test(customText + " " + filename);
-  const isLoanScam = /7-day|processing fee|gallery|contacts|quick cash|urgent loan|predatory/i.test(customText + " " + filename);
-  
-  let riskScore = 15;
-  let verdict = "REQUIRES_FURTHER_VERIFICATION";
-  let severity = "LOW";
 
-  if (isDigitalArrest) {
-    riskScore = 98;
-    verdict = "COUNTERFEIT_FORGED_WARRANT";
-    severity = "CRITICAL";
-  } else if (isLoanScam) {
-    riskScore = 94;
-    verdict = "PREDATORY_UNREGISTERED_LENDER";
-    severity = "HIGH";
-  }
+    const hay = customText + ' ' + filename;
+    const isDigitalArrest = /cbi|arrest|police|supreme court|pmla|mdma|customs|escrow|skype|surveillance|verification account/i.test(hay);
+    const isLoanScam = /7-day|processing fee|gallery|contacts|quick cash|urgent loan|predatory/i.test(hay);
+    const ocrMissing = Boolean(req.file) && !ocr.available && path.extname(filename).toLowerCase() !== '.txt';
 
-  res.json({
-    status: 'success',
-    mode: req.file ? 'FILE_UPLOAD_OCR' : 'DYNAMIC_TEXT_EVALUATION',
-    timestamp: new Date().toISOString(),
-    document: {
-      id: "DOC-UP-" + Math.floor(Math.random() * 9000 + 1000),
-      title: filename,
-      extractedText: customText || "Document AI OCR text extraction completed."
-    },
-    analysis: {
-      authenticityScore: Math.max(4, 100 - riskScore),
-      riskScore: riskScore,
-      verdict: verdict,
-      severity: severity,
-      findings: [
-        {
-          rule: "GCP_DOC_AI_SEAL_VERIFICATION",
-          status: isDigitalArrest || isLoanScam ? "FAILED" : "VERIFIED",
-          detail: isDigitalArrest 
-            ? "Emblem distortion detected. Indian Law Enforcement agencies never dispatch warrants requiring fund transfers."
-            : "Structural document layout evaluated against standard BFSI regulatory templates."
-        },
-        {
-          rule: "REGULATORY_COMPLIANCE_RESOLVER",
-          status: isDigitalArrest || isLoanScam ? "CRITICAL_VIOLATION" : "PASSED",
-          detail: isDigitalArrest 
-            ? "Violates CrPC / BNSS legal dispatch guidelines. Digital arrest orders have zero legal validity in India."
-            : isLoanScam
-            ? "Violates RBI 2022 Digital Lending Circular: Contact list and gallery harvesting terms are strictly illegal."
-            : "Issuer verified against national financial registries."
-        }
-      ],
-      legalCitations: isDigitalArrest 
-        ? ["BNSS Section 105", "IT Act Section 66D", "BNS Section 318 (Cheating)"]
-        : ["RBI Fair Practices Code", "IT Act Section 43/66"],
-      recommendedAction: isDigitalArrest 
-        ? "🚨 CRITICAL FORGERY: Do NOT pay any money. Disconnect video call immediately and dial 1930."
-        : isLoanScam
-        ? "⚠️ PREDATORY APP: Do NOT grant contact or gallery permissions. Report to RBI CMS (cms.rbi.org.in)."
-        : "Document layout appears normal. Continue standard identity verification."
-    }
-  });
+    let riskScore = ocrMissing ? 50 : 15;
+    let verdict = ocrMissing ? 'UNVERIFIED_NO_OCR' : 'REQUIRES_FURTHER_VERIFICATION';
+    let severity = ocrMissing ? 'MEDIUM' : 'LOW';
+    if (isDigitalArrest) { riskScore = 98; verdict = 'COUNTERFEIT_FORGED_WARRANT'; severity = 'CRITICAL'; }
+    else if (isLoanScam) { riskScore = 94; verdict = 'PREDATORY_UNREGISTERED_LENDER'; severity = 'HIGH'; }
+    const flagged = isDigitalArrest || isLoanScam;
+
+    res.json({
+      status: 'success',
+      mode: req.file ? (ocr.available ? 'FILE_UPLOAD_DOCUMENT_AI_OCR' : (ocrMissing ? 'FILE_UPLOAD_NO_OCR' : 'FILE_UPLOAD_TEXT')) : 'TEXT_KEYWORD_RULES',
+      dataSource: ocr.available ? 'document-ai+rules' : 'rules-engine',
+      dataSourceNote: ocrNote,
+      timestamp: new Date().toISOString(),
+      document: {
+        id: 'DOC-UP-' + Math.floor(Math.random() * 9000 + 1000),
+        title: filename,
+        extractedText: customText || 'No text supplied.'
+      },
+      analysis: {
+        authenticityScore: Math.max(4, 100 - riskScore),
+        riskScore,
+        verdict,
+        severity,
+        findings: [
+          {
+            rule: 'KEYWORD_SCAM_PATTERN_MATCH',
+            status: flagged ? 'FAILED' : (ocrMissing ? 'INCONCLUSIVE' : 'NO_MATCH'),
+            detail: isDigitalArrest
+              ? 'Text matches known digital-arrest / fake-warrant wording. Indian law-enforcement agencies never demand fund transfers.'
+              : isLoanScam ? 'Text matches predatory-lending patterns (upfront fees, contact/gallery access).'
+              : (ocrMissing ? 'Document text could not be extracted, so no content check was possible.' : 'No known scam wording found. This does not prove the document is genuine.')
+          },
+          {
+            rule: 'REGULATORY_REFERENCE',
+            status: flagged ? 'CRITICAL_VIOLATION' : 'NOT_EVALUATED',
+            detail: isDigitalArrest ? 'Digital arrest has no basis in BNSS/CrPC.' : isLoanScam ? 'Contact/gallery harvesting is prohibited under the RBI 2022 Digital Lending guidelines.' : 'Seal/signature and issuer-registry verification are not performed by this demo.'
+          }
+        ],
+        legalCitations: isDigitalArrest ? ['BNSS Section 105', 'IT Act Section 66D', 'BNS Section 318 (Cheating)'] : ['RBI Fair Practices Code', 'IT Act Section 43/66'],
+        recommendedAction: isDigitalArrest
+          ? 'CRITICAL: Do NOT pay any money. Disconnect the call immediately and dial 1930.'
+          : isLoanScam ? 'PREDATORY APP: Do NOT grant contact or gallery permissions. Report to RBI CMS (cms.rbi.org.in).'
+          : 'No scam wording detected, but verify any official document directly with the issuing institution.'
+      }
+    });
+  } catch (e) {
+    console.error('[document-ai] failure:', e.message);
+    res.status(500).json({ error: 'Document analysis failed. Treat the document as unverified.' });
+  } finally {
+    rmTemp(tmp);
+  }
+});
+
+// Upload/body error handler (multer limits, bad JSON, wrong type)
+app.use((err, req, res, next) => {
+  if (!err) return next();
+  const status = err.code === 'LIMIT_FILE_SIZE' ? 413 : (err.status || err.statusCode || (err.name === 'MulterError' ? 400 : 500));
+  if (status >= 500) console.error('[error]', err.message);
+  if (req.file) rmTemp(req.file);
+  res.status(status).json({ error: status === 413 ? 'File or request too large (max 5 MB).' : (status < 500 ? err.message : 'Internal error') });
 });
 
 // ==========================================
 // API 2: GEMINI ON VERTEX AI (Fraud Reasoning & Financial Advisory)
 // ==========================================
 app.post('/api/gemini/advisor', async (req, res) => {
-  const { prompt, scenario } = req.body;
-  const userQuery = prompt || "Analyze this transaction message.";
+  const raw = req.body && req.body.prompt;
+  const userQuery = (typeof raw === 'string' ? raw : '').trim().slice(0, 2000);
+  if (!userQuery) return res.status(400).json({ error: 'Please describe the suspicious message or situation.' });
 
-  // Contextual BFSI intelligence prompts
-  let responseData = {
-    model: "gemini-1.5-flash-vertex-ai",
-    query: userQuery,
-    timestamp: new Date().toISOString(),
-    reasoning: "",
-    riskLevel: "MEDIUM",
-    signals: [],
-    recommendedAction: ""
-  };
+  const g = await geminiAdvise(userQuery);
+  if (g.available) {
+    return res.json({
+      status: 'success',
+      data: {
+        model: `${g.model} (${g.via})`, grounded: true, dataSource: 'gemini-live',
+        query: userQuery, timestamp: new Date().toISOString(),
+        reasoning: g.reasoning, riskLevel: g.riskLevel, signals: g.signals, recommendedAction: g.recommendedAction
+      }
+    });
+  }
+  const f = advisorRules(userQuery);
+  res.json({
+    status: 'success',
+    data: {
+      model: 'rules-engine fallback', grounded: false, dataSource: 'rules-engine',
+      fallbackReason: g.reason || 'Gemini unavailable',
+      query: userQuery, timestamp: new Date().toISOString(), ...f
+    }
+  });
+});
 
+/** Deterministic keyword advisor, used only when Gemini is unreachable. */
+function advisorRules(userQuery) {
+  const responseData = { reasoning: '', riskLevel: 'MEDIUM', signals: [], recommendedAction: '' };
   const lower = userQuery.toLowerCase();
-
   if (lower.includes("digital arrest") || lower.includes("cbi") || lower.includes("parcel") || lower.includes("skype") || lower.includes("customs")) {
     responseData.riskLevel = "CRITICAL";
     responseData.signals = [
@@ -342,12 +399,12 @@ app.post('/api/gemini/advisor', async (req, res) => {
       "Financial Escrow / Fund Verification Transfer trap"
     ];
     responseData.reasoning = 
-      "Our Vertex AI reasoning model confirms this matches 100% of the signature traits of the 'Digital Arrest' cyber-extortion scheme. In Indian law (CrPC / BNSS), no court or police officer conducts bail, investigation, or asset verification over WhatsApp or Skype video calls, nor does the Reserve Bank of India maintain 'verification escrow' accounts for individuals.";
+      "This matches the signature traits of the 'Digital Arrest' cyber-extortion scheme. In Indian law (CrPC / BNSS), no court or police officer conducts bail, investigation, or asset verification over WhatsApp or Skype video calls, nor does the Reserve Bank of India maintain 'verification escrow' accounts for individuals.";
     responseData.recommendedAction = 
       "1. Immediately disconnect the call and block the sender.\n" +
       "2. Do NOT transfer any money.\n" +
       "3. Inform your local police station or dial 1930 (National Cyber Crime Reporting Helpline).\n" +
-      "4. The SafeMeAI Android app will automatically flag this number in the national telemetry database.";
+      "4. Report the number at cybercrime.gov.in so it can be flagged.";
   } else if (lower.includes("upi") || lower.includes("pin") || lower.includes("qr") || lower.includes("refund") || lower.includes("receive")) {
     responseData.riskLevel = "HIGH";
     responseData.signals = [
@@ -358,7 +415,7 @@ app.post('/api/gemini/advisor', async (req, res) => {
     responseData.reasoning = 
       "In the Unified Payments Interface (UPI) architecture, you NEVER need to enter your UPI PIN, scan a QR code, or approve a Collect Request to RECEIVE money. Entering your PIN authorizes a debit from your account.";
     responseData.recommendedAction = 
-      "Reject the collect request immediately on PhonePe / Google Pay / Paytm. SafeMeAI client has already flagged this VPA handle.";
+      "Reject the collect request immediately on PhonePe / Google Pay / Paytm.";
   } else if (lower.includes("telegram") || lower.includes("like youtube") || lower.includes("part time job") || lower.includes("crypto return")) {
     responseData.riskLevel = "CRITICAL";
     responseData.signals = [
@@ -371,35 +428,38 @@ app.post('/api/gemini/advisor', async (req, res) => {
     responseData.recommendedAction = 
       "Cease all contact immediately. Exit the Telegram group. Any funds sent to their accounts should be reported immediately via cybercrime.gov.in.";
   } else {
-    responseData.riskLevel = "LOW";
-    responseData.signals = ["General financial query", "Standard security verification"];
+    responseData.riskLevel = "MEDIUM";
+    responseData.signals = ["No known scam pattern matched by the offline rules (this is not a safety guarantee)"];
     responseData.reasoning = 
-      "This inquiry appears to be standard. Remember the golden BFSI security rule: Never share OTPs, UPI PINs, CVV codes, or install remote-access apps (AnyDesk, TeamViewer, RustDesk) at the request of anyone claiming to represent a bank.";
+      "The offline rules could not assess this message; treat it as unverified. Remember the golden BFSI security rule: Never share OTPs, UPI PINs, CVV codes, or install remote-access apps (AnyDesk, TeamViewer, RustDesk) at the request of anyone claiming to represent a bank.";
     responseData.recommendedAction = "Verify all sensitive inquiries directly through official banking apps or customer support numbers on your debit card.";
   }
-
-  res.json({
-    status: 'success',
-    data: responseData
-  });
-});
+  return responseData;
+}
 
 // ==========================================
 // API 3: BIGQUERY RISK & ANOMALY ANALYTICS
 // ==========================================
-app.get('/api/bigquery/analytics', (req, res) => {
+app.get('/api/bigquery/analytics', async (req, res) => {
+  const bq = await gcp.bigQueryTopVectors();
+  const live = bq.available ? { topVectors: bq.rows, activeQuerySample: bq.query } : {};
   res.json({
     status: 'success',
-    engine: "Google Cloud BigQuery (High-Throughput Partitioned Analytics)",
-    queryExecutionTimeMs: 142,
+    dataSource: bq.available ? 'bigquery-live-vectors+demo-simulated-rest' : 'demo-simulated',
+    dataSourceNote: bq.available
+      ? 'Top vectors come from a live BigQuery query; KPIs and mule clusters are illustrative demo data.'
+      : `Illustrative demo data, not a real BigQuery result (${bq.reason}).`,
+    engine: bq.available ? 'Google Cloud BigQuery (live query for vectors; rest simulated)' : 'Simulated analytics (BigQuery not connected)',
+    queryExecutionTimeMs: null,
     dataset: "safeme_bfsi_lakehouse.transaction_fraud_telemetry",
     kpis: {
       totalTransactionsAnalyzed: "14,892,105",
       threatsBlocked24h: "3,812",
       fraudLossPreventedINR: "₹18,42,80,000",
       activeMuleRingsTracked: "148",
-      edgeSensorsReporting: "24,510" // SafeMeAI Android phones
+      edgeSensorsReporting: "24,510"
     },
+    kpisAreSimulated: true,
     topVectors: [
       { vector: "UPI Collect / Fake Refund", share: 38, count: 1448 },
       { vector: "Digital Arrest Video Extortion", share: 29, count: 1105 },
@@ -413,6 +473,7 @@ app.get('/api/bigquery/analytics', (req, res) => {
       { clusterId: "MULE-BENGALURU-14", nodes: 31, volumeINR: "₹2.2 Cr", status: "LEO_DISPATCHED", riskScore: 98.7 },
       { clusterId: "MULE-KOLKATA-07", nodes: 12, volumeINR: "₹42 Lakh", status: "AUTO_THROTTLED", riskScore: 89.2 }
     ],
+    activeQuerySampleIsIllustrative: !bq.available,
     activeQuerySample: 
       `SELECT \n` +
       `  payer_vpa, \n` +
@@ -422,7 +483,8 @@ app.get('/api/bigquery/analytics', (req, res) => {
       `    TABLE \`safeme_bfsi.realtime_upi_stream\`) AS anomaly_status \n` +
       `FROM \`safeme_bfsi.realtime_upi_stream\` \n` +
       `WHERE DATE(timestamp) = CURRENT_DATE() \n` +
-      `ORDER BY anomaly_score DESC LIMIT 100;`
+      `ORDER BY anomaly_score DESC LIMIT 100;`,
+    ...live
   });
 });
 
@@ -430,7 +492,8 @@ app.get('/api/bigquery/analytics', (req, res) => {
 // API 4: VERTEX AI SEARCH / REGULATORY COMPLIANCE
 // ==========================================
 app.post('/api/compliance/search', (req, res) => {
-  const query = (req.body.query || "").toLowerCase();
+  const rawQuery = String((req.body && req.body.query) || '').slice(0, 500);
+  const query = rawQuery.toLowerCase();
 
   let citation = {
     source: "Reserve Bank of India (RBI) Master Direction on Customer Protection",
@@ -455,15 +518,16 @@ app.post('/api/compliance/search', (req, res) => {
         "1. Check if the lending app is listed in RBI's approved NBFC portal.",
         "2. Save call recordings and WhatsApp extortion screenshots.",
         "3. Lodge complaint on RBI CMS portal (cms.rbi.org.in).",
-        "4. SafeMeAI Android app automatically blocks abusive recovery caller rings."
+        "4. Block and report the abusive callers to 1930 / cybercrime.gov.in."
       ]
     };
   }
 
   res.json({
     status: 'success',
-    retrievalEngine: "Vertex AI Search (Grounded on RBI, NPCI & SEBI Circulars)",
-    query: req.body.query,
+    dataSource: 'curated-static',
+    retrievalEngine: 'Curated static citations (keyword match; Vertex AI Search is not connected)',
+    query: rawQuery,
     data: citation
   });
 });
@@ -472,15 +536,15 @@ app.post('/api/compliance/search', (req, res) => {
 // API 5: TELEMETRY STREAM INGESTION (PUB/SUB SUBSCRIBER)
 // ==========================================
 app.post('/api/telemetry/ingest', (req, res) => {
-  const { deviceId, threatType, threatPayload, timestamp } = req.body;
-  
+  const { deviceId } = req.body || {};
+  // Demo endpoint: validates and acknowledges only. Nothing is published to Pub/Sub or stored.
   res.json({
     status: 'success',
-    event: 'PUB_SUB_ACK',
-    messageId: 'ps-msg-' + Math.random().toString(36).substring(2, 10),
-    topic: 'projects/safeme-bfsi/topics/edge-threat-telemetry',
-    timestamp: timestamp || new Date().toISOString(),
-    ingestedFrom: deviceId || 'SafeMeAI-Android-Edge-Client'
+    event: 'SIMULATED_ACK',
+    dataSource: 'demo-simulated',
+    messageId: 'sim-' + Math.random().toString(36).substring(2, 10),
+    timestamp: new Date().toISOString(),
+    ingestedFrom: String(deviceId || 'unknown').replace(/[^\w.\-]/g, '_').slice(0, 64)
   });
 });
 
@@ -648,49 +712,59 @@ let openPhishCache = {
   lastUpdated: 0,
   count: 0
 };
+const openPhishStatus = { live: false, lastAttempt: 0, lastSuccess: 0, lastError: null, indicators: 0 };
+let openPhishInFlight = false;
 
 async function syncOpenPhishFeed() {
   const now = Date.now();
-  if (now - openPhishCache.lastUpdated < 10 * 60 * 1000 && openPhishCache.domains.size > 0) {
-    return;
-  }
+  if (openPhishInFlight) return;
+  if (now - openPhishCache.lastUpdated < 10 * 60 * 1000 && openPhishCache.domains.size > 0) return;
+  openPhishInFlight = true;
+  openPhishStatus.lastAttempt = now;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 4000);
     const resp = await fetch('https://openphish.com/feed.txt', {
-      redirect: 'follow',
+      redirect: 'error',
       signal: controller.signal,
       headers: { 'User-Agent': 'SafeMeAI-BFSI-ThreatScanner/2.0' }
     });
-    clearTimeout(timeout);
-    if (resp.ok) {
-      const text = await resp.text();
-      const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-      const domainSet = new Set();
-      const urlSet = new Set();
-      for (const line of lines) {
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const text = (await resp.text()).slice(0, 5 * 1024 * 1024);
+    const lines = text.split('\n').map(l => l.trim()).filter(Boolean).slice(0, 100000);
+    const domainSet = new Set();
+    const urlSet = new Set();
+    for (const line of lines) {
+      try {
+        const parsed = new URL(line);
         urlSet.add(line.toLowerCase());
-        try {
-          const parsed = new URL(line);
-          domainSet.add(parsed.hostname.replace(/^www\./, '').toLowerCase());
-        } catch (_) {}
-      }
-      openPhishCache = {
-        urls: urlSet,
-        domains: domainSet,
-        lastUpdated: now,
-        count: lines.length
-      };
-      console.log(`[ThreatFeed] OpenPhish community stream synced: ${lines.length} zero-day phishing targets active.`);
+        domainSet.add(parsed.hostname.replace(/^www\./, '').toLowerCase());
+      } catch (_) {}
     }
+    if (domainSet.size === 0) throw new Error('feed contained no valid URLs');
+    // Swap atomically only on success; on failure the previous snapshot is kept.
+    openPhishCache = { urls: urlSet, domains: domainSet, lastUpdated: now, count: domainSet.size };
+    Object.assign(openPhishStatus, { live: true, lastSuccess: now, lastError: null, indicators: domainSet.size });
+    console.log(`[ThreatFeed] OpenPhish synced: ${domainSet.size} indicators.`);
   } catch (err) {
-    console.warn(`[ThreatFeed] OpenPhish feed sync notice: ${err.message}. Relying on internal sensor buffer.`);
+    openPhishStatus.lastError = err.name === 'AbortError' ? 'timeout' : err.message;
+    openPhishStatus.live = openPhishCache.domains.size > 0 && (Date.now() - openPhishCache.lastUpdated) < 60 * 60 * 1000;
+    console.warn(`[ThreatFeed] OpenPhish sync failed: ${openPhishStatus.lastError}`);
+  } finally {
+    clearTimeout(timeout);
+    openPhishInFlight = false;
   }
 }
 
-// Initial sync on boot & refresh every 10 mins
-syncOpenPhishFeed();
-setInterval(syncOpenPhishFeed, 10 * 60 * 1000);
+if (process.env.DISABLE_OPENPHISH !== '1') {
+  syncOpenPhishFeed();
+  setInterval(syncOpenPhishFeed, 10 * 60 * 1000).unref();
+}
+
+app.get('/api/threat-feed/status', (req, res) => res.json({
+  status: 'success', feed: 'OpenPhish community feed', ...openPhishStatus,
+  ageSec: openPhishStatus.lastSuccess ? Math.round((Date.now() - openPhishStatus.lastSuccess) / 1000) : null
+}));
 
 async function performRealtimeDnsCheck(host) {
   try {
@@ -734,7 +808,20 @@ async function performRealtimeDnsCheck(host) {
   }
 }
 
-function performRealtimeSslCheck(host) {
+// SSRF guard: resolve first, refuse non-public targets, then connect to the vetted IP (no DNS rebinding).
+async function performRealtimeSslCheck(host) {
+  const bad = (why) => ({ supported: false, hasValidSsl: false, error: why, subjectOrg: 'Not probed', issuer: 'None' });
+  try {
+    if (!host || /^(localhost|.*\.(local|internal|localdomain))$/i.test(host)) return bad('Blocked non-public host');
+    const addrs = await dns.lookup(host, { all: true });
+    if (!addrs.length || !addrs.every(a => gcp.isPublicIp(a.address))) return bad('Blocked non-public address');
+    return await rawSslCheck(host, addrs[0].address);
+  } catch (e) {
+    return bad(e.code || e.message);
+  }
+}
+
+function rawSslCheck(host, ip) {
   return new Promise((resolve) => {
     let resolved = false;
     const finish = (res) => {
@@ -744,7 +831,9 @@ function performRealtimeSslCheck(host) {
       }
     };
 
+    let sockRef = null;
     const timer = setTimeout(() => {
+      if (sockRef) sockRef.destroy();
       finish({
         supported: false,
         hasValidSsl: false,
@@ -756,7 +845,7 @@ function performRealtimeSslCheck(host) {
 
     try {
       const socket = tls.connect({
-        host: host,
+        host: ip,
         port: 443,
         servername: host,
         rejectUnauthorized: false,
@@ -818,6 +907,7 @@ function performRealtimeSslCheck(host) {
         }
       });
 
+      sockRef = socket;
       socket.on('error', (err) => {
         clearTimeout(timer);
         finish({
@@ -931,6 +1021,129 @@ function performAgenticAiForensics({ host, dns, ssl, isOpenPhish, entropy, isLoo
 }
 
 // ==========================================
+// DOMAIN INTELLIGENCE ENGINE WIRING (see lib/domainEngine.js)
+// ==========================================
+const engine = require('./lib/domainEngine');
+const textEngine = require('./lib/textEngine');
+const engineDeps = {
+  whitelist: PROTECTED_DOMAINS_WHITELIST,
+  _matcher: engine.buildMatcher(PROTECTED_DOMAINS_WHITELIST),
+  brands: BRAND_KEYWORDS,
+  suspiciousTlds: SUSPICIOUS_TLDS,
+  shorteners: URL_SHORTENERS,
+  dnsCheck: performRealtimeDnsCheck,
+  sslCheck: performRealtimeSslCheck,
+  get openPhish() { return openPhishCache; },
+  useGemini: process.env.DISABLE_GEMINI !== '1'
+};
+
+function levelBoost(score) {
+  return score >= 80 ? 'CRITICAL' : (score >= 60 ? 'HIGH' : 'MODERATE');
+}
+
+function agenticFromAssessment(a) {
+  const g = a.gemini;
+  if (g && g.available) {
+    return {
+      model: `Gemini (${g.model}) via ${g.via}`,
+      verdict: g.verdict,
+      confidence: g.confidence != null ? `${Math.round(g.confidence * 100)}%` : 'n/a',
+      threatVector: g.threatVector,
+      rationale: g.rationale,
+      signals: g.signals,
+      grounded: true
+    };
+  }
+  const why = g && g.reason ? g.reason : 'not configured';
+  return {
+    model: `SafeMeAI deterministic forensics engine (Gemini unavailable: ${why})`,
+    verdict: a.verdict,
+    confidence: 'n/a',
+    threatVector: a.verified ? 'None - verified official domain' : (a.flags[0] || 'Insufficient evidence'),
+    rationale: a.verified ? a.evidenceForTrust.join(' ') : a.flags.slice(0, 3).join(' | '),
+    grounded: false
+  };
+}
+
+function telemetryFromAssessment(a) {
+  const dns = a.dns || {};
+  const ssl = a.ssl || {};
+  return {
+    dns: {
+      provider: dns.provider, status: dns.status, resolved: dns.resolved, ips: dns.ips || [],
+      ttl: dns.ttl, isFastFlux: dns.isFastFlux, isNxDomain: dns.isNxDomain
+    },
+    ssl: {
+      supported: ssl.supported, hasValidSsl: ssl.hasValidSsl, authorized: ssl.authorized, error: ssl.error,
+      subjectOrg: ssl.subjectOrg, issuer: ssl.issuer, ageDays: ssl.ageDays, remainingDays: ssl.remainingDays,
+      isEV_OV: ssl.isEV_OV, isFreeDV: ssl.isFreeDV, isNewlyIssued: ssl.isNewlyIssued, isExpired: ssl.isExpired
+    },
+    threatFeeds: {
+      openPhishMatch: a.isOpenPhish,
+      feedName: "OpenPhish Global Community Feed",
+      activeIndicators: openPhishCache.count,
+      feedLive: openPhishStatus.live,
+      feedLastError: openPhishStatus.lastError,
+      webRisk: a.webRisk,
+      timestamp: new Date().toISOString()
+    },
+    domainAge: a.domainAge,
+    mlDiagnostics: {
+      shannonEntropy: a.entropy,
+      isDGA: a.entropy > 3.8 && a.registrable.split('.')[0].length > 12,
+      entropyRating: a.entropy > 3.8 ? "High (Algorithmic DGA Pattern)" : (a.entropy > 3.2 ? "Moderate" : "Normal Lexical Distribution")
+    },
+    agenticAi: agenticFromAssessment(a)
+  };
+}
+
+const VERDICT_COPY = {
+  FAKE_OFFICIAL_NAMESPACE: ["🚨 FORGED OFFICIAL DOMAIN: This address does not exist", "🛑 DO NOT OPEN. Genuine government/bank websites are always registered. Search the institution's name in Google or use its official app."],
+  CONFIRMED_ZERO_DAY_PHISHING: ["🚨 ZERO-DAY PHISHING: Actively flagged in global threat feeds", "🛑 DO NOT OPEN: this domain is attacking users right now. Block and report to 1930."],
+  GOOGLE_WEB_RISK_FLAGGED: ["🚨 GOOGLE WEB RISK: Known dangerous site", "🛑 DO NOT OPEN: Google's threat database lists this URL as malware/phishing."],
+  DECEPTIVE_URL_STRUCTURE: ["🚨 DECEPTIVE LINK: The real destination is hidden", "🛑 DO NOT OPEN: the text before '@' is a decoy; the browser would go to the host after it."],
+  RAW_IP_PHISHING_HOST: ["⚠️ SUSPICIOUS: Raw IP address host", "🛑 AVOID: banks and government services never direct users to numeric IP addresses."],
+  MALICIOUS_APK_DOWNLOAD_VECTOR: ["🚨 MALWARE WARNING: Android APK sideload link", "🛑 DO NOT INSTALL: APKs from links can steal your SMS, OTPs and photos. Install only from Google Play."],
+  PHISHING_BRAND_AS_SUBDOMAIN: ["🚨 PHISHING: Trusted brand used only as a decoy subdomain", "🛑 DO NOT OPEN: the real owner is the last part of the domain, not the familiar brand at the start."],
+  HOMOGLYPH_LOOKALIKE: ["🚨 VISUAL IMPERSONATION: Look-alike characters", "🛑 DO NOT OPEN: characters were swapped to imitate a trusted institution."],
+  TYPOSQUATTING_LOOKALIKE: ["🚨 VISUAL IMPERSONATION: Misspelled look-alike of a trusted domain", "🛑 DO NOT OPEN: type the official address yourself or use the official app."],
+  PHISHING_BRAND_IMPERSONATION: ["🚨 EXTREME DANGER: Fake domain impersonating a trusted brand", "🛑 DO NOT OPEN: it is designed to steal your bank login, OTP or Aadhaar."],
+  OBFUSCATED_SHORT_URL: ["🚨 SUSPICIOUS LINK: Shortened URL hides the destination", "🛑 DO NOT TAP: Indian banks never send shortened links."],
+  NONEXISTENT_DOMAIN: ["⚠️ DOMAIN DOES NOT EXIST", "A link to a non-existent domain is a typo, a dead lure, or a taken-down scam. Do not trust the sender."],
+  OFFICIAL_NAMESPACE_BAD_TLS: ["⚠️ OFFICIAL NAME, BROKEN SECURITY: expired certificate", "Do not enter any credentials until the institution fixes its certificate."],
+  OFFICIAL_NAMESPACE_UNCONFIRMED: ["⚠️ UNCONFIRMED: Official-looking name could not be validated live", "Retry in a minute. Until DNS confirms it exists, treat as unverified."],
+  HIGH_RISK_UNVERIFIED_DOMAIN: ["⚠️ HIGH RISK: Unverified domain with multiple danger signals", "Do not enter banking passwords, OTPs, or personal data. Verify through the institution's official app."],
+  UNVERIFIED_THIRD_PARTY_DOMAIN: ["⚠️ UNVERIFIED: Not a verified BFSI/government domain", "SafeMeAI cannot vouch for this site. Never enter banking passwords, OTPs or UPI PINs on it."],
+  ESTABLISHED_THIRD_PARTY_DOMAIN: ["ℹ️ Established website (not a bank or government portal)", "Looks like an ordinary long-lived website. Still never enter banking passwords or OTPs on non-bank sites."]
+};
+
+/** Build the /api/domain/check payload from an engine assessment. */
+function domainPayload(a, rawInput) {
+  const [head, advice] = a.verified
+    ? [`✅ VERIFIED OFFICIAL: ${a.host}`, "Registered, live and in an authoritative namespace/allow-list. Still confirm the HTTPS padlock before entering credentials."]
+    : (VERDICT_COPY[a.verdict] || [`⚠️ ${a.verdict}`, "Exercise caution."]);
+  const brand = a.primaryImpersonation;
+  return {
+    domain: a.host,
+    unicodeDomain: a.unicodeHost !== a.host ? a.unicodeHost : undefined,
+    fullUrl: rawInput,
+    riskScore: a.riskScore,
+    riskLevel: a.riskLevel,
+    verdict: a.verdict,
+    headline: head,
+    isWhitelisted: a.verified,
+    verified: a.verified,
+    tld: '.' + a.tld,
+    targetBrand: brand ? (brand.brand || brand.target) : undefined,
+    officialDomain: brand && brand.target && /\./.test(brand.target) ? brand.target : undefined,
+    flags: a.verified ? a.evidenceForTrust : [...a.flags, ...(a.hardBlock ? [] : a.evidenceForTrust.map(g => '✓ ' + g))],
+    actionAdvice: advice,
+    protectionLaw: a.verified ? "Official Regulated Domain Framework" : "IT Act Section 66D (Cheating by Personation) & Indian Cyber Security Guidelines",
+    realtimeTelemetry: telemetryFromAssessment(a)
+  };
+}
+
+// ==========================================
 // API 6: COMPREHENSIVE CITIZEN SCAM CHECKER ENGINE (Instant Verification)
 // ==========================================
 const CITIZEN_REPORTS = [
@@ -962,169 +1175,129 @@ const CITIZEN_REPORTS = [
 
 app.post('/api/scam/check', async (req, res) => {
   const { text } = req.body;
-  const raw = (text || "").trim();
+  const raw = (typeof text === 'string' ? text : '').trim();
   const lower = raw.toLowerCase();
 
-  if (!raw || lower === "enter message, url, or upi id" || raw === "undefined" || raw === "null") {
+  if (!raw || typeof text !== 'string' || !textEngine.normalizeForUrls(raw).trim() || lower === "enter message, url, or upi id" || raw === "undefined" || raw === "null") {
     return res.status(400).json({ 
       error: "Please enter or paste a specific SMS message, suspicious URL, or UPI ID to analyze." 
     });
   }
 
   // -------------------------------------------------------------
-  // STEP 1: EMBEDDED URL & DOMAIN EXTRACTION & HCRV ANALYSIS
+  // STEP 1: EMBEDDED URL & DOMAIN EXTRACTION -> DOMAIN INTELLIGENCE ENGINE
   // -------------------------------------------------------------
-  const urlRegex = /(?:https?:\/\/)?([a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,})(?:\/[^\s]*)?/gi;
-  let extractedUrls = [];
+  if (raw.length > 5000) {
+    return res.status(400).json({ error: "Message too long (max 5000 characters)." });
+  }
+  const urlRegex = /(?:https?:\/\/|ftp:\/\/)?(?:[^\s\/@<>"']+@)?(?:\d{1,3}(?:\.\d{1,3}){3}|(?:[a-z0-9¡-￿](?:[a-z0-9¡-￿-]*[a-z0-9¡-￿])?\.)+[a-z¡-￿]{2,})(?::\d+)?(?:[\/?#][^\s]*)?/gi;
+  const extractedUrls = [];
+  const seenHosts = new Set();
   let match;
-  while ((match = urlRegex.exec(raw)) !== null) {
-    let domainCandidate = match[1].toLowerCase().replace(/^www\./, '');
-    // Avoid false positives on decimal numbers like 10.5 or v1.8
-    if (!domainCandidate.includes('.') || /^\d+\.\d+$/.test(domainCandidate)) continue;
-    extractedUrls.push({ full: match[0], domain: domainCandidate });
+  const urlText = textEngine.normalizeForUrls(raw); // NFKC, zero-width stripped, defanged (hxxp, [.])
+  while ((match = urlRegex.exec(urlText)) !== null) {
+    let token = match[0].replace(/[.,;:!?)\]'"]+$/, '');
+    if (!/^[a-z]+:\/\//i.test(token) && !token.includes('@') && !textEngine.isPlausibleLink(token)) continue;
+    const hasScheme = /^[a-z]+:\/\//i.test(token);
+    // scheme-less "name@host.tld" is an e-mail / UPI-like id, not a link: judge the part after '@'
+    if (!hasScheme && token.includes('@')) token = token.split('@').pop();
+    if (/^\d+(\.\d+)?$/.test(token) || /^v?\d+(\.\d+)+$/i.test(token)) continue; // version/decimal numbers
+    const p = engine.parseTarget(token);
+    if (!p.ok || seenHosts.has(p.host)) continue;
+    if (!p.isIp && !p.host.includes('.')) continue;
+    seenHosts.add(p.host);
+    extractedUrls.push({ full: token, domain: p.host });
+    if (extractedUrls.length >= 5) break;
   }
 
-  // Check if the user tested a standalone URL or domain directly
-  const trimmedInput = raw.trim();
-  const isDirectUrlQuery = extractedUrls.length === 1 && (
-    trimmedInput === extractedUrls[0].full || 
-    trimmedInput.replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/\/$/, '') === extractedUrls[0].domain
-  );
+  const trimmedInput = urlText.trim();
+  const isDirectUrlQuery = extractedUrls.length === 1 &&
+    trimmedInput.replace(/^[a-z]+:\/\//i, '').replace(/^www\./i, '').replace(/\/+$/, '').toLowerCase() ===
+    extractedUrls[0].full.replace(/^[a-z]+:\/\//i, '').replace(/^www\./i, '').replace(/\/+$/, '').toLowerCase();
 
-  // If a standalone official/protected domain was tested directly
-  if (isDirectUrlQuery && isProtectedDomain(extractedUrls[0].domain)) {
-    const singleHost = extractedUrls[0].domain;
-    const [dns, ssl] = await Promise.all([
-      performRealtimeDnsCheck(singleHost),
-      performRealtimeSslCheck(singleHost)
-    ]);
-    const realtimeTelemetry = {
-      dns,
-      ssl,
-      threatFeeds: { openPhishMatch: false, feedName: "OpenPhish Global Community Feed", activeIndicators: openPhishCache.count || 300 },
-      agenticAi: {
-        model: "Gemini 1.5 Threat Hunter (Vertex AI Grounded)",
-        verdict: "BENIGN_AUTHENTICATED_SOVEREIGN",
-        confidence: "99.8%",
-        threatVector: "Official Sovereign/Banking Infrastructure",
-        rationale: `Verified sovereign/banking institutional domain (${singleHost}). ${ssl.isEV_OV ? 'Cryptographic Organization: ' + ssl.subjectOrg : 'Valid TLS'}. Google DNS verified.`
-      }
+  // Every link is judged on live evidence. Gemini second-opinion only for a single direct lookup (latency).
+  const assessments = await Promise.all(extractedUrls.map(u =>
+    engine.assessDomain(u.full, { ...engineDeps, _matcher: engineDeps._matcher, useGemini: isDirectUrlQuery && engineDeps.useGemini })
+      .catch(err => ({ ok: false, error: err.message, host: u.domain }))
+  ));
+  // A failed assessment fails CLOSED (never "safe").
+  const failed = assessments.find(a => !a.ok);
+  const scored = assessments.filter(a => a.ok);
+
+  const toScamShape = (a, extra = {}) => {
+    const payload = domainPayload(a, raw);
+    return {
+      analyzedText: raw.length > 200 ? raw.substring(0, 200) + "..." : raw,
+      timestamp: new Date().toISOString(),
+      riskScore: payload.riskScore,
+      riskLevel: payload.riskLevel,
+      scamType: a.verified ? "Verified Banking / Official Authority Portal" : (VERDICT_COPY[a.verdict] ? VERDICT_COPY[a.verdict][0].replace(/^\S+\s+/, '').split(':')[0] : a.verdict),
+      headline: payload.headline,
+      verdictDescription: a.verified
+        ? `${a.host} is registered, resolves live, and sits in a regulated/allow-listed namespace. ${a.evidenceForTrust.join(' ')}`
+        : `${payload.actionAdvice}`,
+      flags: payload.flags,
+      actionAdvice: a.verified
+        ? ["Website is authentic and verified.", "Always ensure your browser shows the HTTPS padlock.", "Legitimate banks never ask for your UPI PIN, NetBanking password or OTP."]
+        : [payload.actionAdvice, "📞 Report suspicious links to 1930 or cybercrime.gov.in.", "🛡️ Block the sender."],
+      protectionLaw: payload.protectionLaw,
+      targetBrand: payload.targetBrand,
+      officialDomain: payload.officialDomain,
+      realtimeTelemetry: payload.realtimeTelemetry,
+      ...extra
     };
-    return res.json({
-      status: 'success',
-      data: {
-        analyzedText: raw,
-        timestamp: new Date().toISOString(),
-        riskScore: 2,
-        riskLevel: "SAFE",
-        scamType: "Verified Banking / Official Authority Portal",
-        headline: `✅ VERIFIED: Official Institution Domain (${singleHost})`,
-        verdictDescription: `This domain is an authenticated official website registered under India's regulated sovereign & banking infrastructure (RBI / IDRBT / MeitY). It is 100% legitimate for banking and citizen transactions.`,
-        flags: [
-          "Official regulated sovereign/banking namespace (.bank.in / .gov.in / BFSI whitelist)",
-          ssl.isEV_OV ? `Cryptographically certified Organization: ${ssl.subjectOrg} (${ssl.issuer})` : "Authorized institutional directory entry",
-          dns.resolved ? `Live Google DNS resolved to ${dns.ips.length} IP(s): ${dns.ips.join(', ')}` : "Verified DNS resolution"
-        ],
-        actionAdvice: [
-          "Website is authentic and verified.",
-          "Always ensure your browser connection displays the secure HTTPS padlock icon.",
-          "Remember: Legitimate banks will never ask for your confidential UPI PIN, NetBanking password, or OTP."
-        ],
-        protectionLaw: "RBI Master Direction on Customer Protection & Digital Security",
-        realtimeTelemetry
-      }
-    });
+  };
+
+  if (isDirectUrlQuery && scored.length === 1) {
+    return res.json({ status: 'success', data: toScamShape(scored[0]) });
+  }
+  if (isDirectUrlQuery && failed) {
+    return res.status(502).json({ error: "Verification engine unavailable. Treat this link as UNVERIFIED." });
   }
 
+  // Message with embedded links: worst link drives the verdict. Unverified link inside a message is >= HIGH.
   let phishingDomainDetected = null;
-  for (const item of extractedUrls) {
-    const isWhitelisted = isProtectedDomain(item.domain);
-
-    if (!isWhitelisted) {
-      const parts = item.domain.split('.');
-      const tld = parts[parts.length - 1];
-      const isSuspTld = SUSPICIOUS_TLDS.has(tld);
-      const isShortener = URL_SHORTENERS.has(item.domain) || item.domain.endsWith('.page.link') || item.domain.endsWith('.wa.me');
-      const isApk = raw.toLowerCase().includes('.apk') || item.full.toLowerCase().includes('.apk');
-      
-      // Vector 0: Live OpenPhish Global Community Feed Check
-      if (openPhishCache.domains.has(item.domain) || openPhishCache.urls.has(item.full.toLowerCase())) {
-        phishingDomainDetected = {
-          domain: item.domain,
-          type: "CONFIRMED_ZERO_DAY_PHISHING",
-          tld
-        };
-        break;
-      }
-
-      // Vector 1: Typosquatting / Visual Impersonation (Levenshtein distance 1..2 to protected domain)
-      const lookalike = findSimilarProtectedDomain(item.domain);
-      if (lookalike) {
-        phishingDomainDetected = {
-          domain: item.domain,
-          type: "TYPOSQUATTING_LOOKALIKE",
-          target: lookalike,
-          tld
-        };
-        break;
-      }
-
-      // Vector 2: Brand Impersonation check
-      for (const brand of BRAND_KEYWORDS) {
-        if (item.domain.includes(brand.keyword)) {
-          phishingDomainDetected = {
-            domain: item.domain,
-            type: "BRAND_IMPERSONATION",
-            brand: brand.name,
-            official: brand.official,
-            tld
-          };
-          break;
-        }
-      }
-
-      if (!phishingDomainDetected) {
-        if (isShortener) {
-          phishingDomainDetected = {
-            domain: item.domain,
-            type: "OBFUSCATED_SHORT_URL",
-            tld,
-            isShortener: true
-          };
-        } else if (isApk || isSuspTld) {
-          phishingDomainDetected = {
-            domain: item.domain,
-            type: isApk ? "MALICIOUS_APK_PAYLOAD" : "HIGH_RISK_TLD",
-            tld,
-            isApk
-          };
-        } else if (/-kyc|kyc-|pan-update|update-pan|aadhar-update|account-verify|rewardz|claim-prize/i.test(item.domain)) {
-          phishingDomainDetected = {
-            domain: item.domain,
-            type: "MALICIOUS_PHISHING_PATTERN",
-            tld
-          };
-        } else if (isDirectUrlQuery) {
-          // Standard neutral domain entered with no phishing or brand keywords
-          phishingDomainDetected = {
-            domain: item.domain,
-            type: "UNVERIFIED_THIRD_PARTY_DOMAIN",
-            tld
-          };
-        } else {
-          // Unwhitelisted external domain embedded inside an unsolicited message
-          phishingDomainDetected = {
-            domain: item.domain,
-            type: "UNVERIFIED_EXTERNAL_LINK",
-            tld
-          };
-        }
-      }
-    }
+  const risky = scored.filter(a => !a.verified).sort((x, y) => y.riskScore - x.riskScore)[0];
+  if (risky || failed) {
+    const a = risky || { host: failed.host, verdict: 'UNVERIFIED_THIRD_PARTY_DOMAIN', riskScore: 75, riskLevel: 'HIGH', flags: ['Link could not be analysed — treated as unverified'], evidenceForTrust: [], verified: false, hardBlock: false, tld: '', dns: {}, ssl: {}, isOpenPhish: false, webRisk: {}, entropy: 0, registrable: failed.host, gemini: { available: false, reason: 'engine error' }, domainAge: {} };
+    const boosted = { ...a, riskScore: Math.max(a.riskScore, 75), riskLevel: levelBoost(Math.max(a.riskScore, 75)) };
+    // Merge the text-engine verdict so scam wording (digital arrest, KYC, ...) is not lost behind the link verdict.
+    const tv = textEngine.analyze(raw, { links: extractedUrls.length });
+    const textStrong = tv._meta && tv._meta.category !== 'legit' && tv._meta.category !== 'unknown' && tv.riskScore >= 60;
+    const mergedScore = Math.max(boosted.riskScore, tv.riskScore);
+    const out = toScamShape({ ...boosted, riskScore: mergedScore, riskLevel: levelBoost(mergedScore) }, {
+      scamType: textStrong ? `${tv.scamType} + ${boosted.hardBlock ? "Malicious Link" : "Unverified Link"}` : (boosted.hardBlock ? "Malicious / Impersonation Link" : "Unverified Link in Message"),
+      headline: textStrong ? tv.headline : undefined,
+      verdictDescription: `This message contains a link to '${a.host}'. ${a.flags.slice(0, 2).join(' ')} ${textStrong ? tv.verdictDescription : ''}`.trim(),
+      flags: textStrong ? [...tv.flags, ...a.flags.slice(0, 3)] : undefined,
+      actionAdvice: [
+        `🛑 DO NOT CLICK '${a.host}'.`,
+        ...(textStrong ? tv.actionAdvice : []),
+        "✅ Go to your bank/service via its official app or the website printed on your card.",
+        "🛡️ Block the sender and report to 1930."
+      ]
+    });
+    if (out.headline === undefined) out.headline = domainPayload(boosted, raw).headline;
+    if (out.flags === undefined) out.flags = domainPayload(boosted, raw).flags;
+    if (textStrong) out.protectionLaw = tv.protectionLaw;
+    return res.json({ status: 'success', data: out });
   }
 
   // -------------------------------------------------------------
-  // STEP 2: EMBEDDED UPI / VPA HANDLE CHECK
+  // STEP 2: MULTI-SIGNAL TEXT ENGINE (lib/textEngine.js, ported from the Android detectors).
+  // Normalisation, UPI-handle checks, per-category scoring, legit-alert gate and the
+  // conservative default all live there. Embedded links were already judged above.
+  // NOTE: everything below this return (legacy first-match-wins regex chain) is dead code kept
+  // only until it can be deleted in a quiet edit window.
+  // -------------------------------------------------------------
+  {
+    const textVerdict = textEngine.analyze(raw, { links: extractedUrls.length });
+    delete textVerdict._meta;
+    return res.json({ status: 'success', data: textVerdict });
+  }
+
+  // -------------------------------------------------------------
+  // LEGACY STEP 2: EMBEDDED UPI / VPA HANDLE CHECK (unreachable)
   // -------------------------------------------------------------
   const upiRegex = /[a-zA-Z0-9._-]+@(okhdfcbank|okaxis|oksbi|okicici|ybl|ibl|axl|paytm|barodampay|upi)/gi;
   const hasUpiHandle = upiRegex.test(raw);
@@ -1573,7 +1746,7 @@ app.post('/api/scam/check', async (req, res) => {
 // API 7: DIGITAL ARREST EMERGENCY RAPID SCREENER (Authoritative I4C/MHA Protocol)
 // ==========================================
 app.post('/api/emergency/digital-arrest-screen', (req, res) => {
-  const { isUniformOrAgency, isCoerciveSurveillance, isContrabandOrPMLA, isMoneyDemand } = req.body;
+  const { isUniformOrAgency, isCoerciveSurveillance, isContrabandOrPMLA, isMoneyDemand } = req.body || {};
 
   let positiveCount = 0;
   if (isUniformOrAgency) positiveCount++;
@@ -1616,6 +1789,7 @@ app.post('/api/emergency/digital-arrest-screen', (req, res) => {
 
   res.json({
     status: 'success',
+    engine: 'deterministic-rules',
     verdict,
     certainty,
     headline,
@@ -1627,279 +1801,22 @@ app.post('/api/emergency/digital-arrest-screen', (req, res) => {
 // API 9: HYBRID CROSS-REFERENCE DOMAIN & URL CHECKER (HCRV ENGINE)
 // ==========================================
 app.post('/api/domain/check', async (req, res) => {
-  const rawInput = (req.body.url || req.body.domain || "").trim();
+  const rawInput = String(req.body.url || req.body.domain || "").trim();
   if (!rawInput) {
     return res.status(400).json({ error: "Please enter a domain or URL to evaluate." });
   }
-
-  let cleanUrl = rawInput.toLowerCase();
-  if (!cleanUrl.startsWith("http://") && !cleanUrl.startsWith("https://")) {
-    cleanUrl = "https://" + cleanUrl;
+  if (rawInput.length > 2048) {
+    return res.status(400).json({ error: "Input too long." });
   }
-
-  let host = "";
-  let pathname = "";
   try {
-    const parsed = new URL(cleanUrl);
-    host = parsed.hostname.replace(/^www\./, '').trim();
-    pathname = parsed.pathname;
+    const a = await engine.assessDomain(rawInput, engineDeps);
+    if (!a.ok) return res.status(400).json({ error: "Invalid domain or URL format." });
+    res.json({ status: 'success', data: domainPayload(a, rawInput) });
   } catch (err) {
-    host = rawInput.toLowerCase().replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0].split('?')[0].trim();
+    console.error('[domain/check] engine failure:', err);
+    // Fail closed: an engine failure must never read as "safe".
+    res.status(502).json({ error: "Verification engine unavailable. Treat this domain as UNVERIFIED." });
   }
-
-  if (!host) {
-    return res.status(400).json({ error: "Invalid domain or URL format." });
-  }
-
-  const sld = host.replace(/^www\./, '').split('.')[0];
-  const entropy = calculateShannonEntropy(sld);
-  const parts = host.split('.');
-  const tld = parts[parts.length - 1];
-  const isSuspiciousTld = SUSPICIOUS_TLDS.has(tld);
-  const isWhitelisted = isProtectedDomain(host);
-  const lookalike = findSimilarProtectedDomain(host);
-
-  let impersonatedBrand = null;
-  for (const b of BRAND_KEYWORDS) {
-    if (host.includes(b.keyword)) {
-      impersonatedBrand = b;
-      break;
-    }
-  }
-
-  // Live real-time parallel DNS & TLS audit
-  const [dns, ssl] = await Promise.all([
-    performRealtimeDnsCheck(host),
-    performRealtimeSslCheck(host)
-  ]);
-
-  const isOpenPhish = openPhishCache.domains.has(host) || openPhishCache.urls.has(cleanUrl) || openPhishCache.urls.has(rawInput.toLowerCase());
-
-  const agenticAi = performAgenticAiForensics({
-    host,
-    dns,
-    ssl,
-    isOpenPhish,
-    entropy,
-    isLookalike: lookalike,
-    brandMatch: impersonatedBrand,
-    isSuspiciousTld,
-    isWhitelisted
-  });
-
-  const realtimeTelemetry = {
-    dns: {
-      provider: dns.provider,
-      status: dns.status,
-      resolved: dns.resolved,
-      ips: dns.ips,
-      ttl: dns.ttl,
-      isFastFlux: dns.isFastFlux,
-      isNxDomain: dns.isNxDomain
-    },
-    ssl: {
-      supported: ssl.supported,
-      hasValidSsl: ssl.hasValidSsl,
-      authorized: ssl.authorized,
-      subjectOrg: ssl.subjectOrg,
-      issuer: ssl.issuer,
-      ageDays: ssl.ageDays,
-      remainingDays: ssl.remainingDays,
-      isEV_OV: ssl.isEV_OV,
-      isFreeDV: ssl.isFreeDV,
-      isNewlyIssued: ssl.isNewlyIssued,
-      isExpired: ssl.isExpired
-    },
-    threatFeeds: {
-      openPhishMatch: isOpenPhish,
-      feedName: "OpenPhish Global Community Feed",
-      activeIndicators: openPhishCache.count || 300,
-      timestamp: new Date().toISOString()
-    },
-    mlDiagnostics: {
-      shannonEntropy: entropy,
-      isDGA: entropy > 3.8 && sld.length > 12,
-      entropyRating: entropy > 3.8 ? "High (Algorithmic DGA Pattern)" : (entropy > 3.2 ? "Moderate" : "Normal Lexical Distribution")
-    },
-    agenticAi
-  };
-
-  // Check 1: Whitelist & Sovereign Regulated Namespace Match
-  if (isWhitelisted) {
-    return res.json({
-      status: 'success',
-      data: {
-        domain: host,
-        fullUrl: rawInput,
-        riskScore: 0,
-        riskLevel: "SAFE",
-        verdict: "VERIFIED_OFFICIAL_DOMAIN",
-        headline: `✅ 100% LEGITIMATE: Verified Institutional Domain (${host})`,
-        isWhitelisted: true,
-        flags: [
-          "Matches Authoritative Government & BFSI Whitelist (.bank.in / .gov.in / .nic.in)",
-          ssl.isEV_OV ? `Cryptographically certified Organization: ${ssl.subjectOrg} (${ssl.issuer})` : "Verified cryptographic certificate and regulatory origin",
-          dns.resolved ? `Live Google DNS resolved to ${dns.ips.length} IP(s): ${dns.ips.join(', ')}` : "Live DNS verified"
-        ],
-        actionAdvice: "This is an official and authentic domain. Safe to browse, submit inquiries, and transact.",
-        protectionLaw: "Official Regulated Domain Framework",
-        realtimeTelemetry
-      }
-    });
-  }
-
-  // Check 2: Live OpenPhish match
-  if (isOpenPhish) {
-    return res.json({
-      status: 'success',
-      data: {
-        domain: host,
-        fullUrl: rawInput,
-        riskScore: 100,
-        riskLevel: "CRITICAL",
-        verdict: "CONFIRMED_ZERO_DAY_PHISHING",
-        headline: `🚨 ZERO-DAY PHISHING: Actively Flagged in Global Threat Feed!`,
-        isWhitelisted: false,
-        flags: [
-          "Actively listed in OpenPhish Global Community Zero-Day threat feed",
-          "Confirmed malicious campaign actively harvesting credentials or tokens",
-          dns.resolved ? `Hosted on live IP(s): ${dns.ips.join(', ')}` : "Sinkholed/disposable infrastructure"
-        ],
-        actionAdvice: "🛑 DO NOT OPEN: This domain is actively attacking users in the wild. Block and report immediately.",
-        protectionLaw: "IT Act Section 66D & Global Anti-Phishing Working Group (APWG)",
-        realtimeTelemetry
-      }
-    });
-  }
-
-  // Check 3: Typosquatting / Visual Impersonation
-  if (lookalike) {
-    return res.json({
-      status: 'success',
-      data: {
-        domain: host,
-        fullUrl: rawInput,
-        riskScore: 98,
-        riskLevel: "CRITICAL",
-        verdict: "TYPOSQUATTING_LOOKALIKE",
-        headline: `🚨 VISUAL IMPERSONATION: Lookalike of ${lookalike}!`,
-        isWhitelisted: false,
-        flags: [
-          `Visual spelling variation mimicking authentic domain '${lookalike}'`,
-          "Common typosquatting vector designed to harvest netbanking passwords",
-          ssl.isFreeDV ? `Uses free automated certificate (${ssl.issuer}) with no corporate identity` : "Unverified ownership"
-        ],
-        actionAdvice: `🛑 DO NOT OPEN: This site visually impersonates ${lookalike}. Visit the verified official domain instead: https://${lookalike}.`,
-        protectionLaw: "IT Act Section 66D & Trademark Infringement",
-        realtimeTelemetry
-      }
-    });
-  }
-
-  // Check 4: Brand Impersonation Mismatch
-  if (impersonatedBrand) {
-    return res.json({
-      status: 'success',
-      data: {
-        domain: host,
-        fullUrl: rawInput,
-        riskScore: 98,
-        riskLevel: "CRITICAL",
-        verdict: "PHISHING_BRAND_IMPERSONATION",
-        headline: `🚨 EXTREME DANGER: Fake Domain Impersonating ${impersonatedBrand.name}!`,
-        isWhitelisted: false,
-        targetBrand: impersonatedBrand.name,
-        officialDomain: impersonatedBrand.official,
-        tld: '.' + tld,
-        flags: [
-          `Brand Keyword Trap: Contains '${impersonatedBrand.keyword}' but does NOT belong to ${impersonatedBrand.official}`,
-          ssl.isFreeDV ? `Free automated TLS certificate (${ssl.issuer}) with no corporate verification` : "Unauthorized host",
-          dns.resolved ? `Resolved to IP: ${dns.ips.join(', ')}` : "Host unresolvable or sinkholed"
-        ],
-        actionAdvice: `🛑 DO NOT OPEN: This is a phishing site designed to steal your bank login, OTP, or Aadhaar. The real website is ${impersonatedBrand.official}.`,
-        protectionLaw: "IT Act Section 66D (Cheating by Personation)",
-        realtimeTelemetry
-      }
-    });
-  }
-
-  // Check 5: Suspicious TLD / APK / Numeric IP
-  const isIpAddress = /^(\d{1,3}\.){3}\d{1,3}$/.test(host);
-  const isApkLink = cleanUrl.endsWith('.apk') || pathname.includes('.apk');
-  const hasExcessiveHyphens = (host.match(/-/g) || []).length >= 2;
-
-  let riskScore = 25;
-  let riskLevel = "LOW";
-  let verdict = "STANDARD_THIRD_PARTY_DOMAIN";
-  let headline = `ℹ️ Standard Web Domain (${host})`;
-  let flags = [];
-  let actionAdvice = "This domain is not an official banking or government portal. Safe for regular browsing, but never enter banking passwords or OTPs.";
-
-  if (isApkLink) {
-    riskScore = 96;
-    riskLevel = "CRITICAL";
-    verdict = "MALICIOUS_APK_DOWNLOAD_VECTOR";
-    headline = "🚨 MALWARE WARNING: Unauthorized APK Sideload Link";
-    flags.push("Direct Android Package (.apk) download outside Google Play Store");
-    flags.push("High risk of Trojan spyware or predatory loan extortion code");
-    actionAdvice = "🛑 DO NOT DOWNLOAD OR INSTALL: Installing APKs from unverified links can grant scammers access to your SMS, OTPs, and photos.";
-  } else if (isIpAddress) {
-    riskScore = 94;
-    riskLevel = "CRITICAL";
-    verdict = "RAW_IP_PHISHING_HOST";
-    headline = "⚠️ SUSPICIOUS: Raw IP Address Host";
-    flags.push("Site is hosted directly on a numeric IP without domain registration");
-    actionAdvice = "🛑 AVOID VISITING: Financial and government services never direct users to raw numeric IP addresses.";
-  } else if (isSuspiciousTld) {
-    riskScore = 88;
-    riskLevel = "HIGH";
-    verdict = "HIGH_RISK_SUSPICIOUS_TLD";
-    headline = `⚠️ HIGH RISK: Unregulated High-Risk Extension (.${tld})`;
-    flags.push(`High-abuse Top Level Domain (.${tld}) frequently used in disposable cybercrime campaigns`);
-    if (ssl.isNewlyIssued) flags.push(`Freshly minted TLS certificate (${ssl.ageDays} days old)`);
-    actionAdvice = "⚠️ EXTREME CAUTION: This extension is overwhelmingly associated with phishing pages and disposable fake lottery links.";
-  } else if (hasExcessiveHyphens) {
-    riskScore = 70;
-    riskLevel = "HIGH";
-    verdict = "SUSPICIOUS_HYPHENATED_PATTERN";
-    headline = "⚠️ SUSPICIOUS: Irregular Hyphenated Domain Pattern";
-    flags.push("Domain contains multiple hyphens mimicking legitimate institutional names");
-    actionAdvice = "Verify the exact URL in official government gazettes or on the back of your bank debit card.";
-  } else if (!dns.resolved) {
-    riskScore = 50;
-    riskLevel = "MODERATE";
-    verdict = "UNRESOLVABLE_HOST";
-    headline = `⚠️ Unresolvable Domain (${host})`;
-    flags.push("Domain does not resolve to active IP addresses on Google Public DNS");
-    actionAdvice = "Domain may be inactive, abandoned, or blocked by registrar.";
-  } else {
-    // Standard legitimate non-banking domain (e.g. github.com, medium.com)
-    flags.push(`Standard external web host (TLD: .${tld})`);
-    if (ssl.supported) {
-      flags.push(`Valid SSL/TLS certificate issued by ${ssl.issuer} (Age: ${ssl.ageDays !== null ? ssl.ageDays + ' days' : 'active'})`);
-    }
-    if (dns.resolved) {
-      flags.push(`Google Public DNS verified (${dns.ips.length} A records)`);
-    }
-  }
-
-  res.json({
-    status: 'success',
-    data: {
-      domain: host,
-      fullUrl: rawInput,
-      riskScore,
-      riskLevel,
-      verdict,
-      headline,
-      isWhitelisted: false,
-      tld: '.' + tld,
-      flags,
-      actionAdvice,
-      protectionLaw: "IT Act Section 66D & Indian Cyber Security Guidelines",
-      realtimeTelemetry
-    }
-  });
 });
 
 
@@ -1907,7 +1824,8 @@ app.post('/api/domain/check', async (req, res) => {
 // API 8: CITIZEN REPORT SUBMISSION (FEED SAFEMEAI)
 // ==========================================
 app.post('/api/scam/report', (req, res) => {
-  const { reporterName, reporterPhone, scamType, scamDetails, scamTarget } = req.body;
+  const { scamType, scamDetails, scamTarget } = req.body || {};
+  const clip = (v, n) => String(v == null ? '' : v).slice(0, n);
 
   if (!scamTarget || !scamType) {
     return res.status(400).json({ error: "Please provide the scammer's phone number/UPI ID/URL and scam category." });
@@ -1915,11 +1833,11 @@ app.post('/api/scam/report', (req, res) => {
 
   const newReport = {
     id: "REP-" + Math.floor(1000 + Math.random() * 9000),
-    scamType: scamType || "Unspecified Scam",
-    target: scamTarget,
-    details: scamDetails || "Citizen reported fraudulent behavior.",
+    scamType: clip(scamType, 60) || "Unspecified Scam",
+    target: clip(scamTarget, 200),
+    details: clip(scamDetails, 500) || "Citizen reported fraudulent behavior.",
     time: "Just now",
-    status: "PUSHED_TO_EDGE_SENSORS"
+    status: "RECEIVED_DEMO"
   };
 
   CITIZEN_REPORTS.unshift(newReport);
@@ -1927,7 +1845,8 @@ app.post('/api/scam/report', (req, res) => {
 
   res.json({
     status: 'success',
-    message: "Report successfully submitted and propagated to SafeMeAI edge intelligence database.",
+    message: "Report received and added to the in-memory demo feed (not persisted, not pushed to devices).",
+    dataSource: 'demo-in-memory',
     report: newReport
   });
 });
@@ -1935,6 +1854,8 @@ app.post('/api/scam/report', (req, res) => {
 app.get('/api/scam/reports', (req, res) => {
   res.json({
     status: 'success',
+    dataSource: 'demo-in-memory',
+    dataSourceNote: 'Seeded sample reports plus reports submitted since this instance started. Not persisted.',
     data: CITIZEN_REPORTS
   });
 });
@@ -1944,6 +1865,6 @@ app.listen(PORT, () => {
   console.log(`=======================================================`);
   console.log(` SafeMeAI BFSI Enterprise Command Center is RUNNING!`);
   console.log(` Port: ${PORT}`);
-  console.log(` Powered by Google Cloud (Vertex AI, BigQuery, Doc AI)`);
+  console.log(` Gemini: ${process.env.DISABLE_GEMINI === '1' ? 'disabled' : 'enabled (falls back to rules if unreachable)'}`);
   console.log(`=======================================================`);
 });
