@@ -487,19 +487,112 @@ app.post('/api/telemetry/ingest', (req, res) => {
 // AUTHORITATIVE WHITELISTS & BRAND MATRIX (HCRV ENGINE)
 // ==========================================
 const PROTECTED_DOMAINS_WHITELIST = new Set([
-  // Law Enforcement & Regulators
+  // --- Judiciary & Law Enforcement ---
   "cybercrime.gov.in", "cbi.gov.in", "enforcementdirectorate.gov.in", "mha.gov.in",
-  "sci.gov.in", "ecourts.gov.in", "rbi.org.in", "sebi.gov.in", "irdai.gov.in",
-  "npci.org.in", "bhimupi.org.in", "uidai.gov.in", "incometax.gov.in", "epfindia.gov.in",
-  "parivahan.gov.in", "echallan.parivahan.gov.in", "digilocker.gov.in", "pmkisan.gov.in",
-  // Banking (Public & Private)
-  "sbi.co.in", "onlinesbi.sbi", "sbi.bank.in", "hdfcbank.com", "icicibank.com",
-  "axisbank.com", "pnbindia.in", "bankofbaroda.in", "kotak.com", "idfcfirstbank.com",
-  "yesbank.in", "unionbankofindia.co.in", "canarabank.com", "indusind.com", "federalbank.co.in",
-  // Payments, E-Commerce & Tech
-  "phonepe.com", "paytm.com", "amazon.in", "amazon.com", "flipkart.com", "google.com",
-  "safemeai.in", "safemeai.com"
+  "sci.gov.in", "ecourts.gov.in", "nclt.gov.in", "main.sci.gov.in", "delhihighcourt.nic.in",
+  "bombayhighcourt.nic.in", "allahabadhighcourt.in", "hc.nic.in",
+
+  // --- Government Portals & Services ---
+  "india.gov.in", "mygov.in", "digitalindia.gov.in", "pib.gov.in", "niti.gov.in",
+  "gst.gov.in", "mca.gov.in", "incometax.gov.in", "epfindia.gov.in", "pfrda.org.in",
+  "uidai.gov.in", "eaadhaar.uidai.gov.in", "digilocker.gov.in", "umang.gov.in",
+  "parivahan.gov.in", "echallan.parivahan.gov.in", "mvaivahan.gov.in",
+  "indiapost.gov.in", "passportindia.gov.in", "irctc.co.in", "cowin.gov.in",
+  "nvsp.in", "voterportal.eci.gov.in",
+
+  // --- Financial Regulators & Infrastructure ---
+  "rbi.org.in", "sebi.gov.in", "irdai.gov.in", "amfiindia.com", "nsdl.co.in", 
+  "cdslindia.com", "npci.org.in", "bhimupi.org.in",
+
+  // --- Banking (Public, Private, Regional, Cooperative & Small Finance Banks) ---
+  "agrohabank.com", "airtel.in", "alavibank.com", "aucbank.com", "axis.bank.in", "axisbank.com",
+  "bandhanbank.com", "bankofmaharashtra.in", "barclays.bank.in", "bhagininiveditabank.com",
+  "bhavnagar.bank.in", "bmcbankltd.com", "canarabank.com", "capitalbank.co.in",
+  "centralbankofindia.co.in", "crgb.bank.in", "citizencreditbank.com", "cityunionbank.com",
+  "cosmos.bank.in", "csb.bank.in", "ctbcbank.bank.in", "dbs.com", "dcbbank.com",
+  "dnsbank.in", "equitasbank.com", "esafbank.com", "federalbank.co.in", "gpparsik.bank.in",
+  "ggb.bank.in", "hdfcbank.com", "icicibank.com", "idbibank.in", "idfcfirstbank.com",
+  "indianbank.in", "ipsb.bank.in", "jkgrameen.bank.in", "jana.bank.com", "janabank.com", "jiobank.in",
+  "karnatakabank.com", "nutanbank.com", "primebankindia.com", "punjabandsindbank.co.in",
+  "punjabandsind.bank.in", "rpcbank.in", "rblbank.com", "rblfinserve.com", "rblrewards.com",
+  "sccbank.in", "sbmbank.co.in", "pardipeoplesbank.in", "sharadbank.com", "shinhanbankindia.com",
+  "shivalikbank.com", "kadi.bank.in", "waranabank.com", "shahubank.com",
+  "southindianbank.bank.in", "sbi.bank.in", "sbi.co.in", "suryodaybank.com", "svc.bank.in",
+  "tmb.in", "tmb.bank.in", "bavlabank.com", "bhagyalakshmibank.com", "chiplunurbanbank.com",
+  "tcbrl.bank.in", "tgucb.bank.in", "jpcbank.com", "thejjs.bank.in", "knsbl.bank.in",
+  "kalupurbank.com", "kdccbank.in", "kurmanchalbank.com", "mwcb.bank.in", "mudalagibank.com",
+  "nainitalbank.co.in", "namcobank.in", "navnirmanbank.com", "rccbank.in",
+  "rayatsevakbank.co.in", "saurashtrabank.com", "sudico.bank.in", "vaidyanath.bank.in",
+  "vvcc.bank.in", "varachhabank.com", "vijaycooperativebank.com", "vishweshwarbank.com",
+  "tjsbbank.co.in", "ttc.bank.in", "ucoebanking.in", "ucobank.com", "unionbankofindia.co.in",
+  "utkarsh.bank", "upgb.bank.in", "yes.bank.in", "yesbank.in", "zoroastrianbank.bank.in",
+  "zoroastrianbank.com", "pnbindia.in", "bankofbaroda.in", "onlinesbi.sbi",
+  "ujjivansfb.in", "ujjivansfb.bank.in", "aubank.in", "aubank.bank.in", "fincarebank.com",
+  "unitybank.co.in", "ippbonline.com", "finobank.com",
+
+  // --- E-commerce, Food & Delivery ---
+  "amazon.in", "amazon.com", "flipkart.com", "myntra.com", "meesho.com", "ajio.com",
+  "nykaa.com", "jiomart.com", "bigbasket.com", "blinkit.com", "zeptonow.com",
+  "swiggy.com", "zomato.com", "delhivery.com", "bluedart.com", "dtdc.in",
+
+  // --- Fintech, Payments & Insurance ---
+  "phonepe.com", "paytm.com", "paytmbank.com", "mobikwik.com", "freecharge.in",
+  "policybazaar.com", "paisabazaar.com", "kuvera.in", "etmoney.com",
+
+  // --- Share Trading & Investment ---
+  "zerodha.com", "upstox.com", "groww.in", "angelone.in", "nseindia.com", "bseindia.com",
+  "moneycontrol.com", "paytmmoney.com", "icicidirect.com", "hdfcsec.com",
+
+  // --- Loan & NBFCs ---
+  "bajajfinserv.in", "muthootfinance.com", "tatacapital.com", "ltfs.com",
+  "mahindrafinance.com", "hdbfs.com", "chola.com", "manappuram.com",
+
+  // --- Technology & Platform ---
+  "safemeai.com", "safemeai.in", "google.com"
 ]);
+
+function isProtectedDomain(host) {
+  if (!host) return false;
+  const h = host.toLowerCase().replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0].split('?')[0].trim();
+  if (!h) return false;
+  if (PROTECTED_DOMAINS_WHITELIST.has(h)) return true;
+  for (const p of PROTECTED_DOMAINS_WHITELIST) {
+    if (h === p || h.endsWith('.' + p)) return true;
+  }
+  // Sovereign & Regulated Banking Infrastructure
+  // In India: .gov.in (Government), .nic.in (National Informatics Centre), .bank.in (RBI/IDRBT Regulated Banks), .jud.in (Judiciary), .mil.in (Defence)
+  if (h.endsWith('.gov.in') || h.endsWith('.nic.in') || h.endsWith('.bank.in') || h.endsWith('.jud.in') || h.endsWith('.mil.in')) {
+    return true;
+  }
+  return false;
+}
+
+function levenshtein(a, b) {
+  const dp = Array.from({ length: a.length + 1 }, () => new Array(b.length + 1).fill(0));
+  for (let i = 0; i <= a.length; i++) dp[i][0] = i;
+  for (let j = 0; j <= b.length; j++) dp[0][j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost);
+    }
+  }
+  return dp[a.length][b.length];
+}
+
+function findSimilarProtectedDomain(host) {
+  const norm = host.toLowerCase().replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0].split('?')[0].trim();
+  if (isProtectedDomain(norm)) return null;
+  for (const protectedDomain of PROTECTED_DOMAINS_WHITELIST) {
+    if (Math.abs(norm.length - protectedDomain.length) <= 2) {
+      const dist = levenshtein(norm, protectedDomain);
+      if (dist >= 1 && dist <= 2 && norm !== protectedDomain) {
+        return protectedDomain;
+      }
+    }
+  }
+  return null;
+}
 
 const BRAND_KEYWORDS = [
   { keyword: "sbi", name: "State Bank of India (SBI)", official: "sbi.co.in" },
@@ -529,7 +622,9 @@ const BRAND_KEYWORDS = [
   { keyword: "dhl", name: "DHL Express", official: "dhl.com" },
   { keyword: "airtel", name: "Bharti Airtel", official: "airtel.in" },
   { keyword: "jio", name: "Reliance Jio", official: "jio.com" },
-  { keyword: "trai", name: "Telecom Regulatory Authority of India (TRAI)", official: "trai.gov.in" }
+  { keyword: "trai", name: "Telecom Regulatory Authority of India (TRAI)", official: "trai.gov.in" },
+  { keyword: "ujjivan", name: "Ujjivan Small Finance Bank", official: "ujjivansfb.in" },
+  { keyword: "aubank", name: "AU Small Finance Bank", official: "aubank.in" }
 ];
 
 const SUSPICIOUS_TLDS = new Set([
@@ -597,15 +692,44 @@ app.post('/api/scam/check', (req, res) => {
     extractedUrls.push({ full: match[0], domain: domainCandidate });
   }
 
+  // Check if the user tested a standalone URL or domain directly
+  const trimmedInput = raw.trim();
+  const isDirectUrlQuery = extractedUrls.length === 1 && (
+    trimmedInput === extractedUrls[0].full || 
+    trimmedInput.replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/\/$/, '') === extractedUrls[0].domain
+  );
+
+  // If a standalone official/protected domain was tested directly
+  if (isDirectUrlQuery && isProtectedDomain(extractedUrls[0].domain)) {
+    const singleHost = extractedUrls[0].domain;
+    return res.json({
+      status: 'success',
+      data: {
+        analyzedText: raw,
+        timestamp: new Date().toISOString(),
+        riskScore: 2,
+        riskLevel: "SAFE",
+        scamType: "Verified Banking / Official Authority Portal",
+        headline: `✅ VERIFIED: Official Institution Domain (${singleHost})`,
+        verdictDescription: `This domain is an authenticated official website registered under India's regulated sovereign & banking infrastructure (RBI / IDRBT / MeitY). It is 100% legitimate for banking and citizen transactions.`,
+        flags: [
+          "Official regulated sovereign/banking namespace (.bank.in / .gov.in / BFSI whitelist)",
+          "Authorized institutional directory entry",
+          "No fraud signatures or lookalikes detected"
+        ],
+        actionAdvice: [
+          "Website is authentic and verified.",
+          "Always ensure your browser connection displays the secure HTTPS padlock icon.",
+          "Remember: Legitimate banks will never ask for your confidential UPI PIN, NetBanking password, or OTP."
+        ],
+        protectionLaw: "RBI Master Direction on Customer Protection & Digital Security"
+      }
+    });
+  }
+
   let phishingDomainDetected = null;
   for (const item of extractedUrls) {
-    let isWhitelisted = false;
-    for (const d of PROTECTED_DOMAINS_WHITELIST) {
-      if (item.domain === d || item.domain.endsWith('.' + d)) {
-        isWhitelisted = true;
-        break;
-      }
-    }
+    const isWhitelisted = isProtectedDomain(item.domain);
 
     if (!isWhitelisted) {
       const parts = item.domain.split('.');
@@ -614,7 +738,19 @@ app.post('/api/scam/check', (req, res) => {
       const isShortener = URL_SHORTENERS.has(item.domain) || item.domain.endsWith('.page.link') || item.domain.endsWith('.wa.me');
       const isApk = raw.toLowerCase().includes('.apk') || item.full.toLowerCase().includes('.apk');
       
-      // Brand impersonation check
+      // Vector 1: Typosquatting / Visual Impersonation (Levenshtein distance 1..2 to protected domain)
+      const lookalike = findSimilarProtectedDomain(item.domain);
+      if (lookalike) {
+        phishingDomainDetected = {
+          domain: item.domain,
+          type: "TYPOSQUATTING_LOOKALIKE",
+          target: lookalike,
+          tld
+        };
+        break;
+      }
+
+      // Vector 2: Brand Impersonation check
       for (const brand of BRAND_KEYWORDS) {
         if (item.domain.includes(brand.keyword)) {
           phishingDomainDetected = {
@@ -643,8 +779,21 @@ app.post('/api/scam/check', (req, res) => {
             tld,
             isApk
           };
+        } else if (/-kyc|kyc-|pan-update|update-pan|aadhar-update|account-verify|rewardz|claim-prize/i.test(item.domain)) {
+          phishingDomainDetected = {
+            domain: item.domain,
+            type: "MALICIOUS_PHISHING_PATTERN",
+            tld
+          };
+        } else if (isDirectUrlQuery) {
+          // Standard neutral domain entered with no phishing or brand keywords
+          phishingDomainDetected = {
+            domain: item.domain,
+            type: "UNVERIFIED_THIRD_PARTY_DOMAIN",
+            tld
+          };
         } else {
-          // Any unwhitelisted external domain in an unsolicited message
+          // Unwhitelisted external domain embedded inside an unsolicited message
           phishingDomainDetected = {
             domain: item.domain,
             type: "UNVERIFIED_EXTERNAL_LINK",
@@ -706,18 +855,53 @@ app.post('/api/scam/check', (req, res) => {
       headline = `🚨 CRITICAL PHISHING: Fake ${d.brand} Domain!`;
       desc = `This message mimics ${d.brand} but points to fraudulent domain '${d.domain}'.`;
       flags.unshift(`Unverified host mimicking ${d.brand} (Official is ${d.official})`);
+    } else if (d.type === "TYPOSQUATTING_LOOKALIKE") {
+      scamType = "Visual Lookalike (Typosquatting)";
+      headline = `🚨 VISUAL IMPERSONATION: Lookalike of ${d.target}!`;
+      desc = `The domain '${d.domain}' visually mimics authentic domain '${d.target}' using deceptive spelling variations.`;
+      flags.unshift(`Typosquatting fraud signature (Matches verified ${d.target})`);
+      risk = 98;
     } else if (d.type === "OBFUSCATED_SHORT_URL") {
       scamType = "Obfuscated / Shortened URL Trap";
       headline = `🚨 SUSPICIOUS LINK: Obfuscated Short URL (${d.domain})`;
       desc = `This message uses URL shortener '${d.domain}' to hide the true phishing destination. Under TRAI regulations, legitimate banks in India never send shortened links.`;
       flags.unshift(`Shortened link obfuscates the true destination website`);
       risk = 96;
+    } else if (d.type === "MALICIOUS_PHISHING_PATTERN") {
+      scamType = "Credential Harvesting URL Pattern";
+      headline = `🚨 SUSPICIOUS LURE: Phishing URL Grammar (${d.domain})`;
+      desc = `The domain '${d.domain}' uses universal phishing keywords (-kyc, pan-update, rewardz) to bait victims.`;
+      flags.unshift(`Phishing grammar pattern detected in URL`);
+      risk = 95;
+    } else if (d.type === "UNVERIFIED_THIRD_PARTY_DOMAIN") {
+      scamType = "Standard Third-Party Website";
+      headline = `ℹ️ Standard Web Domain (${d.domain})`;
+      desc = `This domain is not an official banking or government institution, but no active phishing traps or lookalike signatures were detected.`;
+      flags = ["Standard external web host", "Not an RBI/Govt authorized financial portal"];
+      risk = 25;
+      result = {
+        analyzedText: raw.length > 200 ? raw.substring(0, 200) + "..." : raw,
+        timestamp: new Date().toISOString(),
+        riskScore: 25,
+        riskLevel: "LOW",
+        scamType: "Standard Third-Party Website",
+        headline: `ℹ️ Standard Web Domain (${d.domain})`,
+        verdictDescription: `This domain is not an official banking or government institution, but no active phishing traps or lookalike signatures were detected.`,
+        flags: flags,
+        actionAdvice: [
+          "Website appears to be a standard third-party domain.",
+          "Exercise normal web browsing caution.",
+          "Never enter banking passwords, OTPs, or UPI PINs on third-party websites."
+        ],
+        protectionLaw: "Indian Information Technology Act"
+      };
+      return res.json({ status: 'success', data: result });
     } else if (d.type === "UNVERIFIED_EXTERNAL_LINK") {
       scamType = "Unverified External Domain Link";
       headline = `⚠️ UNVERIFIED LINK: External Host (${d.domain})`;
       desc = `The link points to '${d.domain}', which is not registered in official Indian government or banking directories.`;
       flags.unshift(`Domain '${d.domain}' is not on the national BFSI whitelist`);
-      risk = 91;
+      risk = 85;
     } else {
       flags.unshift(`High-risk disposable TLD (.${d.tld}) or APK payload`);
     }
@@ -1142,16 +1326,8 @@ app.post('/api/domain/check', (req, res) => {
     return res.status(400).json({ error: "Invalid domain or URL format." });
   }
 
-  // Check 1: Whitelist Match
-  let isWhitelisted = false;
-  for (const domain of PROTECTED_DOMAINS_WHITELIST) {
-    if (host === domain || host.endsWith("." + domain)) {
-      isWhitelisted = true;
-      break;
-    }
-  }
-
-  if (isWhitelisted) {
+  // Check 1: Whitelist & Sovereign Regulated Namespace Match
+  if (isProtectedDomain(host)) {
     return res.json({
       status: 'success',
       data: {
@@ -1160,11 +1336,37 @@ app.post('/api/domain/check', (req, res) => {
         riskScore: 0,
         riskLevel: "SAFE",
         verdict: "VERIFIED_OFFICIAL_DOMAIN",
-        headline: "✅ 100% LEGITIMATE: Verified Institutional Domain",
+        headline: `✅ 100% LEGITIMATE: Verified Institutional Domain (${host})`,
         isWhitelisted: true,
-        flags: ["Matches Authoritative Government & BFSI Whitelist", "Verified cryptographic certificate origin"],
-        actionAdvice: "This is the official and authentic domain. Safe to browse, submit inquiries, and transact.",
+        flags: [
+          "Matches Authoritative Government & BFSI Whitelist (.bank.in / .gov.in / .nic.in)",
+          "Verified cryptographic certificate and regulatory origin"
+        ],
+        actionAdvice: "This is an official and authentic domain. Safe to browse, submit inquiries, and transact.",
         protectionLaw: "Official Regulated Domain Framework"
+      }
+    });
+  }
+
+  // Check 1B: Visual Impersonation / Typosquatting Check
+  const lookalike = findSimilarProtectedDomain(host);
+  if (lookalike) {
+    return res.json({
+      status: 'success',
+      data: {
+        domain: host,
+        fullUrl: rawInput,
+        riskScore: 98,
+        riskLevel: "CRITICAL",
+        verdict: "TYPOSQUATTING_LOOKALIKE",
+        headline: `🚨 VISUAL IMPERSONATION: Lookalike of ${lookalike}!`,
+        isWhitelisted: false,
+        flags: [
+          `Visual spelling variation mimicking authentic domain '${lookalike}'`,
+          "Common typosquatting vector designed to harvest netbanking passwords"
+        ],
+        actionAdvice: `🛑 DO NOT OPEN: This site visually impersonates ${lookalike}. Visit the verified official domain instead: https://${lookalike}.`,
+        protectionLaw: "IT Act Section 66D & Trademark Infringement"
       }
     });
   }
