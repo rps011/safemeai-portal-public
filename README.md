@@ -9,7 +9,7 @@ digital-arrest screener, document lab, Gemini advisor, analytics, citizen report
    VERIFIED only if the name actually resolves (Google Public DNS over HTTPS). Unknown or unresolved names are never "safe by default".
 2. **Domain age** - RDAP (via rdap.org). Newly registered domains raise risk.
 3. **Google Web Risk** - `uris:search` for MALWARE / SOCIAL_ENGINEERING / UNWANTED_SOFTWARE (needs `WEB_RISK_API_KEY`).
-4. **OpenPhish community feed** - refreshed every 10 min; failure-safe (previous snapshot kept, status at `/api/threat-feed/status`).
+4. **Threat-intelligence store** (Phishing.Database, URLhaus, OpenPhish, Tranco, India regulator feeds) ingested by `lib/ingest/*` into `lib/threatStore.js`; see *Threat intelligence* below. Status at `/api/threat-feed/status`.
 5. **Live TLS audit** - handshake on port 443 (issuer, org validation, certificate age). Targets are resolved first and
    non-public addresses are refused (SSRF guard), then the vetted IP is connected to.
 6. **Gemini (escalate-only)** - Vertex AI Gemini gives a second opinion on suspicious cases. It can raise risk; it never
@@ -21,6 +21,39 @@ Any HTTP/network failure is shown as "could not verify - treat as unverified" (f
 `/api/gemini/advisor` (`lib/geminiAdvisor.js`) sends the user's text to Gemini as quoted untrusted data with a JSON schema
 (`riskLevel, signals, reasoning, recommendedAction`); output is validated. If Gemini is unavailable it falls back to fixed
 keyword rules and labels the answer `rules-engine fallback`.
+
+## Threat intelligence (ingestion platform)
+
+**Flow:** `lib/ingest/sources/<group>/<id>.js` (contract: `lib/ingest/contract.md`) -> `lib/ingest/runner.js` (timeout, retries with backoff, per-source isolation, run stats) -> `lib/threatStore.js` (per-source snapshot persisted to Firestore or a local file; **in-memory index for O(1) lookups, never a datastore call per request**) -> `lib/domainEngine.js`.
+
+* Persistence: each source's latest feed is one gzip blob (split into <=800 KB chunk docs in Firestore, written under a new generation id and switched atomically). Instances reload only sources whose metadata changed (`THREAT_REFRESH_SEC`, default 300 s). Memory: bulk feeds are stored compactly (~100 B/domain); give the service 1 GiB.
+* Engine: any feed hit (exact or parent-suffix; shared-hosting parents such as `github.io` are never suffix-blocked) with confidence >= 0.6 is a hard block with attribution (`Listed by Phishing.Database (ingested <ts>): phishing`). `unauthorised-forex` / `unregistered-investment` listings are CRITICAL and name the regulator. Tranco top-100k lowers the *unverified* floor (github.com -> LOW `ESTABLISHED_THIRD_PARTY_DOMAIN`) but never overrides a block, impersonation or sovereign-namespace rule, and only applies to the registrable domain itself. Cloudflare security DNS (`security.cloudflare-dns.com`, 1.5 s timeout, cached, fail-open for the signal only) hard-blocks when it sinkholes a domain that Google DNS still resolves. `engine.lookupIndicator(type, value, {threatStore})` exposes phone/UPI/entity records to the text engine.
+* Honesty: a feed that has not succeeded for `INGEST_STALE_HOURS` (default 24; per source `staleAfterHours`) is reported `stale`, never `live`.
+
+| Source | Group | Licence / terms (verified 2026-10-14 where fetchable) |
+|---|---|---|
+| Phishing.Database ACTIVE domains | global | MIT (repo licence; no separate data licence stated) |
+| abuse.ch URLhaus (`text_online`) | global | The abuse.ch API page currently states *fair use* + Terms of Use and requires a free Auth-Key (`URLHAUS_AUTH_KEY`); it does **not** state CC0 any more. For-profit users may need abuse.ch's commercial subscription. **Confirm before launch.** |
+| OpenPhish community feed | global | **Non-commercial only.** A commercial licence from OpenPhish is required for the business launch (disable with `INGEST_SOURCES_DISABLE=openphish` until then). |
+| Tranco top-1M (top 100k kept) | global | tranco-list.eu states no licence of its own; it aggregates Cisco Umbrella, Majestic (CC BY 3.0), CrUX (CC BY-SA 4.0) and Cloudflare Radar (**CC BY-NC 4.0**). Treat commercial use as unverified; get it confirmed (or substitute another popularity source) before launch. Used only as "established site" context. |
+| Cloudflare security DNS | live | Public DoH resolver, per-request lookups only (nothing stored); review Cloudflare's terms for commercial volume. |
+
+**Scheduler.** Cloud Scheduler is the real driver (Cloud Run scales to zero and throttles CPU between requests, so in-process timers are unreliable): `POST /internal/ingest/run?source=<id|all>[&group=global|india][&force=1]` and `GET /internal/ingest/status`. Both require a Google OIDC bearer token: signature checked against `https://www.googleapis.com/oauth2/v3/certs`, `aud == INGEST_AUDIENCE`, `email == INGEST_SA_EMAIL`, verified, unexpired. Unconfigured => 503; bad token => 401 (failed attempts are throttled per IP). The routes live outside `/api/` so the public rate limiter and the public API are unaffected. An in-process fallback timer runs due sources every 30 min unless `INGEST_INPROCESS=0`. `scripts/setup-scheduler.sh` holds the exact gcloud commands (not executed by any code here).
+
+| Env var | Purpose |
+|---|---|
+| `THREAT_STORE` | `file` (default, dev; dir `THREAT_STORE_DIR`), `memory`, or `firestore` (production) |
+| `THREAT_FS_PREFIX`, `FIRESTORE_DATABASE` | Firestore collection prefix (default `threat`), database id |
+| `THREAT_REFRESH_SEC` | How often an instance re-syncs changed snapshots (default 300) |
+| `INGEST_AUDIENCE`, `INGEST_SA_EMAIL` | OIDC audience (the service URL) and the Scheduler service-account email; both required for the endpoints to work |
+| `INGEST_INPROCESS` | `0` disables the in-process fallback timer (`INGEST_TICK_MS`, `INGEST_INITIAL_DELAY_MS` tune it) |
+| `INGEST_STALE_HOURS`, `INGEST_RETRIES`, `INGEST_SOURCE_TIMEOUT_MS` | stale policy, attempts per source (3), per-attempt timeout (180 s) |
+| `INGEST_SOURCES_DISABLE` | comma list of source ids to skip (`DISABLE_OPENPHISH=1` still works) |
+| `INGEST_CONTACT` | contact URL put in the crawler `User-Agent` (`SafeMeAI-ThreatIntel/1.0 (+contact)`) |
+| `URLHAUS_AUTH_KEY` | abuse.ch Auth-Key (send as `Auth-Key` header) |
+| `DISABLE_THREAT_INTEL=1`, `DISABLE_CLOUDFLARE_DNS=1` | turn off the ingestion platform / the live Cloudflare signal |
+
+**Status.** `GET /api/threat-feed/status` (public, back-compatible: `live, lastSuccess, lastError, indicators, ageSec` for OpenPhish) now also returns `feeds[]` with `status` (`ok|degraded|stale|failed|never-run`), `live`, `indicators`, `ageSec`, `license` per source. `GET /internal/ingest/status` (OIDC) adds run stats: count, added, removed, rejected, duration, consecutive failures.
 
 ## Run locally
 
@@ -44,7 +77,7 @@ GEMINI_API_KEY=... node server.js              # Gemini via API key instead of V
 | `DOCUMENT_AI_PROCESSOR` | `projects/<num>/locations/<us\|eu>/processors/<id>` to enable OCR for PDF/image uploads |
 | `BIGQUERY_DATASET` | Dataset holding `threat_events(vector STRING, event_ts TIMESTAMP)` to make "top vectors" live |
 | `CORS_ORIGINS` | Comma-separated extra allowed origins (default: same-origin only) |
-| `DISABLE_OPENPHISH=1` | Skip the OpenPhish feed (offline dev) |
+| `DISABLE_OPENPHISH=1` | Skip the OpenPhish source (offline dev; or use `INGEST_SOURCES_DISABLE`) |
 
 ## Deploy
 

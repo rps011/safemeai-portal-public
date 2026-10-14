@@ -1,0 +1,1818 @@
+{
+ "version": "2026.10.1",
+ "description": "Verified-official domains. Subdomains match unless the entry is a shared-hosting parent. A report can never block an entry here.",
+ "entries": [
+  {
+   "domain": "cybercrime.gov.in",
+   "category": "judiciary-law-enforcement",
+   "owner": "I4C, Ministry of Home Affairs",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "cbi.gov.in",
+   "category": "judiciary-law-enforcement",
+   "owner": "Central Bureau of Investigation",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "enforcementdirectorate.gov.in",
+   "category": "judiciary-law-enforcement",
+   "owner": "Directorate of Enforcement",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "mha.gov.in",
+   "category": "judiciary-law-enforcement",
+   "owner": "Ministry of Home Affairs",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "sci.gov.in",
+   "category": "judiciary-law-enforcement",
+   "owner": "Supreme Court of India",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "ecourts.gov.in",
+   "category": "judiciary-law-enforcement",
+   "owner": "eCourts Mission Mode Project",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "nclt.gov.in",
+   "category": "judiciary-law-enforcement",
+   "owner": "National Company Law Tribunal",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "main.sci.gov.in",
+   "category": "judiciary-law-enforcement",
+   "owner": "Supreme Court of India",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "delhihighcourt.nic.in",
+   "category": "judiciary-law-enforcement",
+   "owner": "Delhi High Court",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "bombayhighcourt.nic.in",
+   "category": "judiciary-law-enforcement",
+   "owner": "Bombay High Court",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "allahabadhighcourt.in",
+   "category": "judiciary-law-enforcement",
+   "owner": "Allahabad High Court",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "hc.nic.in",
+   "category": "judiciary-law-enforcement",
+   "owner": "High Courts (NIC)",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "india.gov.in",
+   "category": "government",
+   "owner": "National Portal of India",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "mygov.in",
+   "category": "government",
+   "owner": "MyGov (MeitY)",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "digitalindia.gov.in",
+   "category": "government",
+   "owner": "Digital India (MeitY)",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "pib.gov.in",
+   "category": "government",
+   "owner": "Press Information Bureau",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "niti.gov.in",
+   "category": "government",
+   "owner": "NITI Aayog",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "gst.gov.in",
+   "category": "government",
+   "owner": "GSTN",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "mca.gov.in",
+   "category": "government",
+   "owner": "Ministry of Corporate Affairs",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "incometax.gov.in",
+   "category": "government",
+   "owner": "Income Tax Department",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "epfindia.gov.in",
+   "category": "government",
+   "owner": "EPFO",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "pfrda.org.in",
+   "category": "government",
+   "owner": "PFRDA",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "uidai.gov.in",
+   "category": "government",
+   "owner": "UIDAI",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "eaadhaar.uidai.gov.in",
+   "category": "government",
+   "owner": "UIDAI",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "digilocker.gov.in",
+   "category": "government",
+   "owner": "DigiLocker (MeitY)",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "umang.gov.in",
+   "category": "government",
+   "owner": "UMANG (MeitY)",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "parivahan.gov.in",
+   "category": "government",
+   "owner": "Ministry of Road Transport and Highways",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "echallan.parivahan.gov.in",
+   "category": "government",
+   "owner": "Ministry of Road Transport and Highways",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "mvaivahan.gov.in",
+   "category": "government",
+   "owner": "Ministry of Road Transport and Highways",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "indiapost.gov.in",
+   "category": "government",
+   "owner": "Department of Posts",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "passportindia.gov.in",
+   "category": "government",
+   "owner": "Ministry of External Affairs (Passport Seva)",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "irctc.co.in",
+   "category": "government",
+   "owner": "IRCTC",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "cowin.gov.in",
+   "category": "government",
+   "owner": "CoWIN (MoHFW)",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "nvsp.in",
+   "category": "government",
+   "owner": "Election Commission of India",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "voterportal.eci.gov.in",
+   "category": "government",
+   "owner": "Election Commission of India",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "rbi.org.in",
+   "category": "regulator-infrastructure",
+   "owner": "Reserve Bank of India",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "sebi.gov.in",
+   "category": "regulator-infrastructure",
+   "owner": "SEBI",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "irdai.gov.in",
+   "category": "regulator-infrastructure",
+   "owner": "IRDAI",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "amfiindia.com",
+   "category": "regulator-infrastructure",
+   "owner": "AMFI",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "nsdl.co.in",
+   "category": "regulator-infrastructure",
+   "owner": "NSDL",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "cdslindia.com",
+   "category": "regulator-infrastructure",
+   "owner": "CDSL",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "npci.org.in",
+   "category": "regulator-infrastructure",
+   "owner": "NPCI",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "bhimupi.org.in",
+   "category": "regulator-infrastructure",
+   "owner": "NPCI (BHIM UPI)",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "agrohabank.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "airtel.in",
+   "category": "bank",
+   "owner": "Bharti Airtel (incl. Airtel Payments Bank)",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "alavibank.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "aucbank.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "axis.bank.in",
+   "category": "bank",
+   "owner": "Axis Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "axisbank.com",
+   "category": "bank",
+   "owner": "Axis Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "bandhanbank.com",
+   "category": "bank",
+   "owner": "Bandhan Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "bankofmaharashtra.in",
+   "category": "bank",
+   "owner": "Bank of Maharashtra",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "barclays.bank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "bhagininiveditabank.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "bhavnagar.bank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "bmcbankltd.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "canarabank.com",
+   "category": "bank",
+   "owner": "Canara Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "capitalbank.co.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "centralbankofindia.co.in",
+   "category": "bank",
+   "owner": "Central Bank of India",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "crgb.bank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "citizencreditbank.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "cityunionbank.com",
+   "category": "bank",
+   "owner": "City Union Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "cosmos.bank.in",
+   "category": "bank",
+   "owner": "Cosmos Co-operative Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "csb.bank.in",
+   "category": "bank",
+   "owner": "CSB Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "ctbcbank.bank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "dbs.com",
+   "category": "bank",
+   "owner": "DBS Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "dcbbank.com",
+   "category": "bank",
+   "owner": "DCB Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "dnsbank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "equitasbank.com",
+   "category": "bank",
+   "owner": "Equitas Small Finance Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "esafbank.com",
+   "category": "bank",
+   "owner": "ESAF Small Finance Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "federalbank.co.in",
+   "category": "bank",
+   "owner": "Federal Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "gpparsik.bank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "ggb.bank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "hdfcbank.com",
+   "category": "bank",
+   "owner": "HDFC Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "icicibank.com",
+   "category": "bank",
+   "owner": "ICICI Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "idbibank.in",
+   "category": "bank",
+   "owner": "IDBI Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "idfcfirstbank.com",
+   "category": "bank",
+   "owner": "IDFC FIRST Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "indianbank.in",
+   "category": "bank",
+   "owner": "Indian Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "ipsb.bank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "jkgrameen.bank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "jana.bank.com",
+   "category": "bank",
+   "owner": "Jana Small Finance Bank (legacy entry; verify)",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "janabank.com",
+   "category": "bank",
+   "owner": "Jana Small Finance Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "jiobank.in",
+   "category": "bank",
+   "owner": "Jio Payments Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "karnatakabank.com",
+   "category": "bank",
+   "owner": "Karnataka Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "nutanbank.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "primebankindia.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "punjabandsindbank.co.in",
+   "category": "bank",
+   "owner": "Punjab & Sind Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "punjabandsind.bank.in",
+   "category": "bank",
+   "owner": "Punjab & Sind Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "rpcbank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "rblbank.com",
+   "category": "bank",
+   "owner": "RBL Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "rblfinserve.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "rblrewards.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "sccbank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "sbmbank.co.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "pardipeoplesbank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "sharadbank.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "shinhanbankindia.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "shivalikbank.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "kadi.bank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "waranabank.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "shahubank.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "southindianbank.bank.in",
+   "category": "bank",
+   "owner": "South Indian Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "sbi.bank.in",
+   "category": "bank",
+   "owner": "State Bank of India",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "sbi.co.in",
+   "category": "bank",
+   "owner": "State Bank of India",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "suryodaybank.com",
+   "category": "bank",
+   "owner": "Suryoday Small Finance Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "svc.bank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "tmb.in",
+   "category": "bank",
+   "owner": "Tamilnad Mercantile Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "tmb.bank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "bavlabank.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "bhagyalakshmibank.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "chiplunurbanbank.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "tcbrl.bank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "tgucb.bank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "jpcbank.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "thejjs.bank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "knsbl.bank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "kalupurbank.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "kdccbank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "kurmanchalbank.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "mwcb.bank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "mudalagibank.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "nainitalbank.co.in",
+   "category": "bank",
+   "owner": "Nainital Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "namcobank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "navnirmanbank.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "rccbank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "rayatsevakbank.co.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "saurashtrabank.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "sudico.bank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "vaidyanath.bank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "vvcc.bank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "varachhabank.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "vijaycooperativebank.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "vishweshwarbank.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "tjsbbank.co.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "ttc.bank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "ucoebanking.in",
+   "category": "bank",
+   "owner": "UCO Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "ucobank.com",
+   "category": "bank",
+   "owner": "UCO Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "unionbankofindia.co.in",
+   "category": "bank",
+   "owner": "Union Bank of India",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "utkarsh.bank",
+   "category": "bank",
+   "owner": "Utkarsh Small Finance Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "upgb.bank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "yes.bank.in",
+   "category": "bank",
+   "owner": "YES Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "yesbank.in",
+   "category": "bank",
+   "owner": "YES Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "zoroastrianbank.bank.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "zoroastrianbank.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "pnbindia.in",
+   "category": "bank",
+   "owner": "Punjab National Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "bankofbaroda.in",
+   "category": "bank",
+   "owner": "Bank of Baroda",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "onlinesbi.sbi",
+   "category": "bank",
+   "owner": "State Bank of India",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "ujjivansfb.in",
+   "category": "bank",
+   "owner": "Ujjivan Small Finance Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "ujjivansfb.bank.in",
+   "category": "bank",
+   "owner": "Ujjivan Small Finance Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "aubank.in",
+   "category": "bank",
+   "owner": "AU Small Finance Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "aubank.bank.in",
+   "category": "bank",
+   "owner": "AU Small Finance Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "fincarebank.com",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "unitybank.co.in",
+   "category": "bank",
+   "owner": null,
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "ippbonline.com",
+   "category": "bank",
+   "owner": "India Post Payments Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "finobank.com",
+   "category": "bank",
+   "owner": "Fino Payments Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "amazon.in",
+   "category": "ecommerce-delivery",
+   "owner": "Amazon India",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "amazon.com",
+   "category": "ecommerce-delivery",
+   "owner": "Amazon",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "flipkart.com",
+   "category": "ecommerce-delivery",
+   "owner": "Flipkart",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "myntra.com",
+   "category": "ecommerce-delivery",
+   "owner": "Myntra",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "meesho.com",
+   "category": "ecommerce-delivery",
+   "owner": "Meesho",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "ajio.com",
+   "category": "ecommerce-delivery",
+   "owner": "AJIO (Reliance Retail)",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "nykaa.com",
+   "category": "ecommerce-delivery",
+   "owner": "Nykaa",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "jiomart.com",
+   "category": "ecommerce-delivery",
+   "owner": "JioMart (Reliance Retail)",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "bigbasket.com",
+   "category": "ecommerce-delivery",
+   "owner": "BigBasket",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "blinkit.com",
+   "category": "ecommerce-delivery",
+   "owner": "Blinkit",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "zeptonow.com",
+   "category": "ecommerce-delivery",
+   "owner": "Zepto",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "swiggy.com",
+   "category": "ecommerce-delivery",
+   "owner": "Swiggy",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "zomato.com",
+   "category": "ecommerce-delivery",
+   "owner": "Zomato",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "delhivery.com",
+   "category": "ecommerce-delivery",
+   "owner": "Delhivery",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "bluedart.com",
+   "category": "ecommerce-delivery",
+   "owner": "Blue Dart",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "dtdc.in",
+   "category": "ecommerce-delivery",
+   "owner": "DTDC",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "phonepe.com",
+   "category": "fintech-payments",
+   "owner": "PhonePe",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "paytm.com",
+   "category": "fintech-payments",
+   "owner": "Paytm (One97 Communications)",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "paytmbank.com",
+   "category": "fintech-payments",
+   "owner": "Paytm Payments Bank",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "mobikwik.com",
+   "category": "fintech-payments",
+   "owner": "MobiKwik",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "freecharge.in",
+   "category": "fintech-payments",
+   "owner": "Freecharge",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "policybazaar.com",
+   "category": "fintech-payments",
+   "owner": "PolicyBazaar",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "paisabazaar.com",
+   "category": "fintech-payments",
+   "owner": "Paisabazaar",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "kuvera.in",
+   "category": "fintech-payments",
+   "owner": "Kuvera",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "etmoney.com",
+   "category": "fintech-payments",
+   "owner": "ET Money",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "zerodha.com",
+   "category": "investment-broker",
+   "owner": "Zerodha",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "upstox.com",
+   "category": "investment-broker",
+   "owner": "Upstox",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "groww.in",
+   "category": "investment-broker",
+   "owner": "Groww",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "angelone.in",
+   "category": "investment-broker",
+   "owner": "Angel One",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "nseindia.com",
+   "category": "investment-broker",
+   "owner": "National Stock Exchange",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "bseindia.com",
+   "category": "investment-broker",
+   "owner": "BSE",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "moneycontrol.com",
+   "category": "investment-broker",
+   "owner": "Moneycontrol (Network18)",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "paytmmoney.com",
+   "category": "investment-broker",
+   "owner": "Paytm Money",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "icicidirect.com",
+   "category": "investment-broker",
+   "owner": "ICICI Securities",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "hdfcsec.com",
+   "category": "investment-broker",
+   "owner": "HDFC Securities",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "bajajfinserv.in",
+   "category": "nbfc-lender",
+   "owner": "Bajaj Finserv",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "muthootfinance.com",
+   "category": "nbfc-lender",
+   "owner": "Muthoot Finance",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "tatacapital.com",
+   "category": "nbfc-lender",
+   "owner": "Tata Capital",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "ltfs.com",
+   "category": "nbfc-lender",
+   "owner": "L&T Finance",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "mahindrafinance.com",
+   "category": "nbfc-lender",
+   "owner": "Mahindra Finance",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "hdbfs.com",
+   "category": "nbfc-lender",
+   "owner": "HDB Financial Services",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "chola.com",
+   "category": "nbfc-lender",
+   "owner": "Cholamandalam Investment and Finance",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "manappuram.com",
+   "category": "nbfc-lender",
+   "owner": "Manappuram Finance",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "safemeai.com",
+   "category": "platform",
+   "owner": "SafeMeAI",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "safemeai.in",
+   "category": "platform",
+   "owner": "SafeMeAI",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "google.com",
+   "category": "platform",
+   "owner": "Google",
+   "origin": "legacy-server-js"
+  },
+  {
+   "domain": "kotak.com",
+   "category": "bank",
+   "owner": "Kotak Mahindra Bank",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "bank.sbi",
+   "category": "bank",
+   "owner": "State Bank of India",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "indusind.com",
+   "category": "bank",
+   "owner": "IndusInd Bank",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "bankofindia.co.in",
+   "category": "bank",
+   "owner": "Bank of India",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "jkbank.com",
+   "category": "bank",
+   "owner": "Jammu & Kashmir Bank",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "kvb.co.in",
+   "category": "bank",
+   "owner": "Karur Vysya Bank",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "dhanbank.com",
+   "category": "bank",
+   "owner": "Dhanlaxmi Bank",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "csb.co.in",
+   "category": "bank",
+   "owner": "CSB Bank",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "hsbc.co.in",
+   "category": "bank",
+   "owner": "HSBC India",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "citibank.co.in",
+   "category": "bank",
+   "owner": "Citibank India",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "standardchartered.com",
+   "category": "bank",
+   "owner": "Standard Chartered",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "sbicard.com",
+   "category": "bank",
+   "owner": "SBI Card",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "americanexpress.com",
+   "category": "bank",
+   "owner": "American Express",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "licindia.in",
+   "category": "insurance",
+   "owner": "Life Insurance Corporation of India",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "sbilife.co.in",
+   "category": "insurance",
+   "owner": "SBI Life Insurance",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "hdfclife.com",
+   "category": "insurance",
+   "owner": "HDFC Life Insurance",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "iciciprulife.com",
+   "category": "insurance",
+   "owner": "ICICI Prudential Life Insurance",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "maxlifeinsurance.com",
+   "category": "insurance",
+   "owner": "Max Life Insurance",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "kotaklife.com",
+   "category": "insurance",
+   "owner": "Kotak Life Insurance",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "bajajallianz.com",
+   "category": "insurance",
+   "owner": "Bajaj Allianz",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "hdfcergo.com",
+   "category": "insurance",
+   "owner": "HDFC ERGO General Insurance",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "icicilombard.com",
+   "category": "insurance",
+   "owner": "ICICI Lombard General Insurance",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "sbigeneral.in",
+   "category": "insurance",
+   "owner": "SBI General Insurance",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "tataaig.com",
+   "category": "insurance",
+   "owner": "Tata AIG General Insurance",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "starhealth.in",
+   "category": "insurance",
+   "owner": "Star Health and Allied Insurance",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "nivabupa.com",
+   "category": "insurance",
+   "owner": "Niva Bupa Health Insurance",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "careinsurance.com",
+   "category": "insurance",
+   "owner": "Care Health Insurance",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "newindia.co.in",
+   "category": "insurance",
+   "owner": "The New India Assurance",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "acko.com",
+   "category": "insurance",
+   "owner": "Acko General Insurance",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "digitinsurance.com",
+   "category": "insurance",
+   "owner": "Go Digit General Insurance",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "bajajfinance.in",
+   "category": "nbfc-lender",
+   "owner": "Bajaj Finance",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "pnbhousing.com",
+   "category": "nbfc-lender",
+   "owner": "PNB Housing Finance",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "lichousing.com",
+   "category": "nbfc-lender",
+   "owner": "LIC Housing Finance",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "adityabirlacapital.com",
+   "category": "nbfc-lender",
+   "owner": "Aditya Birla Capital",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "cred.club",
+   "category": "fintech-payments",
+   "owner": "CRED",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "razorpay.com",
+   "category": "fintech-payments",
+   "owner": "Razorpay",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "payu.in",
+   "category": "fintech-payments",
+   "owner": "PayU India",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "cashfree.com",
+   "category": "fintech-payments",
+   "owner": "Cashfree Payments",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "billdesk.com",
+   "category": "fintech-payments",
+   "owner": "BillDesk",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "ccavenue.com",
+   "category": "fintech-payments",
+   "owner": "CCAvenue (Infibeam Avenues)",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "bharatpe.com",
+   "category": "fintech-payments",
+   "owner": "BharatPe",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "amazonpay.in",
+   "category": "fintech-payments",
+   "owner": "Amazon Pay India",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "ondc.org",
+   "category": "fintech-payments",
+   "owner": "Open Network for Digital Commerce",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "bharatbillpay.com",
+   "category": "fintech-payments",
+   "owner": "NPCI Bharat BillPay",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "ihmcl.com",
+   "category": "fintech-payments",
+   "owner": "IHMCL (NHAI FASTag)",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "pinelabs.com",
+   "category": "fintech-payments",
+   "owner": "Pine Labs",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "cibil.com",
+   "category": "credit-bureau-registry",
+   "owner": "TransUnion CIBIL",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "crifhighmark.com",
+   "category": "credit-bureau-registry",
+   "owner": "CRIF High Mark",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "experian.in",
+   "category": "credit-bureau-registry",
+   "owner": "Experian India",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "utiitsl.com",
+   "category": "credit-bureau-registry",
+   "owner": "UTIITSL (PAN services)",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "nsdl.com",
+   "category": "credit-bureau-registry",
+   "owner": "NSDL e-Governance / Depository",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "5paisa.com",
+   "category": "investment-broker",
+   "owner": "5paisa Capital",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "iifl.com",
+   "category": "investment-broker",
+   "owner": "IIFL",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "motilaloswal.com",
+   "category": "investment-broker",
+   "owner": "Motilal Oswal",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "sharekhan.com",
+   "category": "investment-broker",
+   "owner": "Sharekhan",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "kotaksecurities.com",
+   "category": "investment-broker",
+   "owner": "Kotak Securities",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "nuvamawealth.com",
+   "category": "investment-broker",
+   "owner": "Nuvama Wealth",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "smallcase.com",
+   "category": "investment-broker",
+   "owner": "Smallcase",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "mcxindia.com",
+   "category": "investment-broker",
+   "owner": "Multi Commodity Exchange",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "ncdex.com",
+   "category": "investment-broker",
+   "owner": "NCDEX",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "sbimf.com",
+   "category": "investment-broker",
+   "owner": "SBI Mutual Fund",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "hdfcfund.com",
+   "category": "investment-broker",
+   "owner": "HDFC Mutual Fund",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "icicipruamc.com",
+   "category": "investment-broker",
+   "owner": "ICICI Prudential AMC",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "axismf.com",
+   "category": "investment-broker",
+   "owner": "Axis Mutual Fund",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "kotakmf.com",
+   "category": "investment-broker",
+   "owner": "Kotak Mutual Fund",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "jio.com",
+   "category": "telecom",
+   "owner": "Reliance Jio",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "bsnl.co.in",
+   "category": "telecom",
+   "owner": "Bharat Sanchar Nigam Limited",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "mtnl.in",
+   "category": "telecom",
+   "owner": "Mahanagar Telephone Nigam Limited",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "myvi.in",
+   "category": "telecom",
+   "owner": "Vodafone Idea (Vi)",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "vodafoneidea.com",
+   "category": "telecom",
+   "owner": "Vodafone Idea",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "mahadiscom.in",
+   "category": "utility-discom",
+   "owner": "MSEDCL (Maharashtra)",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "upenergy.in",
+   "category": "utility-discom",
+   "owner": "UPPCL (Uttar Pradesh)",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "tatapower.com",
+   "category": "utility-discom",
+   "owner": "Tata Power",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "tatapower-ddl.com",
+   "category": "utility-discom",
+   "owner": "Tata Power Delhi Distribution",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "bsesdelhi.com",
+   "category": "utility-discom",
+   "owner": "BSES Rajdhani/Yamuna (Delhi)",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "adanielectricity.com",
+   "category": "utility-discom",
+   "owner": "Adani Electricity Mumbai",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "torrentpower.com",
+   "category": "utility-discom",
+   "owner": "Torrent Power",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "cesc.co.in",
+   "category": "utility-discom",
+   "owner": "CESC (Kolkata)",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "wbsedcl.in",
+   "category": "utility-discom",
+   "owner": "WBSEDCL (West Bengal)",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "tsspdcl.in",
+   "category": "utility-discom",
+   "owner": "TSSPDCL (Telangana)",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "apspdcl.in",
+   "category": "utility-discom",
+   "owner": "APSPDCL (Andhra Pradesh)",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "pspcl.in",
+   "category": "utility-discom",
+   "owner": "PSPCL (Punjab)",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "dhbvn.org.in",
+   "category": "utility-discom",
+   "owner": "DHBVN (Haryana)",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "uhbvn.org.in",
+   "category": "utility-discom",
+   "owner": "UHBVN (Haryana)",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "kseb.in",
+   "category": "utility-discom",
+   "owner": "KSEB (Kerala)",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "bescom.co.in",
+   "category": "utility-discom",
+   "owner": "BESCOM (Karnataka)",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "pgvcl.com",
+   "category": "utility-discom",
+   "owner": "PGVCL (Gujarat)",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "dgvcl.com",
+   "category": "utility-discom",
+   "owner": "DGVCL (Gujarat)",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "mgvcl.com",
+   "category": "utility-discom",
+   "owner": "MGVCL (Gujarat)",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "ugvcl.com",
+   "category": "utility-discom",
+   "owner": "UGVCL (Gujarat)",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "mpcz.in",
+   "category": "utility-discom",
+   "owner": "MP Paschim Kshetra Vidyut Vitaran",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "makemytrip.com",
+   "category": "ecommerce-delivery",
+   "owner": "MakeMyTrip",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "goibibo.com",
+   "category": "ecommerce-delivery",
+   "owner": "Goibibo",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "redbus.in",
+   "category": "ecommerce-delivery",
+   "owner": "redBus",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "bookmyshow.com",
+   "category": "ecommerce-delivery",
+   "owner": "BookMyShow",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "airindia.com",
+   "category": "ecommerce-delivery",
+   "owner": "Air India",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "goindigo.in",
+   "category": "ecommerce-delivery",
+   "owner": "IndiGo",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "tatacliq.com",
+   "category": "ecommerce-delivery",
+   "owner": "Tata CLiQ",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "lenskart.com",
+   "category": "ecommerce-delivery",
+   "owner": "Lenskart",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "pharmeasy.in",
+   "category": "ecommerce-delivery",
+   "owner": "PharmEasy",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "tataneu.com",
+   "category": "ecommerce-delivery",
+   "owner": "Tata Neu",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "tata.com",
+   "category": "ecommerce-delivery",
+   "owner": "Tata Sons",
+   "origin": "2026-10-expansion"
+  }
+ ]
+}

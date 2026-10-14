@@ -23,7 +23,7 @@ function loadServerData() {
     return vm.runInNewContext(m[1]);
   };
   return {
-    whitelist: grab('PROTECTED_DOMAINS_WHITELIST').constructor === Set ? grab('PROTECTED_DOMAINS_WHITELIST') : new Set(grab('PROTECTED_DOMAINS_WHITELIST')),
+    whitelist: new Set(require('../data/allowlist.json').entries.map(e => e.domain)), // moved out of server.js
     brands: grab('BRAND_KEYWORDS'),
     suspiciousTlds: new Set(grab('SUSPICIOUS_TLDS')),
     shorteners: new Set(grab('URL_SHORTENERS'))
@@ -40,7 +40,7 @@ const OLD = 4000;
 const ESTABLISHED = new Set([
   'github.com', 'wikipedia.org', 'bobcat.com', 'stackoverflow.com', 'mozilla.org', 'bbc.co.uk', 'nytimes.com',
   'microsoft.com', 'apple.com', 'trail.com', 'cbit.ac.in', 'iitd.ac.in', 'google.co.in', 'google.co.uk',
-  'amazon.co.uk', 'google.com.au', 'googleapis.com', 'sbilife.in', 'hdfclife.com', 'jiocinema.com', 'dhlogistics.com',
+  'amazon.co.uk', 'google.com.au', 'googleapis.com', 'sbilife.in', 'jiocinema.com', 'dhlogistics.com',
   'rbiz.com', 'bobbys.com', 'mom-and-pop.com', 'axis.com', 'example-shop.in', 'hotpot.com', 'refine.com',
   'mahindra.com', 'tomato.com'
 ]);
@@ -297,7 +297,7 @@ for (const input of FLAGGED_ONLY) {
 const FP_TRAPS = [
   'github.com', 'www.github.com', 'https://github.com/rbi/repo', 'wikipedia.org', 'en.wikipedia.org/wiki/State_Bank_of_India',
   'bobcat.com', 'bobbys.com', 'trail.com', 'cbit.ac.in', 'iitd.ac.in', 'stackoverflow.com', 'mozilla.org', 'bbc.co.uk',
-  'nytimes.com', 'microsoft.com', 'apple.com', 'jiocinema.com', 'dhlogistics.com', 'rbiz.com', 'sbilife.in', 'hdfclife.com',
+  'nytimes.com', 'microsoft.com', 'apple.com', 'jiocinema.com', 'dhlogistics.com', 'rbiz.com', 'sbilife.in',
   'google.co.in', 'google.co.uk', 'amazon.co.uk', 'maps.google.com.au', 'googleapis.com', 'mom-and-pop.com', 'hotpot.com',
   'refine.com', 'mahindra.com', 'axis.com', 'example-shop.in'
 ];

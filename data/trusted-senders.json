@@ -1,0 +1,84 @@
+{
+ "version": "2026.10.1",
+ "note": "Indian DLT SMS headers look like XX-HEADER (operator/circle prefix + up to 6 char header). Match the HEADER exactly after stripping the prefix. A trusted header MUST NOT override a malicious link/OTP-request verdict: headers can be spoofed on non-DLT routes.",
+ "matchMode": "exact-header-after-prefix",
+ "senders": [
+  {
+   "header": "SBI",
+   "owner": "State Bank of India",
+   "category": "bank",
+   "source": "safemeai-android-seed",
+   "verifiedAgainstDlt": false
+  },
+  {
+   "header": "HDFCBK",
+   "owner": "HDFC Bank",
+   "category": "bank",
+   "source": "safemeai-android-seed",
+   "verifiedAgainstDlt": false
+  },
+  {
+   "header": "ICICIB",
+   "owner": "ICICI Bank",
+   "category": "bank",
+   "source": "safemeai-android-seed",
+   "verifiedAgainstDlt": false
+  },
+  {
+   "header": "AXISBK",
+   "owner": "Axis Bank",
+   "category": "bank",
+   "source": "safemeai-android-seed",
+   "verifiedAgainstDlt": false
+  },
+  {
+   "header": "PAYTM",
+   "owner": "Paytm",
+   "category": "fintech",
+   "source": "safemeai-android-seed",
+   "verifiedAgainstDlt": false
+  },
+  {
+   "header": "AMAZON",
+   "owner": "Amazon",
+   "category": "ecommerce",
+   "source": "safemeai-android-seed",
+   "verifiedAgainstDlt": false
+  },
+  {
+   "header": "GOOGLE",
+   "owner": "Google",
+   "category": "platform",
+   "source": "safemeai-android-seed",
+   "verifiedAgainstDlt": false
+  },
+  {
+   "header": "AIRTEL",
+   "owner": "Bharti Airtel",
+   "category": "telecom",
+   "source": "safemeai-android-seed",
+   "verifiedAgainstDlt": false
+  },
+  {
+   "header": "JIO",
+   "owner": "Reliance Jio",
+   "category": "telecom",
+   "source": "safemeai-android-seed",
+   "verifiedAgainstDlt": false
+  },
+  {
+   "header": "FLIPKART",
+   "owner": "Flipkart",
+   "category": "ecommerce",
+   "source": "safemeai-android-seed",
+   "verifiedAgainstDlt": false
+  },
+  {
+   "header": "MYNTRA",
+   "owner": "Myntra",
+   "category": "ecommerce",
+   "source": "safemeai-android-seed",
+   "verifiedAgainstDlt": false
+  }
+ ]
+}

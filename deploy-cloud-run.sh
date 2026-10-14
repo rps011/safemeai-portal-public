@@ -33,6 +33,7 @@ gcloud iam service-accounts describe "$SA_EMAIL" >/dev/null 2>&1 || \
 
 grant() { gcloud projects add-iam-policy-binding "$PROJECT" --member "serviceAccount:${SA_EMAIL}" --role "$1" --condition=None --quiet >/dev/null; }
 grant roles/aiplatform.user                       # Gemini on Vertex AI
+grant roles/datastore.user                        # Firestore: threat store + crowd reports
 [ -n "${DOCUMENT_AI_PROCESSOR:-}" ] && grant roles/documentai.apiUser
 if [ -n "${BIGQUERY_DATASET:-}" ]; then grant roles/bigquery.jobUser; grant roles/bigquery.dataViewer; fi
 
@@ -41,14 +42,27 @@ if [ -n "${BIGQUERY_DATASET:-}" ]; then grant roles/bigquery.jobUser; grant role
 #   (Console > APIs & Services > Credentials > Create API key, restrict to the Web Risk API)
 #   printf '%s' "$KEY" | gcloud secrets create web-risk-api-key --data-file=-
 SECRET_ARGS=()
-if gcloud secrets describe "$SECRET_NAME" >/dev/null 2>&1; then
-  gcloud secrets add-iam-policy-binding "$SECRET_NAME" --member "serviceAccount:${SA_EMAIL}" --role roles/secretmanager.secretAccessor --quiet >/dev/null
-  SECRET_ARGS=(--set-secrets "WEB_RISK_API_KEY=${SECRET_NAME}:latest")
-else
-  echo "WARNING: secret '$SECRET_NAME' not found; Google Web Risk checks will be reported as 'not configured'."
-fi
+SECRET_MAP=""
+add_secret() {  # ENV_NAME secret-name
+  if gcloud secrets describe "$2" >/dev/null 2>&1; then
+    gcloud secrets add-iam-policy-binding "$2" --member "serviceAccount:${SA_EMAIL}" --role roles/secretmanager.secretAccessor --quiet >/dev/null
+    SECRET_MAP="${SECRET_MAP:+$SECRET_MAP,}$1=$2:latest"
+  else
+    echo "WARNING: secret '$2' not found; $1 will be unset."
+  fi
+}
+add_secret WEB_RISK_API_KEY "$SECRET_NAME"
+add_secret REPORTER_HASH_SECRET reporter-hash-secret
+add_secret ADMIN_TOKEN admin-token
+add_secret BLOCKLIST_SIGNING_KEY blocklist-signing-key
+add_secret URLHAUS_AUTH_KEY urlhaus-auth-key
+[ -n "$SECRET_MAP" ] && SECRET_ARGS=(--set-secrets "$SECRET_MAP")
 
-ENV_VARS="NODE_ENV=production,GOOGLE_CLOUD_PROJECT=${PROJECT},VERTEX_LOCATION=${VERTEX_LOCATION},GEMINI_MODEL=${GEMINI_MODEL}"
+INGEST_SA_NAME="safeme-ingest-scheduler"
+INGEST_SA_EMAIL="${INGEST_SA_NAME}@${PROJECT}.iam.gserviceaccount.com"
+SERVICE_URL=$(gcloud run services describe "$SERVICE_NAME" --region "$REGION" --format 'value(status.url)' 2>/dev/null || true)
+
+ENV_VARS="NODE_ENV=production,THREAT_STORE=firestore,INGEST_SA_EMAIL=${INGEST_SA_EMAIL},INGEST_AUDIENCE=${SERVICE_URL},INGEST_CONTACT=${INGEST_CONTACT:-https://safemeai.in/security},INGEST_SOURCES_DISABLE=${INGEST_SOURCES_DISABLE:-openphish},GOOGLE_CLOUD_PROJECT=${PROJECT},VERTEX_LOCATION=${VERTEX_LOCATION},GEMINI_MODEL=${GEMINI_MODEL}"
 [ -n "${DOCUMENT_AI_PROCESSOR:-}" ] && ENV_VARS="$ENV_VARS,DOCUMENT_AI_PROCESSOR=${DOCUMENT_AI_PROCESSOR}"
 [ -n "${BIGQUERY_DATASET:-}" ] && ENV_VARS="$ENV_VARS,BIGQUERY_DATASET=${BIGQUERY_DATASET}"
 
@@ -62,8 +76,8 @@ gcloud run deploy "$SERVICE_NAME" \
   --min-instances 0 \
   --max-instances 5 \
   --concurrency 40 \
-  --cpu 1 --memory 512Mi \
-  --timeout 60 \
+  --cpu 1 --memory 1Gi \
+  --timeout 900 \
   --port 8080 \
   --set-env-vars "$ENV_VARS" \
   ${SECRET_ARGS[@]+"${SECRET_ARGS[@]}"} \

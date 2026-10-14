@@ -551,70 +551,9 @@ app.post('/api/telemetry/ingest', (req, res) => {
 // ==========================================
 // AUTHORITATIVE WHITELISTS & BRAND MATRIX (HCRV ENGINE)
 // ==========================================
-const PROTECTED_DOMAINS_WHITELIST = new Set([
-  // --- Judiciary & Law Enforcement ---
-  "cybercrime.gov.in", "cbi.gov.in", "enforcementdirectorate.gov.in", "mha.gov.in",
-  "sci.gov.in", "ecourts.gov.in", "nclt.gov.in", "main.sci.gov.in", "delhihighcourt.nic.in",
-  "bombayhighcourt.nic.in", "allahabadhighcourt.in", "hc.nic.in",
-
-  // --- Government Portals & Services ---
-  "india.gov.in", "mygov.in", "digitalindia.gov.in", "pib.gov.in", "niti.gov.in",
-  "gst.gov.in", "mca.gov.in", "incometax.gov.in", "epfindia.gov.in", "pfrda.org.in",
-  "uidai.gov.in", "eaadhaar.uidai.gov.in", "digilocker.gov.in", "umang.gov.in",
-  "parivahan.gov.in", "echallan.parivahan.gov.in", "mvaivahan.gov.in",
-  "indiapost.gov.in", "passportindia.gov.in", "irctc.co.in", "cowin.gov.in",
-  "nvsp.in", "voterportal.eci.gov.in",
-
-  // --- Financial Regulators & Infrastructure ---
-  "rbi.org.in", "sebi.gov.in", "irdai.gov.in", "amfiindia.com", "nsdl.co.in", 
-  "cdslindia.com", "npci.org.in", "bhimupi.org.in",
-
-  // --- Banking (Public, Private, Regional, Cooperative & Small Finance Banks) ---
-  "agrohabank.com", "airtel.in", "alavibank.com", "aucbank.com", "axis.bank.in", "axisbank.com",
-  "bandhanbank.com", "bankofmaharashtra.in", "barclays.bank.in", "bhagininiveditabank.com",
-  "bhavnagar.bank.in", "bmcbankltd.com", "canarabank.com", "capitalbank.co.in",
-  "centralbankofindia.co.in", "crgb.bank.in", "citizencreditbank.com", "cityunionbank.com",
-  "cosmos.bank.in", "csb.bank.in", "ctbcbank.bank.in", "dbs.com", "dcbbank.com",
-  "dnsbank.in", "equitasbank.com", "esafbank.com", "federalbank.co.in", "gpparsik.bank.in",
-  "ggb.bank.in", "hdfcbank.com", "icicibank.com", "idbibank.in", "idfcfirstbank.com",
-  "indianbank.in", "ipsb.bank.in", "jkgrameen.bank.in", "jana.bank.com", "janabank.com", "jiobank.in",
-  "karnatakabank.com", "nutanbank.com", "primebankindia.com", "punjabandsindbank.co.in",
-  "punjabandsind.bank.in", "rpcbank.in", "rblbank.com", "rblfinserve.com", "rblrewards.com",
-  "sccbank.in", "sbmbank.co.in", "pardipeoplesbank.in", "sharadbank.com", "shinhanbankindia.com",
-  "shivalikbank.com", "kadi.bank.in", "waranabank.com", "shahubank.com",
-  "southindianbank.bank.in", "sbi.bank.in", "sbi.co.in", "suryodaybank.com", "svc.bank.in",
-  "tmb.in", "tmb.bank.in", "bavlabank.com", "bhagyalakshmibank.com", "chiplunurbanbank.com",
-  "tcbrl.bank.in", "tgucb.bank.in", "jpcbank.com", "thejjs.bank.in", "knsbl.bank.in",
-  "kalupurbank.com", "kdccbank.in", "kurmanchalbank.com", "mwcb.bank.in", "mudalagibank.com",
-  "nainitalbank.co.in", "namcobank.in", "navnirmanbank.com", "rccbank.in",
-  "rayatsevakbank.co.in", "saurashtrabank.com", "sudico.bank.in", "vaidyanath.bank.in",
-  "vvcc.bank.in", "varachhabank.com", "vijaycooperativebank.com", "vishweshwarbank.com",
-  "tjsbbank.co.in", "ttc.bank.in", "ucoebanking.in", "ucobank.com", "unionbankofindia.co.in",
-  "utkarsh.bank", "upgb.bank.in", "yes.bank.in", "yesbank.in", "zoroastrianbank.bank.in",
-  "zoroastrianbank.com", "pnbindia.in", "bankofbaroda.in", "onlinesbi.sbi",
-  "ujjivansfb.in", "ujjivansfb.bank.in", "aubank.in", "aubank.bank.in", "fincarebank.com",
-  "unitybank.co.in", "ippbonline.com", "finobank.com",
-
-  // --- E-commerce, Food & Delivery ---
-  "amazon.in", "amazon.com", "flipkart.com", "myntra.com", "meesho.com", "ajio.com",
-  "nykaa.com", "jiomart.com", "bigbasket.com", "blinkit.com", "zeptonow.com",
-  "swiggy.com", "zomato.com", "delhivery.com", "bluedart.com", "dtdc.in",
-
-  // --- Fintech, Payments & Insurance ---
-  "phonepe.com", "paytm.com", "paytmbank.com", "mobikwik.com", "freecharge.in",
-  "policybazaar.com", "paisabazaar.com", "kuvera.in", "etmoney.com",
-
-  // --- Share Trading & Investment ---
-  "zerodha.com", "upstox.com", "groww.in", "angelone.in", "nseindia.com", "bseindia.com",
-  "moneycontrol.com", "paytmmoney.com", "icicidirect.com", "hdfcsec.com",
-
-  // --- Loan & NBFCs ---
-  "bajajfinserv.in", "muthootfinance.com", "tatacapital.com", "ltfs.com",
-  "mahindrafinance.com", "hdbfs.com", "chola.com", "manappuram.com",
-
-  // --- Technology & Platform ---
-  "safemeai.com", "safemeai.in", "google.com"
-]);
+// Loaded from data/allowlist.json (entries: {domain, category, owner}); edit that file, not this code.
+const ALLOWLIST_ENTRIES = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'allowlist.json'), 'utf8')).entries;
+const PROTECTED_DOMAINS_WHITELIST = new Set(ALLOWLIST_ENTRIES.map(e => String(e.domain).toLowerCase()));
 
 function isProtectedDomain(host) {
   if (!host) return false;
@@ -706,65 +645,45 @@ const URL_SHORTENERS = new Set([
 // ==========================================
 // REAL-TIME THREAT INTELLIGENCE & TELEMETRY ENGINE
 // ==========================================
-let openPhishCache = {
-  urls: new Set(),
-  domains: new Set(),
-  lastUpdated: 0,
-  count: 0
+// Ingestion platform (lib/ingest/*): sources -> lib/threatStore.js (in-memory snapshot, Firestore/file persistence).
+// OpenPhish is now just one source (lib/ingest/sources/global/openphish.js). Cloud Scheduler is the real driver
+// (POST /internal/ingest/run); an in-process timer is a best-effort fallback (INGEST_INPROCESS=0 disables it).
+const { createPlatform, mountRoutes: mountIngestRoutes } = require('./lib/ingest/platform');
+const { createCloudflareCheck } = require('./lib/cloudflareDns');
+const threatPlatform = createPlatform();
+const threatStore = threatPlatform.store;
+mountIngestRoutes(app, threatPlatform);
+if (process.env.DISABLE_THREAT_INTEL !== '1') {
+  threatPlatform.start().catch(err => console.warn('[ThreatIntel] start failed:', err.message));
+}
+const securityDns = process.env.DISABLE_CLOUDFLARE_DNS === '1' ? null : createCloudflareCheck();
+
+// Legacy-shaped adapter so the engine's OpenPhish path keeps working (O(1) in-memory lookups only).
+const openPhishAdapter = {
+  domains: { has: (h) => threatStore.lookup('domain', h).some(x => x.source === 'openphish') },
+  urls: { has: (u) => { const n = require('./lib/ingest/contract').normaliseUrl(u); return Boolean(n) && threatStore.lookup('url', n).some(x => x.source === 'openphish'); } }
 };
-const openPhishStatus = { live: false, lastAttempt: 0, lastSuccess: 0, lastError: null, indicators: 0 };
-let openPhishInFlight = false;
-
-async function syncOpenPhishFeed() {
-  const now = Date.now();
-  if (openPhishInFlight) return;
-  if (now - openPhishCache.lastUpdated < 10 * 60 * 1000 && openPhishCache.domains.size > 0) return;
-  openPhishInFlight = true;
-  openPhishStatus.lastAttempt = now;
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8000);
-  try {
-    const resp = await fetch('https://openphish.com/feed.txt', {
-      redirect: 'error',
-      signal: controller.signal,
-      headers: { 'User-Agent': 'SafeMeAI-BFSI-ThreatScanner/2.0' }
-    });
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const text = (await resp.text()).slice(0, 5 * 1024 * 1024);
-    const lines = text.split('\n').map(l => l.trim()).filter(Boolean).slice(0, 100000);
-    const domainSet = new Set();
-    const urlSet = new Set();
-    for (const line of lines) {
-      try {
-        const parsed = new URL(line);
-        urlSet.add(line.toLowerCase());
-        domainSet.add(parsed.hostname.replace(/^www\./, '').toLowerCase());
-      } catch (_) {}
-    }
-    if (domainSet.size === 0) throw new Error('feed contained no valid URLs');
-    // Swap atomically only on success; on failure the previous snapshot is kept.
-    openPhishCache = { urls: urlSet, domains: domainSet, lastUpdated: now, count: domainSet.size };
-    Object.assign(openPhishStatus, { live: true, lastSuccess: now, lastError: null, indicators: domainSet.size });
-    console.log(`[ThreatFeed] OpenPhish synced: ${domainSet.size} indicators.`);
-  } catch (err) {
-    openPhishStatus.lastError = err.name === 'AbortError' ? 'timeout' : err.message;
-    openPhishStatus.live = openPhishCache.domains.size > 0 && (Date.now() - openPhishCache.lastUpdated) < 60 * 60 * 1000;
-    console.warn(`[ThreatFeed] OpenPhish sync failed: ${openPhishStatus.lastError}`);
-  } finally {
-    clearTimeout(timeout);
-    openPhishInFlight = false;
-  }
+function openPhishHealth() {
+  const m = threatStore.sourceMeta('openphish');
+  const st = threatPlatform.runner.peek('openphish') || {};
+  const src = threatPlatform.runner.getSource('openphish') || {};
+  const staleMs = (src.staleAfterHours || 12) * 3600 * 1000;
+  return {
+    live: Boolean(m) && (Date.now() - m.ingestedAt) < staleMs, // never "live" for a stale feed
+    lastAttempt: st.lastAttempt || 0, lastSuccess: m ? m.ingestedAt : 0, lastError: st.lastError || null, indicators: m ? m.count : 0
+  };
 }
 
-if (process.env.DISABLE_OPENPHISH !== '1') {
-  syncOpenPhishFeed();
-  setInterval(syncOpenPhishFeed, 10 * 60 * 1000).unref();
-}
-
-app.get('/api/threat-feed/status', (req, res) => res.json({
-  status: 'success', feed: 'OpenPhish community feed', ...openPhishStatus,
-  ageSec: openPhishStatus.lastSuccess ? Math.round((Date.now() - openPhishStatus.lastSuccess) / 1000) : null
-}));
+app.get('/api/threat-feed/status', async (req, res) => {
+  const h = openPhishHealth();
+  let feeds = [];
+  try { feeds = (await threatPlatform.runner.status()).feeds.map(f => ({ id: f.id, name: f.name, group: f.group, status: f.status, live: f.live, stale: f.stale, indicators: f.indicators, lastSuccess: f.lastSuccess, ageSec: f.ageSec, license: f.license })); } catch (_) {}
+  res.json({
+    status: 'success', feed: 'OpenPhish community feed', ...h,
+    ageSec: h.lastSuccess ? Math.round((Date.now() - h.lastSuccess) / 1000) : null,
+    storeReady: threatStore.ready, feeds
+  });
+});
 
 async function performRealtimeDnsCheck(host) {
   try {
@@ -1033,7 +952,9 @@ const engineDeps = {
   shorteners: URL_SHORTENERS,
   dnsCheck: performRealtimeDnsCheck,
   sslCheck: performRealtimeSslCheck,
-  get openPhish() { return openPhishCache; },
+  openPhish: openPhishAdapter,
+  threatStore,
+  securityDns,
   useGemini: process.env.DISABLE_GEMINI !== '1'
 };
 
@@ -1081,9 +1002,13 @@ function telemetryFromAssessment(a) {
     threatFeeds: {
       openPhishMatch: a.isOpenPhish,
       feedName: "OpenPhish Global Community Feed",
-      activeIndicators: openPhishCache.count,
-      feedLive: openPhishStatus.live,
-      feedLastError: openPhishStatus.lastError,
+      activeIndicators: openPhishHealth().indicators,
+      feedLive: openPhishHealth().live,
+      feedLastError: openPhishHealth().lastError,
+      threatStore: { ready: threatStore.ready, totalIndicators: threatStore.stats().totalIndicators },
+      listedBy: (a.threatFeeds || []).map(f => f.name || f.source),
+      cloudflareDns: a.cloudflare,
+      popularRank: a.popularRank,
       webRisk: a.webRisk,
       timestamp: new Date().toISOString()
     },
@@ -1114,6 +1039,9 @@ const VERDICT_COPY = {
   OFFICIAL_NAMESPACE_UNCONFIRMED: ["⚠️ UNCONFIRMED: Official-looking name could not be validated live", "Retry in a minute. Until DNS confirms it exists, treat as unverified."],
   HIGH_RISK_UNVERIFIED_DOMAIN: ["⚠️ HIGH RISK: Unverified domain with multiple danger signals", "Do not enter banking passwords, OTPs, or personal data. Verify through the institution's official app."],
   UNVERIFIED_THIRD_PARTY_DOMAIN: ["⚠️ UNVERIFIED: Not a verified BFSI/government domain", "SafeMeAI cannot vouch for this site. Never enter banking passwords, OTPs or UPI PINs on it."],
+  THREAT_FEED_LISTED: ["🚨 KNOWN THREAT: Listed in a threat-intelligence feed", "🛑 DO NOT OPEN: this address is on a published phishing/malware list. Block and report to 1930."],
+  REGULATOR_WARNING_LISTED: ["🚨 REGULATOR WARNING: Unauthorised / unregistered entity", "🛑 DO NOT INVEST OR PAY: a financial regulator lists this entity as unauthorised. Report to 1930 / cybercrime.gov.in."],
+  DNS_SECURITY_BLOCKED: ["🚨 DNS SECURITY BLOCK: Flagged as malicious by security DNS", "🛑 DO NOT OPEN: a malware/phishing-filtering DNS service refuses to resolve this domain."],
   ESTABLISHED_THIRD_PARTY_DOMAIN: ["ℹ️ Established website (not a bank or government portal)", "Looks like an ordinary long-lived website. Still never enter banking passwords or OTPs on non-bank sites."]
 };
 
@@ -1823,41 +1751,99 @@ app.post('/api/domain/check', async (req, res) => {
 // ==========================================
 // API 8: CITIZEN REPORT SUBMISSION (FEED SAFEMEAI)
 // ==========================================
-app.post('/api/scam/report', (req, res) => {
-  const { scamType, scamDetails, scamTarget } = req.body || {};
-  const clip = (v, n) => String(v == null ? '' : v).slice(0, n);
-
-  if (!scamTarget || !scamType) {
-    return res.status(400).json({ error: "Please provide the scammer's phone number/UPI ID/URL and scam category." });
+// Crowd-report pipeline (lib/reports.js): validation, dedupe, rate limits, reputation, allow-list immunity, expiry.
+const reportsLib = require('./lib/reports');
+const crowdReports = reportsLib.createReports({
+  isProtected: isProtectedDomain,
+  corroborate: async (type, value) => {
+    if (type !== 'domain') return {};
+    const [age, imp] = await Promise.all([
+      engine.lookupDomainAge(value).catch(() => null),
+      Promise.resolve().then(() => engine.detectImpersonation(value, engineDeps._matcher, BRAND_KEYWORDS, { suspiciousTlds: SUSPICIOUS_TLDS })).catch(() => [])
+    ]);
+    return { ageDays: age && age.available && Number.isFinite(age.ageDays) ? age.ageDays : null, lookalike: Array.isArray(imp) && imp.length > 0 };
   }
-
-  const newReport = {
-    id: "REP-" + Math.floor(1000 + Math.random() * 9000),
-    scamType: clip(scamType, 60) || "Unspecified Scam",
-    target: clip(scamTarget, 200),
-    details: clip(scamDetails, 500) || "Citizen reported fraudulent behavior.",
-    time: "Just now",
-    status: "RECEIVED_DEMO"
-  };
-
-  CITIZEN_REPORTS.unshift(newReport);
-  if (CITIZEN_REPORTS.length > 20) CITIZEN_REPORTS.pop();
-
-  res.json({
-    status: 'success',
-    message: "Report received and added to the in-memory demo feed (not persisted, not pushed to devices).",
-    dataSource: 'demo-in-memory',
-    report: newReport
-  });
 });
 
-app.get('/api/scam/reports', (req, res) => {
-  res.json({
-    status: 'success',
-    dataSource: 'demo-in-memory',
-    dataSourceNote: 'Seeded sample reports plus reports submitted since this instance started. Not persisted.',
-    data: CITIZEN_REPORTS
-  });
+async function handleReport(req, res, channel) {
+  const b = req.body || {};
+  if (!b.scamTarget || (channel === 'web' && !b.scamType)) {
+    return res.status(400).json({ error: "Please provide the scammer's phone number/UPI ID/URL and scam category." });
+  }
+  if (channel === 'app') {
+    if (process.env.APP_REPORT_KEY && req.get('x-app-key') !== process.env.APP_REPORT_KEY) return res.status(401).json({ error: 'Unauthorized app client.' });
+    if (typeof b.deviceId !== 'string' || b.deviceId.length < 16 || b.deviceId.length > 128) return res.status(400).json({ error: 'deviceId (16-128 chars) is required.' });
+  }
+  try {
+    // reporterName / reporterPhone from the web form are intentionally ignored (PII minimisation).
+    const r = await crowdReports.submit({ target: b.scamTarget, scamType: b.scamType, details: b.scamDetails, deviceId: channel === 'app' ? b.deviceId : null, ip: req.ip, ua: req.get('user-agent'), channel });
+    if (!r.ok) {
+      if (r.retryAfterSec) res.set('Retry-After', String(r.retryAfterSec));
+      return res.status(r.status || 400).json({ error: r.message || 'Report rejected.', code: r.error });
+    }
+    res.json({
+      status: 'success',
+      message: r.duplicate ? r.message : 'Report received. It becomes a community alert once enough independent reporters confirm it; reports never block verified official domains.',
+      dataSource: 'crowd-pipeline',
+      report: r.record
+    });
+  } catch (err) {
+    console.error('[report] failure:', err);
+    res.status(500).json({ error: 'Could not record the report right now.' });
+  }
+}
+
+app.post('/api/scam/report', (req, res) => handleReport(req, res, 'web'));
+app.post('/api/v1/app/report', (req, res) => handleReport(req, res, 'app'));
+
+app.get('/api/scam/reports', async (req, res) => {
+  try {
+    const live = await crowdReports.publicFeed(20);
+    res.json({
+      status: 'success',
+      dataSource: live.length ? 'crowd-pipeline' : 'demo-in-memory',
+      dataSourceNote: live.length ? 'Values reported by multiple independent citizens. Targets are partially masked.' : 'No community-confirmed reports yet; showing seeded SAMPLE entries.',
+      data: live.length ? live : CITIZEN_REPORTS
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Could not load reports.' });
+  }
+});
+
+// Signed delta for the Android DynamicDomainFeed. Format: docs/blocklist-api.md
+app.get('/api/v1/blocklist/delta', async (req, res) => {
+  const key = process.env.BLOCKLIST_SIGNING_KEY;
+  if (!key) return res.status(503).json({ error: 'Blocklist signing is not configured.' });
+  let since = 0;
+  if (req.query.since != null && req.query.since !== '') {
+    since = /^\d+$/.test(String(req.query.since)) ? Number(req.query.since) : Date.parse(String(req.query.since));
+    if (!Number.isFinite(since) || since < 0) return res.status(400).json({ error: 'since must be epoch milliseconds or ISO-8601.' });
+  }
+  try {
+    const d = await crowdReports.delta(since, 1000);
+    const signed = reportsLib.signDelta(d, since, key);
+    res.set('Cache-Control', 'no-store').set('X-Blocklist-Signature', signed.sig).json(signed);
+  } catch (err) {
+    console.error('[blocklist] failure:', err);
+    res.status(500).json({ error: 'Blocklist unavailable.' });
+  }
+});
+
+// Human review queue (allow-listed / shared-hosting / mass-reported established domains). Disabled unless ADMIN_TOKEN is set.
+function adminOnly(req, res, next) {
+  const t = process.env.ADMIN_TOKEN;
+  if (!t) return res.status(404).end();
+  const got = Buffer.from(String(req.get('authorization') || '')), want = Buffer.from('Bearer ' + t);
+  if (got.length !== want.length || !require('crypto').timingSafeEqual(got, want)) return res.status(401).json({ error: 'Unauthorized' });
+  next();
+}
+app.get('/api/v1/admin/reports/review', adminOnly, async (req, res) => res.json({ status: 'success', data: await crowdReports.reviewQueue() }));
+app.post('/api/v1/admin/reports/review', adminOnly, async (req, res) => {
+  const { type, value, decision } = req.body || {};
+  const norm = reportsLib.normaliseTarget(value);
+  if (!norm.ok || norm.type !== type) return res.status(400).json({ error: 'Invalid type/value.' });
+  const r = await crowdReports.decide(norm.type + ':' + norm.value, decision);
+  res.status(r.ok ? 200 : 400).json(r);
 });
 
 

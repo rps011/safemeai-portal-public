@@ -1,0 +1,303 @@
+{
+ "version": "2026.10.1",
+ "note": "ReportedFraudDomains.kt is an empty runtime cache (no static entries). Seeds are hand-curated and unverified against live DNS; treat as high-suspicion, not proven-malicious.",
+ "entries": [
+  {
+   "type": "domain",
+   "value": "amaz0n-reward.click",
+   "category": "brand-impersonation",
+   "source": "safemeai-android-seed",
+   "sourceUrl": "https://safemeai.com/seed/android/hardcoded-domains",
+   "confidence": 0.9,
+   "meta": {
+    "origin": "HardcodedFraudDomains"
+   }
+  },
+  {
+   "type": "domain",
+   "value": "amaz0n.click",
+   "category": "brand-impersonation",
+   "source": "safemeai-android-seed",
+   "sourceUrl": "https://safemeai.com/seed/android/hardcoded-domains",
+   "confidence": 0.9,
+   "meta": {
+    "origin": "HardcodedFraudDomains"
+   }
+  },
+  {
+   "type": "domain",
+   "value": "amazon-gift.click",
+   "category": "brand-impersonation",
+   "source": "safemeai-android-seed",
+   "sourceUrl": "https://safemeai.com/seed/android/hardcoded-domains",
+   "confidence": 0.9,
+   "meta": {
+    "origin": "HardcodedFraudDomains"
+   }
+  },
+  {
+   "type": "domain",
+   "value": "fraudlink.in",
+   "category": "generic-scam",
+   "source": "safemeai-android-seed",
+   "sourceUrl": "https://safemeai.com/seed/android/hardcoded-domains",
+   "confidence": 0.9,
+   "meta": {
+    "origin": "HardcodedFraudDomains"
+   }
+  },
+  {
+   "type": "domain",
+   "value": "lotteryclaim.in",
+   "category": "lottery-prize",
+   "source": "safemeai-android-seed",
+   "sourceUrl": "https://safemeai.com/seed/android/hardcoded-domains",
+   "confidence": 0.9,
+   "meta": {
+    "origin": "HardcodedFraudDomains"
+   }
+  },
+  {
+   "type": "domain",
+   "value": "jobofferz.online",
+   "category": "job-scam",
+   "source": "safemeai-android-seed",
+   "sourceUrl": "https://safemeai.com/seed/android/hardcoded-domains",
+   "confidence": 0.9,
+   "meta": {
+    "origin": "HardcodedFraudDomains"
+   }
+  },
+  {
+   "type": "domain",
+   "value": "kycupdate-now.com",
+   "category": "kyc-phishing",
+   "source": "safemeai-android-seed",
+   "sourceUrl": "https://safemeai.com/seed/android/hardcoded-domains",
+   "confidence": 0.9,
+   "meta": {
+    "origin": "HardcodedFraudDomains"
+   }
+  },
+  {
+   "type": "domain",
+   "value": "paytmverify.in",
+   "category": "kyc-phishing",
+   "source": "safemeai-android-seed",
+   "sourceUrl": "https://safemeai.com/seed/android/hardcoded-domains",
+   "confidence": 0.9,
+   "meta": {
+    "origin": "HardcodedFraudDomains"
+   }
+  },
+  {
+   "type": "domain",
+   "value": "loan-clearance.in",
+   "category": "loan-scam",
+   "source": "safemeai-android-seed",
+   "sourceUrl": "https://safemeai.com/seed/android/hardcoded-domains",
+   "confidence": 0.9,
+   "meta": {
+    "origin": "HardcodedFraudDomains"
+   }
+  },
+  {
+   "type": "domain",
+   "value": "govt-refund.cc",
+   "category": "govt-impersonation",
+   "source": "safemeai-android-seed",
+   "sourceUrl": "https://safemeai.com/seed/android/hardcoded-domains",
+   "confidence": 0.9,
+   "meta": {
+    "origin": "HardcodedFraudDomains"
+   }
+  },
+  {
+   "type": "domain",
+   "value": "icicibank.co",
+   "category": "bank-impersonation",
+   "source": "safemeai-android-seed",
+   "sourceUrl": "https://safemeai.com/seed/android/hardcoded-domains",
+   "confidence": 0.9,
+   "meta": {
+    "origin": "HardcodedFraudDomains"
+   }
+  },
+  {
+   "type": "domain",
+   "value": "hdfc.co",
+   "category": "bank-impersonation",
+   "source": "safemeai-android-seed",
+   "sourceUrl": "https://safemeai.com/seed/android/hardcoded-domains",
+   "confidence": 0.9,
+   "meta": {
+    "origin": "HardcodedFraudDomains"
+   }
+  },
+  {
+   "type": "domain",
+   "value": "grabrewardz.com",
+   "category": "lottery-prize",
+   "source": "safemeai-android-seed",
+   "sourceUrl": "https://safemeai.com/seed/android/hardcoded-domains",
+   "confidence": 0.9,
+   "meta": {
+    "origin": "HardcodedFraudDomains"
+   }
+  },
+  {
+   "type": "domain",
+   "value": "lottowinnerz.in",
+   "category": "lottery-prize",
+   "source": "safemeai-android-seed",
+   "sourceUrl": "https://safemeai.com/seed/android/hardcoded-domains",
+   "confidence": 0.9,
+   "meta": {
+    "origin": "HardcodedFraudDomains"
+   }
+  },
+  {
+   "type": "domain",
+   "value": "claimreward.co",
+   "category": "lottery-prize",
+   "source": "safemeai-android-seed",
+   "sourceUrl": "https://safemeai.com/seed/android/hardcoded-domains",
+   "confidence": 0.9,
+   "meta": {
+    "origin": "HardcodedFraudDomains"
+   }
+  },
+  {
+   "type": "domain",
+   "value": "yourprize.today",
+   "category": "lottery-prize",
+   "source": "safemeai-android-seed",
+   "sourceUrl": "https://safemeai.com/seed/android/hardcoded-domains",
+   "confidence": 0.9,
+   "meta": {
+    "origin": "HardcodedFraudDomains"
+   }
+  },
+  {
+   "type": "domain",
+   "value": "free-recharge.co",
+   "category": "recharge-scam",
+   "source": "safemeai-android-seed",
+   "sourceUrl": "https://safemeai.com/seed/android/hardcoded-domains",
+   "confidence": 0.9,
+   "meta": {
+    "origin": "HardcodedFraudDomains"
+   }
+  },
+  {
+   "type": "domain",
+   "value": "whatsapplottery.in",
+   "category": "lottery-prize",
+   "source": "safemeai-android-seed",
+   "sourceUrl": "https://safemeai.com/seed/android/hardcoded-domains",
+   "confidence": 0.9,
+   "meta": {
+    "origin": "HardcodedFraudDomains"
+   }
+  },
+  {
+   "type": "domain",
+   "value": "upi-refund.in",
+   "category": "upi-refund-scam",
+   "source": "safemeai-android-seed",
+   "sourceUrl": "https://safemeai.com/seed/android/hardcoded-domains",
+   "confidence": 0.9,
+   "meta": {
+    "origin": "HardcodedFraudDomains"
+   }
+  },
+  {
+   "type": "domain",
+   "value": "hdfc.ac.edu",
+   "category": "bank-impersonation",
+   "source": "safemeai-android-seed",
+   "sourceUrl": "https://safemeai.com/seed/android/hardcoded-domains",
+   "confidence": 0.9,
+   "meta": {
+    "origin": "HardcodedFraudDomains"
+   }
+  },
+  {
+   "type": "domain",
+   "value": "sbi-kyc.net",
+   "category": "kyc-phishing",
+   "source": "safemeai-android-seed",
+   "sourceUrl": "https://safemeai.com/seed/android/hardcoded-domains",
+   "confidence": 0.9,
+   "meta": {
+    "origin": "HardcodedFraudDomains"
+   }
+  },
+  {
+   "type": "domain",
+   "value": "icici-rewards.online",
+   "category": "bank-impersonation",
+   "source": "safemeai-android-seed",
+   "sourceUrl": "https://safemeai.com/seed/android/hardcoded-domains",
+   "confidence": 0.9,
+   "meta": {
+    "origin": "HardcodedFraudDomains"
+   }
+  },
+  {
+   "type": "domain",
+   "value": "sbi-kyc-update.xyz",
+   "category": "kyc-phishing",
+   "source": "safemeai-android-seed",
+   "sourceUrl": "https://safemeai.com/seed/android/daily_feed",
+   "confidence": 0.8,
+   "meta": {
+    "origin": "daily_feed.json"
+   }
+  },
+  {
+   "type": "domain",
+   "value": "hdfcbank-secure.top",
+   "category": "bank-impersonation",
+   "source": "safemeai-android-seed",
+   "sourceUrl": "https://safemeai.com/seed/android/daily_feed",
+   "confidence": 0.8,
+   "meta": {
+    "origin": "daily_feed.json"
+   }
+  },
+  {
+   "type": "domain",
+   "value": "pmkisan-apply.online",
+   "category": "govt-impersonation",
+   "source": "safemeai-android-seed",
+   "sourceUrl": "https://safemeai.com/seed/android/daily_feed",
+   "confidence": 0.8,
+   "meta": {
+    "origin": "daily_feed.json"
+   }
+  },
+  {
+   "type": "domain",
+   "value": "uidai-verify.xyz",
+   "category": "govt-impersonation",
+   "source": "safemeai-android-seed",
+   "sourceUrl": "https://safemeai.com/seed/android/daily_feed",
+   "confidence": 0.8,
+   "meta": {
+    "origin": "daily_feed.json"
+   }
+  },
+  {
+   "type": "domain",
+   "value": "incometax-refund.top",
+   "category": "govt-impersonation",
+   "source": "safemeai-android-seed",
+   "sourceUrl": "https://safemeai.com/seed/android/daily_feed",
+   "confidence": 0.8,
+   "meta": {
+    "origin": "daily_feed.json"
+   }
+  }
+ ]
+}
