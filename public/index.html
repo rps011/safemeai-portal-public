@@ -283,9 +283,17 @@
       <div class="specimens-bar">
         <span class="specimens-label">⚡ Test Common Phishing vs Authentic Domains:</span>
         <div class="specimen-chips">
-          <button class="specimen-chip chip-critical" data-domain-sample="sbi-kyc-update.xyz">
+          <button class="specimen-chip chip-safe" data-domain-sample="https://www.ujjivansfb.bank.in/">
+            <span class="chip-icon">🏛️</span>
+            <span>ujjivansfb.bank.in (Official Bank)</span>
+          </button>
+          <button class="specimen-chip chip-critical" data-domain-sample="sbi-kyc-verify-portal.xyz">
             <span class="chip-icon">🚨</span>
-            <span>sbi-kyc-update.xyz (Phishing)</span>
+            <span>sbi-kyc-verify-portal.xyz (Phishing)</span>
+          </button>
+          <button class="specimen-chip chip-safe" data-domain-sample="github.com">
+            <span class="chip-icon">🌐</span>
+            <span>github.com (Clean External Host)</span>
           </button>
           <button class="specimen-chip chip-danger" data-domain-sample="pmkisan-gov-in.online">
             <span class="chip-icon">⚠️</span>
@@ -299,10 +307,6 @@
             <span class="chip-icon">✅</span>
             <span>hdfcbank.com (Official Bank)</span>
           </button>
-          <button class="specimen-chip chip-safe" data-domain-sample="cybercrime.gov.in">
-            <span class="chip-icon">✅</span>
-            <span>cybercrime.gov.in (Official Law)</span>
-          </button>
         </div>
       </div>
 
@@ -313,7 +317,7 @@
             <h3>Enter Domain or URL</h3>
             <button class="btn-text-clear" id="btn-clear-domain">Clear</button>
           </div>
-          <input type="text" id="domain-input-text" placeholder="e.g. sbi-kyc-update.xyz or https://pmkisan.gov.in..." class="domain-input-field">
+          <input type="text" id="domain-input-text" placeholder="e.g. https://www.ujjivansfb.bank.in or sbi-kyc-update.xyz..." class="domain-input-field">
           
           <div class="checker-controls">
             <button class="btn-primary-glow" id="btn-run-domain-check">
@@ -322,12 +326,13 @@
           </div>
 
           <div class="domain-heuristics-note">
-            <h4>HCRV Multi-Vector Checks:</h4>
+            <h4>Real-Time Threat Intelligence & Agentic AI:</h4>
             <ul>
-              <li><strong>Authoritative Whitelist:</strong> Cross-checks 120+ RBI, Gov, and Tier-1 BFSI root domains.</li>
-              <li><strong>Brand Trap Detection:</strong> Flags keyword misuse (e.g. 'sbi', 'rbi', 'challan') on private servers.</li>
-              <li><strong>TLD Abuse Filter:</strong> Scans high-risk disposable extensions (.xyz, .top, .buzz, .online).</li>
-              <li><strong>Payload Scanner:</strong> Flags numeric IPs and direct Android APK sideload links.</li>
+              <li><strong>Live Google Public DNS (DoH):</strong> Resolves active A records and detects Fast-Flux DNS and NXDOMAIN sinkholes.</li>
+              <li><strong>Live TLS / SSL Port 443 Audit:</strong> Extracts X.509 Certificate Organization (EV/OV vs free DV) and cert issuance age.</li>
+              <li><strong>OpenPhish Global Community Feed:</strong> Cross-checks 300+ live zero-day active phishing attacks in real time.</li>
+              <li><strong>Information Theory ML:</strong> Shannon Lexical Entropy mathematically detects Domain Generation Algorithms (DGA).</li>
+              <li><strong>Gemini 1.5 Threat Hunter:</strong> Contextual forensic reasoning and compliance verification.</li>
             </ul>
           </div>
         </div>
@@ -353,6 +358,35 @@
             </div>
           </div>
 
+          <!-- REAL-TIME TELEMETRY & AGENTIC FORENSICS DRAWER -->
+          <div class="realtime-telemetry-box" id="domain-realtime-box" style="display: none;">
+            <div class="telemetry-header">
+              <span class="pulse-dot"></span>
+              <h5>LIVE REAL-TIME TELEMETRY & AGENTIC FORENSICS</h5>
+            </div>
+            <div class="telemetry-grid">
+              <div class="telemetry-item">
+                <span class="telemetry-lbl">🌐 Google DNS (DoH RFC 8484)</span>
+                <span class="telemetry-val" id="telemetry-dns-val">Resolving...</span>
+              </div>
+              <div class="telemetry-item">
+                <span class="telemetry-lbl">🔐 TLS / SSL X.509 Audit (Port 443)</span>
+                <span class="telemetry-val" id="telemetry-ssl-val">Inspecting...</span>
+              </div>
+              <div class="telemetry-item">
+                <span class="telemetry-lbl">📡 OpenPhish Global Zero-Day Feed</span>
+                <span class="telemetry-val" id="telemetry-feed-val">Cross-referencing...</span>
+              </div>
+              <div class="telemetry-item">
+                <span class="telemetry-lbl">🧠 Information Theory & DGA ML</span>
+                <span class="telemetry-val" id="telemetry-ml-val">Evaluating...</span>
+              </div>
+            </div>
+            <div class="telemetry-ai-rationale" id="telemetry-rationale-val">
+              Agentic AI reasoning in progress...
+            </div>
+          </div>
+
           <div class="flags-section">
             <h5 class="sub-heading">Verification & Security Flags:</h5>
             <ul class="red-flags-list" id="domain-flags-list">
@@ -368,7 +402,7 @@
           </div>
 
           <div class="legal-badge" id="domain-legal-box">
-            <span>🛡️ Engine: <strong>Hybrid Cross-Reference Validation (SafeMeAI Android Engine)</strong></span>
+            <span>🛡️ Engine: <strong>Real-Time Threat Intelligence & Gemini 1.5 Threat Hunter (Vertex AI)</strong></span>
           </div>
         </div>
       </div>

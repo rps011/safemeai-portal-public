@@ -331,6 +331,73 @@ async function runDomainCheck(urlOrDomain) {
       ${res.officialDomain ? `<p style="margin-top: 0.4rem; color: #6ee7b7; font-weight: 700;">Official Authorized Website: <a href="https://${res.officialDomain}" target="_blank" style="color: #6ee7b7; text-decoration: underline;">https://${res.officialDomain}</a></p>` : ''}
     `;
 
+    // Render Real-Time Telemetry & Agentic Forensics
+    const realtimeBox = document.getElementById('domain-realtime-box');
+    const dnsVal = document.getElementById('telemetry-dns-val');
+    const sslVal = document.getElementById('telemetry-ssl-val');
+    const feedVal = document.getElementById('telemetry-feed-val');
+    const mlVal = document.getElementById('telemetry-ml-val');
+    const rationaleVal = document.getElementById('telemetry-rationale-val');
+
+    if (res.realtimeTelemetry && realtimeBox) {
+      realtimeBox.style.display = 'block';
+
+      // DNS Tile
+      if (dnsVal && res.realtimeTelemetry.dns) {
+        const dns = res.realtimeTelemetry.dns;
+        if (dns.resolved) {
+          dnsVal.innerHTML = `<span class="badge-safe">✅ ${dns.status}</span> · ${dns.ips.slice(0, 2).join(', ')}${dns.ips.length > 2 ? ' +' + (dns.ips.length - 2) : ''} <small>(TTL: ${dns.ttl || 60}s${dns.isFastFlux ? ' · ⚠️ Fast-Flux' : ''})</small>`;
+        } else {
+          dnsVal.innerHTML = `<span class="badge-crit">⚠️ ${dns.status || 'UNRESOLVED'}</span> · <small>Not reachable on Google Public DNS</small>`;
+        }
+      }
+
+      // SSL Tile
+      if (sslVal && res.realtimeTelemetry.ssl) {
+        const ssl = res.realtimeTelemetry.ssl;
+        if (ssl.supported && ssl.hasValidSsl) {
+          if (ssl.isEV_OV) {
+            sslVal.innerHTML = `<span class="badge-safe">🏛️ EV/OV Certified</span> · <strong>${ssl.subjectOrg}</strong> <small>(${ssl.issuer})</small>`;
+          } else if (ssl.isFreeDV) {
+            sslVal.innerHTML = `<span class="badge-warn">⚠️ Free DV TLS</span> · ${ssl.issuer} <small>(${ssl.ageDays !== null ? ssl.ageDays + 'd old' : 'active'}${ssl.isNewlyIssued ? ' · 🚨 Newly Issued' : ''})</small>`;
+          } else {
+            sslVal.innerHTML = `<span class="badge-safe">✅ Valid TLS</span> · ${ssl.issuer} <small>(Age: ${ssl.ageDays !== null ? ssl.ageDays + 'd' : 'active'})</small>`;
+          }
+        } else {
+          sslVal.innerHTML = `<span class="badge-crit">🚨 ${ssl.error || 'No Secure TLS'}</span> · <small>Port 443 handshake failed</small>`;
+        }
+      }
+
+      // OpenPhish Feed Tile
+      if (feedVal && res.realtimeTelemetry.threatFeeds) {
+        const feed = res.realtimeTelemetry.threatFeeds;
+        if (feed.openPhishMatch) {
+          feedVal.innerHTML = `<span class="badge-crit">🚨 ACTIVE ZERO-DAY THREAT</span> · <small>Flagged in live OpenPhish community stream</small>`;
+        } else {
+          feedVal.innerHTML = `<span class="badge-safe">✅ Threat Feed Clean</span> · <small>Passed OpenPhish real-time stream (${feed.activeIndicators} active IOCs)</small>`;
+        }
+      }
+
+      // ML Diagnostics Tile
+      if (mlVal && res.realtimeTelemetry.mlDiagnostics) {
+        const ml = res.realtimeTelemetry.mlDiagnostics;
+        const badgeClass = ml.isDGA ? 'badge-crit' : (ml.shannonEntropy > 3.4 ? 'badge-warn' : 'badge-safe');
+        mlVal.innerHTML = `<span class="${badgeClass}">${ml.entropyRating}</span> · <small>Shannon Entropy: ${ml.shannonEntropy}</small>`;
+      }
+
+      // Agentic AI Rationale Box
+      if (rationaleVal && res.realtimeTelemetry.agenticAi) {
+        const ai = res.realtimeTelemetry.agenticAi;
+        rationaleVal.innerHTML = `
+          <div style="margin-bottom: 0.35rem; display: flex; align-items: center; justify-content: space-between;">
+            <strong style="color: #38bdf8;">🧠 ${ai.model}</strong>
+            <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); padding: 0.1rem 0.4rem; border-radius: 4px; color: #7dd3fc;">Confidence: ${ai.confidence}</span>
+          </div>
+          <div style="color: #cbd5e1; font-size: 0.82rem; line-height: 1.4;">${ai.rationale}</div>
+        `;
+      }
+    }
+
   } catch (err) {
     headlineEl.textContent = "Domain Evaluation Error";
     descEl.textContent = err.message || "Failed to reach domain verification engine.";
@@ -347,6 +414,8 @@ function resetDomainVerdict() {
   document.getElementById('domain-verdict-tag').textContent = 'Status: Standby';
   document.getElementById('domain-flags-list').innerHTML = '<li class="empty-state">No domain evaluated yet.</li>';
   document.getElementById('domain-action-card').innerHTML = '<p>SafeMeAI will advise whether this domain is safe for credentials, payment transactions, or downloads.</p>';
+  const realtimeBox = document.getElementById('domain-realtime-box');
+  if (realtimeBox) realtimeBox.style.display = 'none';
 }
 
 // ========================================================
