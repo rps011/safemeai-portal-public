@@ -7,7 +7,7 @@ set -euo pipefail
 SERVICE_NAME="${SERVICE_NAME:-safemeai-bfsi}"
 REGION="${REGION:-asia-south1}"
 PROJECT="${PROJECT:-${GOOGLE_CLOUD_PROJECT:-fraudshield-daa79c8e}}"
-VERTEX_LOCATION="${VERTEX_LOCATION:-us-central1}"
+VERTEX_LOCATION="${VERTEX_LOCATION:-asia-south1}"
 GEMINI_MODEL="${GEMINI_MODEL:-gemini-2.5-flash}"
 SA_NAME="safemeai-run"
 SA_EMAIL="${SA_NAME}@${PROJECT}.iam.gserviceaccount.com"
@@ -56,13 +56,15 @@ add_secret REPORTER_HASH_SECRET reporter-hash-secret
 add_secret ADMIN_TOKEN admin-token
 add_secret BLOCKLIST_SIGNING_KEY blocklist-signing-key
 add_secret URLHAUS_AUTH_KEY urlhaus-auth-key
+add_secret AUDIT_HMAC_SECRET audit-hmac-secret
+add_secret API_KEYS_JSON api-keys-json
 [ -n "$SECRET_MAP" ] && SECRET_ARGS=(--set-secrets "$SECRET_MAP")
 
 INGEST_SA_NAME="safeme-ingest-scheduler"
 INGEST_SA_EMAIL="${INGEST_SA_NAME}@${PROJECT}.iam.gserviceaccount.com"
 SERVICE_URL=$(gcloud run services describe "$SERVICE_NAME" --region "$REGION" --format 'value(status.url)' 2>/dev/null || true)
 
-ENV_VARS="NODE_ENV=production,THREAT_STORE=firestore,INGEST_SA_EMAIL=${INGEST_SA_EMAIL},INGEST_AUDIENCE=${SERVICE_URL},INGEST_CONTACT=${INGEST_CONTACT:-https://safemeai.in/security},INGEST_SOURCES_DISABLE=${INGEST_SOURCES_DISABLE:-openphish},GOOGLE_CLOUD_PROJECT=${PROJECT},VERTEX_LOCATION=${VERTEX_LOCATION},GEMINI_MODEL=${GEMINI_MODEL}"
+ENV_VARS="NODE_ENV=production,GIT_SHA=$(git rev-parse --short HEAD 2>/dev/null || echo unknown),THREAT_STORE=firestore,INGEST_SA_EMAIL=${INGEST_SA_EMAIL},INGEST_AUDIENCE=${SERVICE_URL},INGEST_CONTACT=${INGEST_CONTACT:-https://safemeai.in/security},INGEST_SOURCES_DISABLE=${INGEST_SOURCES_DISABLE:-openphish},GOOGLE_CLOUD_PROJECT=${PROJECT},VERTEX_LOCATION=${VERTEX_LOCATION},GEMINI_MODEL=${GEMINI_MODEL}"
 [ -n "${DOCUMENT_AI_PROCESSOR:-}" ] && ENV_VARS="$ENV_VARS,DOCUMENT_AI_PROCESSOR=${DOCUMENT_AI_PROCESSOR}"
 [ -n "${BIGQUERY_DATASET:-}" ] && ENV_VARS="$ENV_VARS,BIGQUERY_DATASET=${BIGQUERY_DATASET}"
 

@@ -55,6 +55,15 @@ keyword rules and labels the answer `rules-engine fallback`.
 
 **Status.** `GET /api/threat-feed/status` (public, back-compatible: `live, lastSuccess, lastError, indicators, ageSec` for OpenPhish) now also returns `feeds[]` with `status` (`ok|degraded|stale|failed|never-run`), `live`, `indicators`, `ageSec`, `license` per source. `GET /internal/ingest/status` (OIDC) adds run stats: count, added, removed, rejected, duration, consecutive failures.
 
+## Platform: audit, API product, data flow, SLOs
+- **Audit trail** (`lib/audit.js`, `docs/audit.md`): one JSON line per check on stdout (Cloud Logging), input SHA-256 only, client = HMAC of /24. Optional BigQuery sink `AUDIT_BIGQUERY_TABLE` (off).
+- **API** (`docs/api.md`, `/api/docs`, `/api/v1/openapi.json`): v1 aliases, batch, optional API keys (`API_KEYS_JSON`), token-bucket limits per route group, `/api/system/status`, `/health`.
+- **Data flow & residency**: browser/app -> Cloud Run (asia-south1) -> in-memory engines + Firestore (threat store, reports) -> optional calls out: Gemini on Vertex AI in `VERTEX_LOCATION` (default asia-south1; a startup warning is logged otherwise), Google Web Risk, public DNS (dns.google / Cloudflare), RDAP, target-site TLS handshake. Text sent to Gemini is PII-redacted first (`lib/redact.js`: phones, Aadhaar, PAN, cards, emails, UPI ids, OTP-like codes). Raw user text is not persisted; logs hold hashes only. Web Risk, DNS and RDAP lookups send the domain being checked to those providers (not the message body).
+- **DPDP notes (not legal advice)**: data minimisation (hash-only audit), purpose limitation (fraud detection), no raw-IP storage, residency in India for compute/storage/Gemini by default, retention table in `docs/audit.md`. Open items: privacy notice/consent text on the UI, DPO contact, breach-notification runbook, DPA with the bank, processor list review.
+- **SLO targets** (targets, not measured guarantees): availability 99.9% monthly (error budget 43 min/month; Cloud Run min-instances=0 means cold starts of a few seconds can eat budget - set min-instances=1 if affordable); p95 latency: text/UPI/phone check < 800 ms, URL/domain check < 4 s (network probes), Gemini advisor < 6 s; 5xx rate < 0.1%. Measure with Cloud Run request metrics and the audit `latencyMs`.
+- **Live vs demo**: live = text/URL/UPI/phone scoring, domain verification (DNS, TLS, RDAP age, threat feeds), crowd reports, signed blocklist, audit/limits/API. Live if configured = Gemini on Vertex, Web Risk (`WEB_RISK_API_KEY`), Document AI (`DOCUMENT_AI_PROCESSOR`), BigQuery analytics (`BIGQUERY_DATASET`), audit BigQuery sink. Demo = document specimens (pre-written findings), compliance search and telemetry-ingest sample data. `/api/system/status` reports the real state.
+- Env: `API_KEYS_JSON`, `AUDIT_HMAC_SECRET`, `AUDIT_BIGQUERY_TABLE`, `GIT_SHA`, `RL_*`, `SECURITY_CONTACT`, `VERTEX_LOCATION`.
+
 ## Run locally
 
 ```bash

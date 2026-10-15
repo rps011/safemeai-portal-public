@@ -1,0 +1,600 @@
+{
+ "source": "bank UAT benchmark (119 cases)",
+ "cases": [
+  {
+   "kind": "domain",
+   "input": "sbi.co.in",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "https://www.onlinesbi.sbi/",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "https://www.hdfcbank.com/personal/pay/cards",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "icicibank.com",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "www.axisbank.com",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "kotak.com",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "incometax.gov.in",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "uidai.gov.in",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "npci.org.in",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "phonepe.com",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "paytm.com",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "flipkart.com",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "amazon.in",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "irctc.co.in",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "google.com",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "github.com",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "bbc.com",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "timesofindia.indiatimes.com",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "zerodha.com",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "groww.in",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "bajajfinserv.in",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "rbi.org.in",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "cybercrime.gov.in",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "mygov.in",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "swiggy.com",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "zomato.com",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "jio.com",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "airtel.in",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "claude.ai",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "wikipedia.org",
+   "malicious": false
+  },
+  {
+   "kind": "domain",
+   "input": "hdfc-bank-kyc.top",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "sbi-yono-update.com",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "icici-rewards-claim.in",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "paytm-kyc-verify.xyz",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "income-tax-refund.in.net",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "uidai-aadhaar-update.co",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "sbi.co.in.secure-login.xyz",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "hdfcbank.com.verify-account.top",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "hdfcbnak.com",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "icicibamk.com",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "axisbamk.in",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "xn--hdfcbank-9ya.com",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "xn--sbi-5qa.co.in",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "http://45.12.34.56/sbi/login",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "https://bit.ly/3xYzAbC",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "tinyurl.com/sbi-kyc-now",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "incometax-refund.gov.in.verify-claim.com",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "gov.in.kyc-update.top",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "sbi.bank.in.login-secure.xyz",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "amaz0n-in.com",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "flipkart-bigbillion-sale.shop",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "irctc-tatkal-refund.xyz",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "upi-cashback-phonepe.top",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "pm-kisan-yojana-apply.in.net",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "electricity-bill-pending-disconnect.cc",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "fastag-kyc-update.xyz",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "trai-sim-block-notice.com",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "paytm.kyc-update.in",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "jio-free-recharge-whatsapp.click",
+   "malicious": true
+  },
+  {
+   "kind": "domain",
+   "input": "kotak-netbanking-login.help",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "123456 is your OTP for HDFC Bank NetBanking login. Do not share it with anyone. Never share OTP, bank will never ask. -HDFC Bank",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Rs 2,500.00 debited from A/c XX1234 on 14-10-26 to VPA swiggy@icici (UPI Ref 428811223344). If not you, call 1800 1080 SBI. -SBI",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Your ICICI Bank Credit Card XX4321 was used for INR 1,299.00 at AMAZON on 14-Oct. Avl limit INR 48,701. Not you? Call 18002662.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Rs.15,000 credited to your Axis Bank A/c XX9876 on 01-10-2026 by NEFT-SALARY ACME PVT LTD. Avl Bal Rs 62,310.44",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Dear Customer, your Kotak Mahindra Bank A/c XX5566 is credited with Rs 3,200.00 via UPI from rahul@oksbi. Bal: Rs 20,100.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Your Amazon order #408-1234567-7654321 has been shipped and will be delivered by Fri, 17 Oct. Track at amazon.in/orders",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Delhivery: Your package AWB 3456789012 is out for delivery today. Delivery OTP 4821. Share only with the delivery executive.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "482913 is your Swiggy login code. Valid for 10 mins. Do not share with anyone.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Recharge of Rs 299 on Airtel No 98XXXXXX10 successful. Validity 28 days, 1.5GB/day. Thank you for choosing Airtel.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "BESCOM: Your electricity bill of Rs 1,420 for Sept has been received. Thank you. Receipt no 889123.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Reminder: Your HDFC Bank loan EMI of Rs 12,450 is due on 05-Nov-2026. Maintain sufficient balance in A/c XX1234 to avoid charges.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "IRCTC: PNR 4521398760 confirmed. Train 12951 Mumbai Rajdhani, 20-Oct, Coach B2 Seat 34. Happy journey!",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Your Jio postpaid bill of Rs 499 is generated. Pay by 25-Oct on myjio app or jio.com to avoid late fee.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "LIC: Premium of Rs 8,000 for policy 123456789 is due on 28-Oct-2026. Pay online at licindia.in or at any branch.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Zerodha: Contract note for 14-Oct-2026 has been emailed to your registered email id. -Zerodha",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "G-482910 is your Google verification code.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Your WhatsApp code: 123-456. You can also tap this link to verify your phone: v.whatsapp.com/123456. Don't share this code.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "PhonePe: Rs 450 paid to Reliance Retail successfully. Txn ID T2610141234567. Check history in the PhonePe app.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Paytm: Rs 100 added to your Paytm Wallet. Balance Rs 640. Thank you.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Flipkart: Your order for boAt Rockerz has been delivered. Rate your experience in the Flipkart app.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Your A/c XX1234 balance is Rs 45,210.55 as on 14-Oct-2026 10:15. -Bank of Baroda",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "FASTag: Rs 500 recharged to your FASTag KA01AB1234. Avl balance Rs 612. Thank you for using ICICI Bank FASTag.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Salary credited: INR 85,000 in A/c XX7788 on 30-Sep. -Punjab National Bank",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "SIP of Rs 5,000 in Parag Parikh Flexi Cap Fund executed on 10-Oct. Units allotted 71.234. -Groww",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Your passport appointment is confirmed for 22-Oct-2026 10:30 at PSK Bengaluru. Carry original documents. -Passport Seva",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Income Tax Dept: Refund of Rs 12,340 for AY 2025-26 has been credited to your bank account ending 4321. Visit incometax.gov.in for details.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Dear customer, KYC periodic update is due for your SBI account. Please visit your home branch with ID proof or use the YONO app. Do not share OTP/PIN with anyone.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Your cheque no 004512 for Rs 20,000 has been cleared on 14-Oct. -ICICI Bank",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Your SBI Credit Card ending 8899 statement of Rs 14,200 is generated. Pay by 02-Nov via sbicard.com or the SBI Card app.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Uber: Your OTP is 7391. Share it with your driver only to start the trip.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Dear customer your SBI account will be BLOCKED today. Update KYC immediately: http://sbi-kyc-update.top/login",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "HDFC Bank: Rs 49,999 reward points expire today! Redeem now at http://hdfc-rewards-claim.xyz or lose them.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Your electricity will be disconnected tonight at 9:30 pm as previous month bill not updated. Call 98XXXXXX45 immediately. -Electricity Dept",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Congratulations! You won Rs 25,00,000 in KBC Lottery. Send Aadhaar and pay Rs 4,999 processing fee to claim. WhatsApp +92 3XX XXXXXXX",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "This is CBI officer. A parcel in your name with MDMA and 5 passports was seized by Customs. Join Skype video call now or you will be arrested. Do not tell anyone.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Aapka PAN card aaj block ho jayega. Turant link par click karke update karein: http://pan-update-india.top",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Aapka SBI YONO account band ho gaya hai. KYC update karne ke liye APK download karein: http://sbi-yono-kyc.apk-download.xyz/sbi.apk",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "आपका बैंक खाता आज बंद हो जाएगा। तुरंत KYC अपडेट करें: http://kyc-update-bank.top",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "आपके नाम पर पार्सल में ड्रग्स मिले हैं। CBI अधिकारी से अभी वीडियो कॉल पर बात करें और किसी को न बताएं।",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Work from home! Earn Rs 5,000 daily by liking YouTube videos. Join Telegram: t.me/earnfast_india. Pay Rs 500 registration first.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Dear user, your Paytm KYC has expired. Wallet will be frozen in 2 hours. Click http://paytm-kyc-verify.xyz or call 9XXXXXXXXX",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "I am sending you Rs 5000 by mistake on PhonePe. Please approve the collect request of Rs 5000 to receive/return the money. Enter your UPI PIN.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Income Tax refund of Rs 38,450 approved. Submit your bank details & card number at http://incometax-refund.in.net to receive the amount.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Your Aadhaar is linked to illegal activity. TRAI will disconnect your SIM in 2 hours. Press 9 to speak to officer.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Hi, I am calling from Amazon. Your order of iPhone 15 Rs 89,999 is placed. If not you, install AnyDesk to cancel the order.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "URGENT: Your credit card has been charged Rs 78,900. To cancel, share the OTP you just received with our agent.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Loan approved Rs 2,00,000 instant without documents! Pay Rs 2,999 processing fee first. Apply http://instant-loan-approve.click",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Dear Customer, HDFC NetBanking suspended. Verify now http://hdfcbank-secure-verify.top Enter card number, CVV, and OTP.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Aapka Jio number 24 ghante mein band ho jayega. KYC ke liye is number par call karein aur OTP batayein.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Bhai mera phone kharab hai, ye QR code scan karo paise bhej raha hu, UPI PIN daalo receive karne ke liye.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Your FedEx parcel is held due to unpaid customs fee Rs 1,850. Pay at http://fedex-india-customs.top to release.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Investment tip: Join our VIP stock group, guaranteed 300% returns in 30 days, SEBI registered. Send Rs 10,000 to start. WhatsApp +91 9XXXXXXXXX",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Sir your ICICI credit card limit has been increased to Rs 5 lakh. Share the OTP received to activate the limit.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Pm Kisan Yojana: Rs 2000 pending. Download PM-KISAN.apk from http://pm-kisan-apply.in.net to receive your instalment.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Dear customer, your FASTag is blacklisted. Update KYC today: http://fastag-kyc-update.xyz or pay Rs 1,000 penalty.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Aapne ek lucky draw jeeta hai! Rs 10 lakh ke inam ke liye abhi Rs 2,100 tax jama karein. Account number: 1234567890 IFSC SBIN0001234",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Mumbai Cyber Police notice: Your WhatsApp number used for illegal activity. Pay fine Rs 15,000 via UPI to avoid arrest warrant. Stay on call.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Your Axis Bank debit card is blocked. To unblock, share card number, expiry date, CVV and the OTP on this number.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Hello, I am your relative stuck abroad, need urgent Rs 40,000, please transfer now to this UPI id ravi.kumar88@ybl. Don't tell family.",
+   "malicious": true
+  }
+ ]
+}

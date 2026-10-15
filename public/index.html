@@ -3,617 +3,583 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SafeMeAI — India's Real-Time Scam & Cyber Fraud Defense Platform</title>
-  <meta name="description" content="AI-Powered Real-Time Scam & Cyber Fraud Defense for Android & Enterprise BFSI. Shielding citizens from Digital Arrests, UPI Traps, and Predatory Loan Harassment powered by Google Cloud & Vertex AI.">
+  <title>SafeMeAI — Check scams before you trust them</title>
+  <meta name="description" content="Free scam checker for India: paste a message, link, UPI ID or phone number and get a plain-language answer. Panic check for fake police 'digital arrest' calls. Helpline 1930.">
+  <meta name="theme-color" content="#070a13">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <a href="#main-content" class="skip-link" data-i18n="Skip to main content">Skip to main content</a>
 
   <!-- ==============================================
-       TOP GLOBAL HEADER & GOOGLE CLOUD STACK STATUS
+       HEADER + HONEST SERVICE STATUS
        ============================================== -->
   <header class="app-header">
     <div class="header-left">
       <div class="logo-badge">
-        <span class="shield-icon">🛡️</span>
+        <span class="shield-icon" aria-hidden="true">🛡️</span>
         <div class="logo-text">
-          <span class="brand-name">SafeMe<span class="highlight">AI</span> <span class="enterprise-tag">DEFENSE</span></span>
-          <span class="sub-brand">Citizen & BFSI Cybercrime Shield • Powered by Google Cloud</span>
+          <span class="brand-name">SafeMe<span class="highlight">AI</span></span>
+          <span class="sub-brand" data-i18n="Free scam checker for India (prototype)">Free scam checker for India (prototype)</span>
         </div>
       </div>
     </div>
 
-    <!-- LIVE GOOGLE CLOUD ARCHITECTURE PILLS -->
-    <div class="cloud-stack-bar">
-      <div class="stack-item" title="Deployed & Scaled on Google Cloud Run">
-        <span class="dot pulse-green"></span>
-        <span class="stack-label">Cloud Run</span>
+    <!-- SERVICE STATUS: dots are set by app.js from live status endpoints; default is grey -->
+    <div class="cloud-stack-bar" id="service-status-bar" role="group" aria-label="Service status">
+      <div class="stack-item" id="svc-cloudrun" title="Checking...">
+        <span class="dot dot-grey" aria-hidden="true"></span><span class="stack-label">Cloud Run</span><span class="stack-state sr-only">checking</span>
       </div>
-      <div class="stack-item" title="Multimodal Reasoning via Vertex AI Gemini">
-        <span class="dot pulse-blue"></span>
-        <span class="stack-label">Vertex AI</span>
+      <div class="stack-item" id="svc-gemini" title="Checking...">
+        <span class="dot dot-grey" aria-hidden="true"></span><span class="stack-label">Gemini AI</span><span class="stack-state sr-only">checking</span>
       </div>
-      <div class="stack-item" title="Document AI OCR (active only when a processor is configured)">
-        <span class="dot pulse-purple"></span>
-        <span class="stack-label">Document AI</span>
+      <div class="stack-item" id="svc-webrisk" title="Checking...">
+        <span class="dot dot-grey" aria-hidden="true"></span><span class="stack-label">Web Risk</span><span class="stack-state sr-only">checking</span>
       </div>
-      <div class="stack-item" title="BigQuery analytics (demo data unless connected)">
-        <span class="dot pulse-cyan"></span>
-        <span class="stack-label">BigQuery</span>
+      <div class="stack-item" id="svc-docai" title="Checking...">
+        <span class="dot dot-grey" aria-hidden="true"></span><span class="stack-label">Document AI</span><span class="stack-state">demo</span>
+      </div>
+      <div class="stack-item" id="svc-bigquery" title="Checking...">
+        <span class="dot dot-grey" aria-hidden="true"></span><span class="stack-label">BigQuery</span><span class="stack-state">demo</span>
       </div>
     </div>
 
     <div class="header-right">
-      <a href="tel:1930" class="btn-emergency-helpline" title="National Cyber Crime Helpline">
-        <span class="helpline-icon">🚨</span>
-        <span class="helpline-text">Cyber Helpline: <strong>1930</strong></span>
+      <div class="lang-toggle" role="group" aria-label="Language">
+        <button type="button" class="lang-btn active" data-lang="en" aria-pressed="true">English</button>
+        <button type="button" class="lang-btn" data-lang="hi" aria-pressed="false" lang="hi">हिन्दी</button>
+      </div>
+      <a href="#tab-digital-arrest" data-switch-tab="tab-digital-arrest" class="btn-sos-call" id="btn-sos-header">
+        <span aria-hidden="true">🆘</span>
+        <span data-i18n="I am on a suspicious call right now">I am on a suspicious call right now</span>
       </a>
-      <a href="#android-showcase" class="btn-app-link">
-        <span class="phone-icon">📱</span>
-        <span>Download App (v1.8 APK)</span>
+      <a href="tel:1930" class="btn-emergency-helpline" title="National Cyber Crime Helpline">
+        <span class="helpline-icon" aria-hidden="true">📞</span>
+        <span class="helpline-text"><span data-i18n="Cyber Helpline:">Cyber Helpline:</span> <strong>1930</strong></span>
+      </a>
+      <a href="#android-showcase" data-switch-tab="tab-android-app" class="btn-app-link">
+        <span class="phone-icon" aria-hidden="true">📱</span>
+        <span data-i18n="Android app">Android app</span>
       </a>
     </div>
   </header>
 
   <!-- ==============================================
-       STICKY QUICK ACTION NAVIGATION TABS
+       TABS
        ============================================== -->
-  <nav class="nav-tabs-bar" id="main-navigation">
-    <button class="nav-tab active" data-tab="tab-scam-checker" id="nav-btn-checker">
-      <span class="tab-icon">🔍</span>
-      <span>Scam & SMS Checker</span>
-      <span class="badge-pulse">Live</span>
-    </button>
-    <button class="nav-tab" data-tab="tab-domain-checker" id="nav-btn-domain">
-      <span class="tab-icon">🌐</span>
-      <span>Domain & URL Checker</span>
-      <span class="badge-pulse">HCRV Engine</span>
-    </button>
-    <button class="nav-tab" data-tab="tab-digital-arrest" id="nav-btn-arrest">
-      <span class="tab-icon">🆘</span>
-      <span>Digital Arrest Panic Check</span>
-      <span class="badge-alert">Emergency</span>
-    </button>
-    <button class="nav-tab" data-tab="tab-document-ai" id="nav-btn-doc">
-      <span class="tab-icon">📄</span>
-      <span>Document AI Lab</span>
-      <span class="badge-tech">GCP DocAI</span>
-    </button>
-    <button class="nav-tab" data-tab="tab-gemini-advisor" id="nav-btn-gemini">
-      <span class="tab-icon">🧠</span>
-      <span>Gemini Fraud Reasoner</span>
-      <span class="badge-tech">Vertex AI</span>
-    </button>
-    <button class="nav-tab" data-tab="tab-bigquery-matrix" id="nav-btn-bq">
-      <span class="tab-icon">📊</span>
-      <span>BigQuery Mule Matrix</span>
-    </button>
-    <button class="nav-tab" data-tab="tab-report-scam" id="nav-btn-report">
-      <span class="tab-icon">📢</span>
-      <span>Report a Scam</span>
-    </button>
-    <button class="nav-tab" data-tab="tab-android-app" id="nav-btn-app">
-      <span class="tab-icon">📱</span>
-      <span>Android App</span>
-    </button>
-  </nav>
+  <div class="nav-wrap">
+    <nav class="nav-tabs-bar" id="main-navigation" aria-label="Sections">
+      <button class="nav-tab active" data-tab="tab-scam-checker" id="nav-btn-checker" aria-controls="tab-scam-checker">
+        <span class="tab-icon" aria-hidden="true">🔍</span>
+        <span data-i18n="Check a message or link">Check a message or link</span>
+        <span class="badge-pulse" data-i18n="Main">Main</span>
+      </button>
+      <button class="nav-tab nav-tab-sos" data-tab="tab-digital-arrest" id="nav-btn-arrest" aria-controls="tab-digital-arrest">
+        <span class="tab-icon" aria-hidden="true">🆘</span>
+        <span data-i18n="Fake police call? Panic check">Fake police call? Panic check</span>
+      </button>
+      <button class="nav-tab" data-tab="tab-domain-checker" id="nav-btn-domain" aria-controls="tab-domain-checker">
+        <span class="tab-icon" aria-hidden="true">🌐</span>
+        <span data-i18n="Website check">Website check</span>
+      </button>
+      <button class="nav-tab" data-tab="tab-document-ai" id="nav-btn-doc" aria-controls="tab-document-ai">
+        <span class="tab-icon" aria-hidden="true">📄</span>
+        <span data-i18n="Notice or document check">Notice or document check</span>
+      </button>
+      <button class="nav-tab" data-tab="tab-gemini-advisor" id="nav-btn-gemini" aria-controls="tab-gemini-advisor">
+        <span class="tab-icon" aria-hidden="true">🧠</span>
+        <span data-i18n="Ask the AI advisor">Ask the AI advisor</span>
+      </button>
+      <button class="nav-tab" data-tab="tab-report-scam" id="nav-btn-report" aria-controls="tab-report-scam">
+        <span class="tab-icon" aria-hidden="true">📢</span>
+        <span data-i18n="Report a scam">Report a scam</span>
+      </button>
+      <button class="nav-tab" data-tab="tab-bigquery-matrix" id="nav-btn-bq" aria-controls="tab-bigquery-matrix">
+        <span class="tab-icon" aria-hidden="true">📊</span>
+        <span data-i18n="Scam trends">Scam trends</span>
+        <span class="badge-demo" data-i18n="Demo">Demo</span>
+      </button>
+      <button class="nav-tab" data-tab="tab-android-app" id="nav-btn-app" aria-controls="tab-android-app">
+        <span class="tab-icon" aria-hidden="true">📱</span>
+        <span data-i18n="Android app">Android app</span>
+      </button>
+    </nav>
+  </div>
 
   <!-- ==============================================
-       HERO BANNER (Clear Purpose & Instant Action)
+       HERO
        ============================================== -->
   <section class="hero-section">
     <div class="hero-content">
       <div class="hero-tagline">
-        <span class="hero-tag-badge">🛡️ Google Cloud AI Hackathon Showcase</span>
-        <span class="hero-status-pill" title="Illustrative demo figure, not live telemetry">Edge sensor network: 24,510 devices (demo figure)</span>
+        <span class="hero-tag-badge" data-i18n="Free prototype. Not a government service.">Free prototype. Not a government service.</span>
       </div>
-      <h1 class="hero-title">
-        Real-Time Cyber Fraud & Scam Defense on Your Phone.
-      </h1>
-      <p class="hero-subtitle">
-        SafeMeAI shields citizens and banking customers from <strong>Digital Arrests, UPI collect traps, predatory loan harassment, and fake government warrants</strong>. Built on Google Cloud Run, Vertex AI Gemini and Google Web Risk; Document AI and BigQuery integrations activate when configured (see the data-source notes on each tab).
+      <h1 class="hero-title" data-i18n="Got a strange message, link or call? Check it here first.">Got a strange message, link or call? Check it here first.</h1>
+      <p class="hero-subtitle" data-i18n="hero-sub">
+        Paste a message, link, UPI ID or phone number. You get a plain answer: scam, looks genuine, or not sure, plus what to do next. Works for fake police "digital arrest" calls, UPI refund traps, loan-app threats and fake job offers.
       </p>
 
       <div class="hero-actions-row">
+        <a href="#tab-digital-arrest" data-switch-tab="tab-digital-arrest" class="btn-hero-panic btn-hero-sos">
+          <span>🆘 <span data-i18n="I am on a suspicious call right now">I am on a suspicious call right now</span></span>
+        </a>
         <a href="#tab-scam-checker" data-switch-tab="tab-scam-checker" class="btn-hero-primary">
-          <span>⚡ Check If You Are Being Scammed (Free Tool)</span>
+          <span>🔍 <span data-i18n="Check a message or link">Check a message or link</span></span>
         </a>
-        <a href="downloads/safemeai-app.apk" download class="btn-hero-secondary">
-          <span>📲 Download SafeMeAI (v1.8 APK)</span>
-        </a>
-        <a href="#tab-digital-arrest" data-switch-tab="tab-digital-arrest" class="btn-hero-panic">
-          <span>🆘 "Police On Video Call?" Panic Test</span>
+        <a href="#android-showcase" data-switch-tab="tab-android-app" class="btn-hero-secondary">
+          <span>📲 <span data-i18n="Get the Android app">Get the Android app</span></span>
         </a>
       </div>
 
-      <!-- LIVE NATIONAL DEFENSE KPI BAR -->
-      <div class="hero-metrics-bar">
+      <!-- Illustrative figures only, each tile carries its own badge -->
+      <div class="hero-metrics-bar" aria-label="Demo figures, not real measurements">
         <div class="metric-pill">
+          <span class="demo-ribbon" data-i18n="Demo figure">Demo figure</span>
           <span class="metric-num">₹18.42 Cr+</span>
-          <span class="metric-lbl">Fraud Loss Prevented</span>
+          <span class="metric-lbl" data-i18n="Fraud loss prevented (example)">Fraud loss prevented (example)</span>
         </div>
         <div class="metric-pill">
+          <span class="demo-ribbon" data-i18n="Demo figure">Demo figure</span>
+          <span class="metric-num">24,510</span>
+          <span class="metric-lbl" data-i18n="Protected devices (example)">Protected devices (example)</span>
+        </div>
+        <div class="metric-pill">
+          <span class="demo-ribbon" data-i18n="Demo figure">Demo figure</span>
           <span class="metric-num">100%</span>
-          <span class="metric-lbl">Digital Arrest Interception</span>
+          <span class="metric-lbl" data-i18n="Fake-police calls caught (example)">Fake-police calls caught (example)</span>
         </div>
         <div class="metric-pill">
+          <span class="demo-ribbon" data-i18n="Demo figure">Demo figure</span>
           <span class="metric-num">&lt; 50 ms</span>
-          <span class="metric-lbl">On-Device Edge Reaction</span>
-        </div>
-        <div class="metric-pill">
-          <span class="metric-num">148 Rings</span>
-          <span class="metric-lbl">Mule Clusters Tracked</span>
+          <span class="metric-lbl" data-i18n="On-phone reaction time (target)">On-phone reaction time (target)</span>
         </div>
       </div>
-      <p class="datasource-note">Headline figures above are illustrative demo values, not measured production results.</p>
+      <p class="datasource-note" data-i18n="kpi-note">The four figures above are examples for demonstration. They are not measured results.</p>
     </div>
   </section>
 
-  <!-- ==============================================
-       MAIN INTERACTIVE APPLICATION SUITE
-       ============================================== -->
-  <main class="main-content-area">
+  <main class="main-content-area" id="main-content">
 
     <!-- ========================================================
-         TAB 1: INSTANT SCAM & MESSAGE CHECKER (CORE CITIZEN TOOL)
+         TAB: MAIN SMART CHECKER
          ======================================================== -->
-    <section id="tab-scam-checker" class="tab-content-panel active">
+    <section id="tab-scam-checker" class="tab-content-panel active" aria-labelledby="nav-btn-checker">
       <div class="section-lead-header">
         <div>
-          <span class="section-kicker">INTERACTIVE SCAM AUDIT TOOL</span>
-          <h2>Instant Cyber Scam & Message Verifier</h2>
-          <p>Got a suspicious SMS, WhatsApp message, UPI ID, or URL? Paste it below or click any real-world specimen to run SafeMeAI's multi-layered fraud detection engine.</p>
+          <span class="section-kicker" data-i18n="FREE SCAM CHECK">FREE SCAM CHECK</span>
+          <h2 data-i18n="Paste a message, link, UPI ID or phone number">Paste a message, link, UPI ID or phone number</h2>
+          <p data-i18n="checker-lead">We look for scam wording, fake websites and known bad numbers. If you paste only a website address, you get the same plain answer here. For a detailed website report use <a href="#tab-domain-checker" data-switch-tab="tab-domain-checker">Website check</a>.</p>
         </div>
       </div>
 
-      <!-- ONE-CLICK SPECIMEN PILLS -->
       <div class="specimens-bar">
-        <span class="specimens-label">⚡ Click to Test Common Real-World Scams:</span>
+        <span class="specimens-label" data-i18n="Try an example:">Try an example:</span>
         <div class="specimen-chips">
-          <button class="specimen-chip chip-critical" data-sample="digital-arrest">
-            <span class="chip-icon">🚨</span>
-            <span>Digital Arrest (CBI / Drugs)</span>
-          </button>
-          <button class="specimen-chip chip-danger" data-sample="upi-collect">
-            <span class="chip-icon">⚡</span>
-            <span>UPI Collect Inversion (Refund)</span>
-          </button>
-          <button class="specimen-chip chip-warning" data-sample="electricity">
-            <span class="chip-icon">⚠️</span>
-            <span>Electricity Cutoff SMS</span>
-          </button>
-          <button class="specimen-chip chip-danger" data-sample="loan-app">
-            <span class="chip-icon">💸</span>
-            <span>7-Day Predatory Loan Trap</span>
-          </button>
-          <button class="specimen-chip chip-warning" data-sample="telegram-task">
-            <span class="chip-icon">💼</span>
-            <span>Telegram 'Like YouTube' Job</span>
-          </button>
-          <button class="specimen-chip chip-safe" data-sample="authentic-bank">
-            <span class="chip-icon">✅</span>
-            <span>Authentic Bank Transaction</span>
-          </button>
+          <button class="specimen-chip chip-critical" data-sample="digital-arrest"><span class="chip-icon" aria-hidden="true">🚨</span><span data-i18n="Fake police / CBI call">Fake police / CBI call</span></button>
+          <button class="specimen-chip chip-danger" data-sample="upi-collect"><span class="chip-icon" aria-hidden="true">⚡</span><span data-i18n="UPI refund trap">UPI refund trap</span></button>
+          <button class="specimen-chip chip-warning" data-sample="electricity"><span class="chip-icon" aria-hidden="true">⚠️</span><span data-i18n="Electricity cut-off SMS">Electricity cut-off SMS</span></button>
+          <button class="specimen-chip chip-danger" data-sample="loan-app"><span class="chip-icon" aria-hidden="true">💸</span><span data-i18n="Loan app trap">Loan app trap</span></button>
+          <button class="specimen-chip chip-warning" data-sample="telegram-task"><span class="chip-icon" aria-hidden="true">💼</span><span data-i18n="Telegram job offer">Telegram job offer</span></button>
+          <button class="specimen-chip chip-safe" data-sample="authentic-bank"><span class="chip-icon" aria-hidden="true">✅</span><span data-i18n="Real bank SMS">Real bank SMS</span></button>
         </div>
       </div>
 
-      <!-- CHECKER INPUT & RESULTS GRID -->
       <div class="checker-grid">
-        <!-- LEFT: INPUT CARD -->
         <div class="glass-box input-box">
           <div class="box-header">
-            <h3>1. Enter Message, URL, or UPI ID</h3>
-            <button class="btn-text-clear" id="btn-clear-checker">Clear</button>
+            <h3 data-i18n="1. What do you want to check?">1. What do you want to check?</h3>
+            <button type="button" class="btn-text-clear" id="btn-clear-checker" data-i18n="Clear">Clear</button>
           </div>
-          <textarea id="checker-input-text" aria-label="Suspicious message, URL or UPI ID" maxlength="5000" rows="7" placeholder="Paste suspicious SMS, WhatsApp notice, Telegram job text, UPI ID (e.g. police.escrow@okhdfcbank), or phishing link here..."></textarea>
-          
+          <label for="checker-input-text" class="sr-only">Suspicious message, link, UPI ID or phone number</label>
+          <textarea id="checker-input-text" maxlength="5000" rows="7" data-i18n-ph="Paste the SMS, WhatsApp message, link, UPI ID (like name@okhdfcbank) or phone number here..." placeholder="Paste the SMS, WhatsApp message, link, UPI ID (like name@okhdfcbank) or phone number here..."></textarea>
+          <div class="detected-type" id="scam-detected" aria-live="polite"></div>
+
           <div class="checker-controls">
-            <button class="btn-primary-glow" id="btn-run-check">
-              <span>🔍 Run SafeMeAI Scam Analysis</span>
-            </button>
+            <button class="btn-primary-glow" id="btn-run-check" type="button"><span data-i18n="Check now">Check now</span></button>
           </div>
 
           <div class="tip-box">
-            <span class="tip-icon">💡</span>
-            <span class="tip-text">SafeMeAI scores messages with deterministic rules first. Vertex AI Gemini is consulted only when configured; results say which engine was used.</span>
+            <span class="tip-icon" aria-hidden="true">🔒</span>
+            <span class="tip-text" data-i18n="privacy-tip">What you paste is sent to the SafeMeAI server in India to be checked, and is not kept. Do not paste OTPs, PINs or passwords. <a href="privacy.html">Privacy notice</a>.</span>
           </div>
         </div>
 
-        <!-- RIGHT: LIVE VERDICT CARD -->
-        <div class="glass-box result-box" id="checker-result-card">
+        <div class="glass-box result-box" id="scam-card" data-state="idle">
           <div class="box-header">
-            <h3>2. Scam Detection Verdict & Safety Plan</h3>
-            <span class="status-badge" id="checker-badge">Ready for Input</span>
+            <h3 data-i18n="2. Our answer">2. Our answer</h3>
+            <span class="status-badge" id="scam-badge" data-i18n="Ready">Ready</span>
           </div>
-
-          <!-- RISK GAUGE & HEADLINE -->
-          <div class="verdict-summary-row">
-            <div class="gauge-container">
-              <div class="gauge-ring" id="gauge-ring">
-                <span class="gauge-value" id="gauge-score">0%</span>
-                <span class="gauge-label">RISK</span>
+          <div id="scam-live" aria-live="polite" aria-atomic="false">
+            <div class="state-block" id="scam-idle"><p data-i18n="idle-answer">Your answer appears here: scam, looks genuine or not sure, with clear steps on what to do.</p></div>
+            <div class="state-block" id="scam-loading" hidden><p data-i18n="Checking... this can take a few seconds.">Checking... this can take a few seconds.</p></div>
+            <div class="state-block error-state" id="scam-error" hidden role="alert">
+              <strong id="scam-error-title"></strong>
+              <p id="scam-error-msg"></p>
+              <button type="button" class="btn-retry" id="scam-retry" data-i18n="Try again">Try again</button>
+            </div>
+            <div id="scam-result" hidden>
+              <div class="verdict-summary-row">
+                <div class="gauge-container">
+                  <div class="gauge-ring" id="scam-gauge-ring"><span class="gauge-value" id="scam-gauge-score">0%</span><span class="gauge-label" data-i18n="RISK">RISK</span></div>
+                </div>
+                <div class="verdict-headline-col">
+                  <h4 id="scam-headline"></h4>
+                  <p id="scam-desc"></p>
+                  <div class="scam-type-tag" id="scam-type-tag"></div>
+                </div>
               </div>
+              <div class="guidance-section">
+                <h5 class="sub-heading" data-i18n="What to do now">What to do now</h5>
+                <div class="action-card" id="scam-actions"></div>
+              </div>
+              <div class="flags-section">
+                <h5 class="sub-heading" data-i18n="Warning signs we found">Warning signs we found</h5>
+                <ul class="red-flags-list" id="scam-flags"></ul>
+              </div>
+              <div class="legal-badge" id="scam-legal"></div>
+              <details class="tech-details" id="scam-tech">
+                <summary data-i18n="Technical details (for experts)">Technical details (for experts)</summary>
+                <div class="tech-body" id="scam-tech-body"></div>
+              </details>
             </div>
-            <div class="verdict-headline-col">
-              <h4 id="verdict-headline">Waiting for suspicious text...</h4>
-              <p id="verdict-desc">Paste your message on the left or select a sample above to verify authenticity instantly.</p>
-              <div class="scam-type-tag" id="verdict-type-tag">Category: Standby</div>
-            </div>
-          </div>
-
-          <!-- RED FLAGS LIST -->
-          <div class="flags-section">
-            <h5 class="sub-heading">Detected Red Flags & Fraud Signatures:</h5>
-            <ul class="red-flags-list" id="red-flags-list">
-              <li class="empty-state">No anomalies evaluated yet.</li>
-            </ul>
-          </div>
-
-          <!-- ACTIONABLE GUIDANCE -->
-          <div class="guidance-section" id="guidance-section">
-            <h5 class="sub-heading">Immediate Action Required:</h5>
-            <div class="action-card" id="action-steps-card">
-              <p>SafeMeAI will generate step-by-step instructions to protect your funds and personal safety.</p>
-            </div>
-          </div>
-
-          <!-- LEGAL CITATION -->
-          <div class="legal-badge" id="legal-citation-box">
-            <span>⚖️ Protection Framework: <strong>Indian Penal Law & RBI Circulars</strong></span>
           </div>
         </div>
       </div>
     </section>
 
     <!-- ========================================================
-         TAB: DOMAIN & URL FRAUD VERIFIER (HCRV ENGINE)
+         TAB: PANIC CHECK (EMERGENCY)
          ======================================================== -->
-    <section id="tab-domain-checker" class="tab-content-panel">
+    <section id="tab-digital-arrest" class="tab-content-panel" aria-labelledby="nav-btn-arrest">
+      <div class="sos-banner">
+        <div>
+          <strong data-i18n="sos-title">On a call with someone claiming to be police, CBI, customs or a bank?</strong>
+          <p data-i18n="sos-sub">You are not under arrest. No agency arrests anyone over WhatsApp or Skype. Hang up, then call 1930.</p>
+        </div>
+        <a href="tel:1930" class="btn-call-big" aria-label="Call 1930 now"><span aria-hidden="true">📞</span> <span data-i18n="Call 1930 now">Call 1930 now</span></a>
+      </div>
+
       <div class="section-lead-header">
         <div>
-          <span class="section-kicker">PATENT-BACKED HCRV ENGINE</span>
-          <h2>Hybrid Cross-Reference Domain & URL Checker</h2>
-          <p>Check any website link, banking URL, or government portal before clicking. Evaluates authoritative whitelists, typosquatting brand traps, suspicious TLDs, and APK download vectors.</p>
-        </div>
-      </div>
-
-      <!-- ONE-CLICK DOMAIN TEST SAMPLES -->
-      <div class="specimens-bar">
-        <span class="specimens-label">⚡ Test Common Phishing vs Authentic Domains:</span>
-        <div class="specimen-chips">
-          <button class="specimen-chip chip-safe" data-domain-sample="https://www.ujjivansfb.bank.in/">
-            <span class="chip-icon">🏛️</span>
-            <span>ujjivansfb.bank.in (Official Bank)</span>
-          </button>
-          <button class="specimen-chip chip-critical" data-domain-sample="sbi-kyc-verify-portal.xyz">
-            <span class="chip-icon">🚨</span>
-            <span>sbi-kyc-verify-portal.xyz (Phishing)</span>
-          </button>
-          <button class="specimen-chip chip-safe" data-domain-sample="github.com">
-            <span class="chip-icon">🌐</span>
-            <span>github.com (Clean External Host)</span>
-          </button>
-          <button class="specimen-chip chip-danger" data-domain-sample="pmkisan-gov-in.online">
-            <span class="chip-icon">⚠️</span>
-            <span>pmkisan-gov-in.online (Fake Govt)</span>
-          </button>
-          <button class="specimen-chip chip-warning" data-domain-sample="rbi-escrow-safe.top">
-            <span class="chip-icon">⚡</span>
-            <span>rbi-escrow-safe.top (Fake Escrow)</span>
-          </button>
-          <button class="specimen-chip chip-safe" data-domain-sample="hdfcbank.com">
-            <span class="chip-icon">✅</span>
-            <span>hdfcbank.com (Official Bank)</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- DOMAIN CHECKER GRID -->
-      <div class="checker-grid">
-        <div class="glass-box input-box">
-          <div class="box-header">
-            <h3>Enter Domain or URL</h3>
-            <button class="btn-text-clear" id="btn-clear-domain">Clear</button>
-          </div>
-          <input type="text" id="domain-input-text" placeholder="e.g. https://www.ujjivansfb.bank.in or sbi-kyc-update.xyz..." class="domain-input-field">
-          
-          <div class="checker-controls">
-            <button class="btn-primary-glow" id="btn-run-domain-check">
-              <span>🌐 Inspect Domain Legitimacy</span>
-            </button>
-          </div>
-
-          <div class="domain-heuristics-note">
-            <h4>Real-Time Threat Intelligence & Agentic AI:</h4>
-            <ul>
-              <li><strong>Live Google Public DNS (DoH):</strong> Resolves active A records and detects Fast-Flux DNS and NXDOMAIN sinkholes.</li>
-              <li><strong>Live TLS / SSL Port 443 Audit:</strong> Extracts X.509 Certificate Organization (EV/OV vs free DV) and cert issuance age.</li>
-              <li><strong>OpenPhish Global Community Feed:</strong> Cross-checks the target against the public OpenPhish feed (refreshed every 10 minutes; absence from the feed is not proof of safety).</li>
-              <li><strong>Information Theory ML:</strong> Shannon Lexical Entropy mathematically detects Domain Generation Algorithms (DGA).</li>
-              <li><strong>Domain age (RDAP) and Google Web Risk:</strong> Newly registered or Google-flagged sites are escalated.</li>
-              <li><strong>Gemini (Vertex AI):</strong> Used only to escalate suspicious results, never to mark an unverified site safe. If Gemini is unreachable the badge reads "rules fallback".</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- RIGHT: DOMAIN VERDICT CARD -->
-        <div class="glass-box result-box" id="domain-result-card">
-          <div class="box-header">
-            <h3>Domain Security Analysis</h3>
-            <span class="status-badge" id="domain-badge">Ready for Input</span>
-          </div>
-
-          <div class="verdict-summary-row">
-            <div class="gauge-container">
-              <div class="gauge-ring" id="domain-gauge-ring">
-                <span class="gauge-value" id="domain-gauge-score">0%</span>
-                <span class="gauge-label">RISK</span>
-              </div>
-            </div>
-            <div class="verdict-headline-col">
-              <h4 id="domain-verdict-headline">Waiting for URL or Domain...</h4>
-              <p id="domain-verdict-desc">Enter any domain or click a preset sample above to evaluate legitimacy.</p>
-              <div class="scam-type-tag" id="domain-verdict-tag">Status: Standby</div>
-            </div>
-          </div>
-
-          <!-- REAL-TIME TELEMETRY & AGENTIC FORENSICS DRAWER -->
-          <div class="realtime-telemetry-box" id="domain-realtime-box" style="display: none;">
-            <div class="telemetry-header">
-              <span class="pulse-dot"></span>
-              <h5>LIVE REAL-TIME TELEMETRY & AGENTIC FORENSICS</h5>
-            </div>
-            <div class="telemetry-grid">
-              <div class="telemetry-item">
-                <span class="telemetry-lbl">🌐 Google DNS (DoH RFC 8484)</span>
-                <span class="telemetry-val" id="telemetry-dns-val">Resolving...</span>
-              </div>
-              <div class="telemetry-item">
-                <span class="telemetry-lbl">🔐 TLS / SSL X.509 Audit (Port 443)</span>
-                <span class="telemetry-val" id="telemetry-ssl-val">Inspecting...</span>
-              </div>
-              <div class="telemetry-item">
-                <span class="telemetry-lbl">📡 OpenPhish Feed + Google Web Risk</span>
-                <span class="telemetry-val" id="telemetry-feed-val">Cross-referencing...</span>
-              </div>
-              <div class="telemetry-item">
-                <span class="telemetry-lbl">📅 Domain Age (RDAP)</span>
-                <span class="telemetry-val" id="telemetry-age-val">Looking up...</span>
-              </div>
-              <div class="telemetry-item">
-                <span class="telemetry-lbl">🧠 Information Theory & DGA ML</span>
-                <span class="telemetry-val" id="telemetry-ml-val">Evaluating...</span>
-              </div>
-            </div>
-            <div class="telemetry-ai-rationale" id="telemetry-rationale-val">
-              Agentic AI reasoning in progress...
-            </div>
-          </div>
-
-          <div class="flags-section">
-            <h5 class="sub-heading">Verification & Security Flags:</h5>
-            <ul class="red-flags-list" id="domain-flags-list">
-              <li class="empty-state">No domain evaluated yet.</li>
-            </ul>
-          </div>
-
-          <div class="guidance-section">
-            <h5 class="sub-heading">Browsing & Transaction Protocol:</h5>
-            <div class="action-card" id="domain-action-card">
-              <p>SafeMeAI will advise whether this domain is safe for credentials, payment transactions, or downloads.</p>
-            </div>
-          </div>
-
-          <div class="legal-badge" id="domain-legal-box">
-            <span>🛡️ Engine: <strong>Layered verification: allow-list + DNS, RDAP age, Web Risk, OpenPhish, TLS, Gemini escalation</strong></span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ========================================================
-         TAB 2: DIGITAL ARREST RAPID PANIC CHECKER (EMERGENCY)
-         ======================================================== -->
-    <section id="tab-digital-arrest" class="tab-content-panel">
-      <div class="section-lead-header">
-        <div>
-          <span class="section-kicker emergency-kicker">🆘 CITIZEN EMERGENCY PROTOCOL</span>
-          <h2>"Am I in a Digital Arrest?" Instant Diagnostic Screener</h2>
-          <p>If someone is on a WhatsApp or Skype call right now claiming to be the Police, CBI, Customs, or ED — answer these 4 quick questions immediately.</p>
+          <span class="section-kicker emergency-kicker" data-i18n="PANIC CHECK">PANIC CHECK</span>
+          <h2 data-i18n="Am I being scammed on this call?">Am I being scammed on this call?</h2>
+          <p data-i18n="panic-lead">Answer these 6 quick questions. Tap Yes or No. The answer updates after every tap. Nothing you tap here is saved.</p>
         </div>
       </div>
 
       <div class="panic-container">
         <div class="glass-box panic-box">
+          <div class="panic-progress" id="panic-progress" aria-live="polite"></div>
           <div class="panic-questions-list">
-            
-            <div class="panic-q-item">
+
+            <div class="panic-q-item" role="group" aria-labelledby="q1-t">
               <div class="q-text">
-                <strong>1. Is the caller in a police or CBI uniform on WhatsApp / Skype video call?</strong>
-                <p>They might be sitting in a fake setup with police insignia, banners, or wireless sets in the background.</p>
+                <strong id="q1-t" data-i18n="1. Does the caller say they are police, CBI, customs, ED or a court?">1. Does the caller say they are police, CBI, customs, ED or a court?</strong>
+                <p data-i18n="They may sit in a fake office with uniforms, flags or wireless sets behind them.">They may sit in a fake office with uniforms, flags or wireless sets behind them.</p>
               </div>
               <div class="q-toggle-group">
-                <button class="btn-toggle q-btn" data-q="q1" data-val="yes">YES</button>
-                <button class="btn-toggle q-btn active" data-q="q1" data-val="no">NO</button>
+                <button type="button" class="btn-toggle q-btn q-yes" data-q="q1" data-val="yes" aria-pressed="false" data-i18n="Yes">Yes</button>
+                <button type="button" class="btn-toggle q-btn q-no" data-q="q1" data-val="no" aria-pressed="false" data-i18n="No">No</button>
               </div>
             </div>
 
-            <div class="panic-q-item">
+            <div class="panic-q-item" role="group" aria-labelledby="q2-t">
               <div class="q-text">
-                <strong>2. Did they claim your Aadhaar / SIM was found in a contraband courier (MDMA, fake passports)?</strong>
-                <p>They claim FedEx or DHL intercepted illegal narcotics or credit cards registered in your name.</p>
+                <strong id="q2-t" data-i18n="2. Do they say a parcel, drugs or fake passports are linked to your Aadhaar or SIM?">2. Do they say a parcel, drugs or fake passports are linked to your Aadhaar or SIM?</strong>
+                <p data-i18n="Often a FedEx or DHL courier story, or a money-laundering case in your name.">Often a FedEx or DHL courier story, or a money-laundering case in your name.</p>
               </div>
               <div class="q-toggle-group">
-                <button class="btn-toggle q-btn" data-q="q2" data-val="yes">YES</button>
-                <button class="btn-toggle q-btn active" data-q="q2" data-val="no">NO</button>
+                <button type="button" class="btn-toggle q-btn q-yes" data-q="q2" data-val="yes" aria-pressed="false" data-i18n="Yes">Yes</button>
+                <button type="button" class="btn-toggle q-btn q-no" data-q="q2" data-val="no" aria-pressed="false" data-i18n="No">No</button>
               </div>
             </div>
 
-            <div class="panic-q-item">
+            <div class="panic-q-item" role="group" aria-labelledby="q3-t">
               <div class="q-text">
-                <strong>3. Are they ordering you NOT to disconnect the call or tell your family?</strong>
-                <p>They call it "24-Hour Digital Surveillance" or "Confidential Virtual Custody".</p>
+                <strong id="q3-t" data-i18n="3. Are they telling you not to hang up, or not to tell your family?">3. Are they telling you not to hang up, or not to tell your family?</strong>
+                <p data-i18n='They call it "digital surveillance" or "virtual custody".'>They call it "digital surveillance" or "virtual custody".</p>
               </div>
               <div class="q-toggle-group">
-                <button class="btn-toggle q-btn" data-q="q3" data-val="yes">YES</button>
-                <button class="btn-toggle q-btn active" data-q="q3" data-val="no">NO</button>
+                <button type="button" class="btn-toggle q-btn q-yes" data-q="q3" data-val="yes" aria-pressed="false" data-i18n="Yes">Yes</button>
+                <button type="button" class="btn-toggle q-btn q-no" data-q="q3" data-val="no" aria-pressed="false" data-i18n="No">No</button>
               </div>
             </div>
 
-            <div class="panic-q-item">
+            <div class="panic-q-item" role="group" aria-labelledby="q4-t">
               <div class="q-text">
-                <strong>4. Are they demanding that you transfer funds to an "RBI Secret Escrow / Verification Account"?</strong>
-                <p>They claim your liquid bank balance must be verified or your accounts will be seized under PMLA.</p>
+                <strong id="q4-t" data-i18n='4. Are they asking you to send money to a "safe", "RBI" or "verification" account?'>4. Are they asking you to send money to a "safe", "RBI" or "verification" account?</strong>
+                <p data-i18n="They say your savings must be checked, or your accounts will be frozen.">They say your savings must be checked, or your accounts will be frozen.</p>
               </div>
               <div class="q-toggle-group">
-                <button class="btn-toggle q-btn" data-q="q4" data-val="yes">YES</button>
-                <button class="btn-toggle q-btn active" data-q="q4" data-val="no">NO</button>
+                <button type="button" class="btn-toggle q-btn q-yes" data-q="q4" data-val="yes" aria-pressed="false" data-i18n="Yes">Yes</button>
+                <button type="button" class="btn-toggle q-btn q-no" data-q="q4" data-val="no" aria-pressed="false" data-i18n="No">No</button>
+              </div>
+            </div>
+
+            <div class="panic-q-item" role="group" aria-labelledby="q5-t">
+              <div class="q-text">
+                <strong id="q5-t" data-i18n="5. Are they asking you to share an OTP, Aadhaar, card or PIN details?">5. Are they asking you to share an OTP, Aadhaar, card or PIN details?</strong>
+                <p data-i18n="No bank, police officer or government office ever needs your OTP or PIN.">No bank, police officer or government office ever needs your OTP or PIN.</p>
+              </div>
+              <div class="q-toggle-group">
+                <button type="button" class="btn-toggle q-btn q-yes" data-q="q5" data-val="yes" aria-pressed="false" data-i18n="Yes">Yes</button>
+                <button type="button" class="btn-toggle q-btn q-no" data-q="q5" data-val="no" aria-pressed="false" data-i18n="No">No</button>
+              </div>
+            </div>
+
+            <div class="panic-q-item" role="group" aria-labelledby="q6-t">
+              <div class="q-text">
+                <strong id="q6-t" data-i18n="6. Are they asking you to install an app, or move to Skype / WhatsApp video?">6. Are they asking you to install an app, or move to Skype / WhatsApp video?</strong>
+                <p data-i18n="Remote-control apps let them see your screen and empty your account.">Remote-control apps let them see your screen and empty your account.</p>
+              </div>
+              <div class="q-toggle-group">
+                <button type="button" class="btn-toggle q-btn q-yes" data-q="q6" data-val="yes" aria-pressed="false" data-i18n="Yes">Yes</button>
+                <button type="button" class="btn-toggle q-btn q-no" data-q="q6" data-val="no" aria-pressed="false" data-i18n="No">No</button>
               </div>
             </div>
 
           </div>
 
           <div class="panic-actions-bar">
-            <button class="btn-primary-panic" id="btn-evaluate-panic">
-              <span>🚨 Evaluate Digital Arrest Risk Now</span>
-            </button>
+            <button type="button" class="btn-primary-panic" id="btn-evaluate-panic"><span data-i18n="Check my answers">Check my answers</span></button>
           </div>
         </div>
 
-        <!-- RIGHT: EMERGENCY VERDICT PANEL -->
         <div class="glass-box emergency-verdict-box" id="panic-verdict-card">
-          <div class="emergency-badge" id="panic-badge">Select Answers Above</div>
-          <h3 id="panic-headline">Emergency Assessment Ready</h3>
-          <p id="panic-summary">Answer the questions on the left to confirm if you are facing a criminal extortion syndicate.</p>
+          <div class="emergency-badge" id="panic-badge" data-i18n="Answer the questions">Answer the questions</div>
+          <div aria-live="polite" aria-atomic="true">
+            <h3 id="panic-headline" data-i18n="Your result will show here">Your result will show here</h3>
+            <p id="panic-summary" data-i18n="panic-idle">Tap Yes or No for each question. If even one is Yes, do not continue the call.</p>
+          </div>
+          <div class="warning-meter" id="panic-meter" hidden>
+            <div class="wm-label"><span data-i18n="Warning level">Warning level</span>: <strong id="panic-level-text"></strong></div>
+            <div class="wm-track"><div class="wm-fill" id="panic-level-fill"></div></div>
+            <small class="wm-note" data-i18n="This is a simple score from your answers, not a chance of being right.">This is a simple score from your answers, not a chance of being right.</small>
+          </div>
 
           <div class="emergency-steps-box" id="panic-steps-box">
-            <h4>Golden Rules of Indian Law:</h4>
+            <h4 data-i18n="Remember these rules">Remember these rules</h4>
             <ul>
-              <li><strong>NO Virtual Arrests:</strong> Indian Law (BNSS & CrPC) has NO provision for arrests over Skype or WhatsApp.</li>
-              <li><strong>NO RBI Escrow Accounts:</strong> The Reserve Bank of India never accepts citizen funds for "verification".</li>
-              <li><strong>Immediate Safety:</strong> You cannot be prosecuted for disconnecting an unverified video call.</li>
+              <li data-i18n="rule-1"><strong>No arrest over video call:</strong> Indian law has no arrest or questioning over Skype or WhatsApp.</li>
+              <li data-i18n="rule-2"><strong>No "RBI safe account":</strong> RBI and police never ask citizens to move money for "verification".</li>
+              <li data-i18n="rule-3"><strong>You can hang up:</strong> Nobody can punish you for ending an unverified call.</li>
             </ul>
           </div>
 
           <div class="emergency-hotline-bar">
-            <a href="tel:1930" class="btn-call-1930">
-              <span>📞 Dial National Cyber Helpline (1930)</span>
-            </a>
-            <a href="https://cybercrime.gov.in" target="_blank" class="btn-open-portal">
-              <span>🌐 Open National Cyber Portal</span>
-            </a>
+            <a href="tel:1930" class="btn-call-1930 btn-call-big"><span aria-hidden="true">📞</span> <span data-i18n="Call 1930 (free)">Call 1930 (free)</span></a>
+            <a href="https://cybercrime.gov.in" target="_blank" rel="noopener noreferrer" class="btn-open-portal"><span data-i18n="Report online: cybercrime.gov.in">Report online: cybercrime.gov.in</span></a>
           </div>
         </div>
       </div>
     </section>
 
     <!-- ========================================================
-         TAB 3: GOOGLE DOCUMENT AI FORENSIC SCANNER
+         TAB: WEBSITE CHECK (detailed)
          ======================================================== -->
-    <section id="tab-document-ai" class="tab-content-panel">
+    <section id="tab-domain-checker" class="tab-content-panel" aria-labelledby="nav-btn-domain">
       <div class="section-lead-header">
         <div>
-          <span class="section-kicker">GOOGLE CLOUD DOCUMENT AI LAB</span>
-          <h2>Forensic Legal Document & Warrant Scanner</h2>
-          <p>Specimens are pre-written <strong>demo examples</strong>; uploads use <strong>Google Document AI</strong> OCR when configured, then keyword rules. Checks arrest warrants, court summons, predatory loan agreements, and KYC documents for stamp distortion, illegal usury, and forgery signatures.</p>
+          <span class="section-kicker" data-i18n="WEBSITE CHECK">WEBSITE CHECK</span>
+          <h2 data-i18n="Is this website real?">Is this website real?</h2>
+          <p data-i18n="domain-lead">Use this when you have just one website address (for example a bank link from an SMS). It shows the same plain answer as the main checker, plus optional technical details. Have a whole message, UPI ID or phone number? Use <a href="#tab-scam-checker" data-switch-tab="tab-scam-checker">Check a message or link</a>.</p>
+        </div>
+      </div>
+
+      <div class="specimens-bar">
+        <span class="specimens-label" data-i18n="Try an example:">Try an example:</span>
+        <div class="specimen-chips">
+          <button class="specimen-chip chip-safe" data-domain-sample="https://www.ujjivansfb.bank.in/"><span class="chip-icon" aria-hidden="true">🏛️</span><span>ujjivansfb.bank.in</span></button>
+          <button class="specimen-chip chip-critical" data-domain-sample="sbi-kyc-verify-portal.xyz"><span class="chip-icon" aria-hidden="true">🚨</span><span>sbi-kyc-verify-portal.xyz</span></button>
+          <button class="specimen-chip chip-safe" data-domain-sample="github.com"><span class="chip-icon" aria-hidden="true">🌐</span><span>github.com</span></button>
+          <button class="specimen-chip chip-danger" data-domain-sample="pmkisan-gov-in.online"><span class="chip-icon" aria-hidden="true">⚠️</span><span>pmkisan-gov-in.online</span></button>
+          <button class="specimen-chip chip-warning" data-domain-sample="rbi-escrow-safe.top"><span class="chip-icon" aria-hidden="true">⚡</span><span>rbi-escrow-safe.top</span></button>
+          <button class="specimen-chip chip-safe" data-domain-sample="hdfcbank.com"><span class="chip-icon" aria-hidden="true">✅</span><span>hdfcbank.com</span></button>
+        </div>
+      </div>
+
+      <div class="checker-grid">
+        <div class="glass-box input-box">
+          <div class="box-header">
+            <h3 data-i18n="Website address">Website address</h3>
+            <button type="button" class="btn-text-clear" id="btn-clear-domain" data-i18n="Clear">Clear</button>
+          </div>
+          <label for="domain-input-text" class="sr-only">Website address</label>
+          <input type="text" id="domain-input-text" inputmode="url" autocapitalize="off" autocomplete="off" data-i18n-ph="e.g. https://www.ujjivansfb.bank.in or sbi-kyc-update.xyz" placeholder="e.g. https://www.ujjivansfb.bank.in or sbi-kyc-update.xyz" class="domain-input-field">
+
+          <div class="checker-controls">
+            <button class="btn-primary-glow" id="btn-run-domain-check" type="button"><span data-i18n="Check this website">Check this website</span></button>
+          </div>
+
+          <div class="domain-heuristics-note">
+            <h4 data-i18n="How we check">How we check</h4>
+            <ul>
+              <li data-i18n="how-1">Does the site really exist, and is it on an official government or bank address list?</li>
+              <li data-i18n="how-2">Is the name a copy of a known bank or government site with small spelling changes?</li>
+              <li data-i18n="how-3">Is it on public lists of known scam websites, or flagged by Google Web Risk?</li>
+              <li data-i18n="how-4">Is it brand new, or does it hide where it really goes?</li>
+            </ul>
+            <p class="datasource-note" data-i18n="how-note">Not being on a scam list does not prove a site is safe. When unsure, open your bank's official app instead of a link.</p>
+          </div>
+        </div>
+
+        <div class="glass-box result-box" id="domain-card" data-state="idle">
+          <div class="box-header">
+            <h3 data-i18n="Our answer">Our answer</h3>
+            <span class="status-badge" id="domain-badge" data-i18n="Ready">Ready</span>
+          </div>
+          <div id="domain-live" aria-live="polite" aria-atomic="false">
+            <div class="state-block" id="domain-idle"><p data-i18n="idle-domain">Enter a website address or tap an example to see if it is real.</p></div>
+            <div class="state-block" id="domain-loading" hidden><p data-i18n="Checking... this can take a few seconds.">Checking... this can take a few seconds.</p></div>
+            <div class="state-block error-state" id="domain-error" hidden role="alert">
+              <strong id="domain-error-title"></strong>
+              <p id="domain-error-msg"></p>
+              <button type="button" class="btn-retry" id="domain-retry" data-i18n="Try again">Try again</button>
+            </div>
+            <div id="domain-result" hidden>
+              <div class="verdict-summary-row">
+                <div class="gauge-container">
+                  <div class="gauge-ring" id="domain-gauge-ring"><span class="gauge-value" id="domain-gauge-score">0%</span><span class="gauge-label" data-i18n="RISK">RISK</span></div>
+                </div>
+                <div class="verdict-headline-col">
+                  <h4 id="domain-headline"></h4>
+                  <p id="domain-desc"></p>
+                  <div class="scam-type-tag" id="domain-type-tag"></div>
+                </div>
+              </div>
+              <div class="guidance-section">
+                <h5 class="sub-heading" data-i18n="What to do now">What to do now</h5>
+                <div class="action-card" id="domain-actions"></div>
+              </div>
+              <div class="flags-section">
+                <h5 class="sub-heading" data-i18n="Warning signs we found">Warning signs we found</h5>
+                <ul class="red-flags-list" id="domain-flags"></ul>
+              </div>
+              <div class="legal-badge" id="domain-legal"></div>
+
+              <details class="tech-details" id="domain-tech">
+                <summary data-i18n="Technical details (for experts)">Technical details (for experts)</summary>
+                <div class="tech-body">
+                  <div class="telemetry-grid">
+                    <div class="telemetry-item"><span class="telemetry-lbl">Google Public DNS lookup</span><span class="telemetry-val" id="telemetry-dns-val"></span></div>
+                    <div class="telemetry-item"><span class="telemetry-lbl">HTTPS certificate (port 443)</span><span class="telemetry-val" id="telemetry-ssl-val"></span></div>
+                    <div class="telemetry-item"><span class="telemetry-lbl">Scam lists (OpenPhish) and Google Web Risk</span><span class="telemetry-val" id="telemetry-feed-val"></span></div>
+                    <div class="telemetry-item"><span class="telemetry-lbl">Domain age (RDAP)</span><span class="telemetry-val" id="telemetry-age-val"></span></div>
+                    <div class="telemetry-item"><span class="telemetry-lbl">Name randomness (entropy / DGA)</span><span class="telemetry-val" id="telemetry-ml-val"></span></div>
+                  </div>
+                  <div class="telemetry-ai-rationale" id="telemetry-rationale-val"></div>
+                  <div class="telemetry-ai-rationale" id="domain-tech-extra"></div>
+                </div>
+              </details>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         TAB: DOCUMENT CHECK
+         ======================================================== -->
+    <section id="tab-document-ai" class="tab-content-panel" aria-labelledby="nav-btn-doc">
+      <div class="section-lead-header">
+        <div>
+          <span class="section-kicker" data-i18n="NOTICE OR DOCUMENT CHECK">NOTICE OR DOCUMENT CHECK</span>
+          <h2 data-i18n="Got a legal notice, warrant or loan paper?">Got a legal notice, warrant or loan paper?</h2>
+          <p data-i18n="doc-lead">Paste the text of a notice, or pick a sample. We look for scam wording such as fake warrants, "escrow" payment demands and illegal loan terms.</p>
+          <p class="mode-badge" id="doc-mode-badge" role="status" data-i18n="Document AI: not connected. Text triage mode (images and PDFs cannot be read).">Document AI: not connected. Text triage mode (images and PDFs cannot be read).</p>
         </div>
       </div>
 
       <div class="doc-lab-grid">
-        <!-- SPECIMEN SELECTION & UPLOAD -->
         <div class="glass-box">
-          <h3>1. Choose Specimen or Upload Document</h3>
-          <p class="panel-desc">Test real-world forensic cases or paste any legal notice text.</p>
+          <h3 data-i18n="1. Choose a sample or add your own">1. Choose a sample or add your own</h3>
+          <p class="panel-desc" data-i18n="Samples are made-up examples. Tapping one fills the box below. Press the button to check it.">Samples are made-up examples. Tapping one fills the box below. Press the button to check it.</p>
 
           <div class="specimens-stack">
-            <div class="specimen-card active" data-specimen="fake_arrest_warrant">
-              <div class="specimen-badge danger">Digital Arrest Scam</div>
-              <h4>Fake CBI Arrest Warrant & RBI Escrow Notice</h4>
-              <p>Forged Ashok Chakra seal demanding ₹4.85 Lakh into a fake "RBI Escrow" account.</p>
+            <div class="specimen-card active" data-specimen="fake_arrest_warrant" role="button" tabindex="0">
+              <div class="specimen-badge danger" data-i18n="Fake police warrant">Fake police warrant</div>
+              <h4 data-i18n="Fake CBI warrant with payment demand">Fake CBI warrant with payment demand</h4>
+              <p data-i18n="Asks for ₹4.85 lakh into a fake 'RBI escrow' account.">Asks for ₹4.85 lakh into a fake 'RBI escrow' account.</p>
             </div>
-
-            <div class="specimen-card" data-specimen="predatory_loan">
-              <div class="specimen-badge warning">Predatory Lending</div>
-              <h4>7-Day Loan Extortion Agreement</h4>
-              <p>Illegal 39% upfront fee deduction with invasive contact & gallery harvesting terms.</p>
+            <div class="specimen-card" data-specimen="predatory_loan" role="button" tabindex="0">
+              <div class="specimen-badge warning" data-i18n="Loan-app trap">Loan-app trap</div>
+              <h4 data-i18n="7-day loan with huge upfront fee">7-day loan with huge upfront fee</h4>
+              <p data-i18n="Takes a big fee first and demands your contacts and photos.">Takes a big fee first and demands your contacts and photos.</p>
             </div>
-
-            <div class="specimen-card" data-specimen="authentic_bank">
-              <div class="specimen-badge safe">Authentic BFSI Standard</div>
-              <h4>Genuine HDFC Bank Sanction Letter</h4>
-              <p>Legitimate banking sanction with transparent APR, RBI registration, and KFS compliance.</p>
+            <div class="specimen-card" data-specimen="authentic_bank" role="button" tabindex="0">
+              <div class="specimen-badge safe" data-i18n="Genuine letter">Genuine letter</div>
+              <h4 data-i18n="Normal bank sanction letter">Normal bank sanction letter</h4>
+              <p data-i18n="Clear interest rate, RBI details and a key fact statement.">Clear interest rate, RBI details and a key fact statement.</p>
             </div>
           </div>
 
-          <div class="divider-text"><span>OR UPLOAD REAL DOCUMENT (PDF / IMAGE / TXT)</span></div>
+          <div class="divider-text"><span data-i18n="OR UPLOAD A FILE (TEXT ONLY WORKS FULLY)">OR UPLOAD A FILE (TEXT ONLY WORKS FULLY)</span></div>
 
-          <!-- DRAG & DROP FILE UPLOAD BOX -->
           <div class="doc-upload-container">
             <div class="doc-upload-dropzone" id="doc-dropzone" role="button" tabindex="0" aria-label="Choose or drop a document to analyze">
               <input type="file" id="doc-file-input" accept=".pdf,.png,.jpg,.jpeg,.txt" aria-label="Document file" style="display: none;">
-              <span class="upload-icon">📄</span>
+              <span class="upload-icon" aria-hidden="true">📄</span>
               <div class="upload-prompt">
-                <strong>Click to Browse or Drag & Drop Document</strong>
-                <p>PDF, PNG, JPG or TXT, max 5 MB. Images/PDFs are OCR-read only if Google Document AI is configured on the server; otherwise only the filename is assessed.</p>
+                <strong data-i18n="Tap to choose a file or drop it here">Tap to choose a file or drop it here</strong>
+                <p data-i18n="upload-note">TXT, PDF, PNG or JPG, max 5 MB. Photos and PDFs cannot be read yet because Document AI is not connected; paste the text instead.</p>
               </div>
             </div>
             <div class="file-selected-bar" id="file-selected-bar" style="display: none;">
-              <span class="file-icon">📎</span>
+              <span class="file-icon" aria-hidden="true">📎</span>
               <span class="file-name" id="selected-file-name">filename.pdf</span>
-              <button class="btn-primary-small" id="btn-upload-file-doc">⚡ Analyze document</button>
-              <button class="btn-remove-file" id="btn-remove-file" title="Remove file" aria-label="Remove file">✕</button>
+              <button type="button" class="btn-primary-small" id="btn-upload-file-doc" data-i18n="Check file">Check file</button>
+              <button type="button" class="btn-remove-file" id="btn-remove-file" title="Remove file" aria-label="Remove file">✕</button>
             </div>
           </div>
 
-          <div class="divider-text"><span>OR PASTE CUSTOM NOTICE TEXT</span></div>
+          <div class="divider-text"><span data-i18n="OR PASTE THE NOTICE TEXT">OR PASTE THE NOTICE TEXT</span></div>
 
           <div class="custom-doc-box">
-            <textarea id="custom-doc-text" rows="3" placeholder="Paste legal notice clauses or uploaded text here..."></textarea>
-            <button class="btn-primary" id="btn-analyze-doc">
-              <span>⚡ Run Forensic Analysis</span>
-            </button>
+            <label for="custom-doc-text" class="sr-only">Notice text</label>
+            <textarea id="custom-doc-text" rows="6" data-i18n-ph="Paste the text of the notice here..." placeholder="Paste the text of the notice here..."></textarea>
+            <button type="button" class="btn-primary" id="btn-analyze-doc"><span data-i18n="Check this text">Check this text</span></button>
           </div>
         </div>
 
-        <!-- RIGHT: FORENSIC VERDICT & EXTRACTION REPORT -->
         <div class="glass-box" id="doc-results-panel">
           <div class="box-header">
-            <h3>2. Forensic Inspection Report</h3>
-            <span class="status-pill danger" id="doc-verdict-badge">COUNTERFEIT_MALICIOUS</span>
+            <h3 data-i18n="2. Result">2. Result</h3>
+            <span class="status-pill" id="doc-verdict-badge" data-i18n="Not checked yet">Not checked yet</span>
           </div>
-
-          <div class="doc-scores-grid">
-            <div class="doc-score-card">
-              <span class="score-title">Authenticity Score</span>
-              <span class="score-number safe-val" id="doc-auth-score">4/100</span>
-              <span class="score-sub">Institutional Integrity</span>
+          <div id="doc-live" aria-live="polite">
+            <div class="state-block" id="doc-idle"><p data-i18n="doc-idle">Pick a sample or paste text, then press the check button. Nothing is sent until you press it.</p></div>
+            <div class="state-block error-state" id="doc-error" hidden role="alert">
+              <strong id="doc-error-title"></strong>
+              <p id="doc-error-msg"></p>
             </div>
-            <div class="doc-score-card danger">
-              <span class="score-title">Fraud Risk Score</span>
-              <span class="score-number danger-val" id="doc-risk-score">98/100</span>
-              <span class="score-sub" id="doc-severity-sub">Critical Severity</span>
-            </div>
-          </div>
-
-          <div class="report-box">
-            <h4>Extracted Text:</h4>
-            <pre class="terminal-view" id="doc-raw-text">Loading extracted text...</pre>
-          </div>
-
-          <div class="report-box">
-            <h4>Forensic Rules & Structural Verification:</h4>
-            <div class="findings-list" id="doc-findings-list">
-              <!-- Populated via JS -->
-            </div>
-          </div>
-
-          <div class="report-box">
-            <h4>Recommended Legal Action:</h4>
-            <div class="action-alert" id="doc-rec-action">
-              Loading recommendations...
+            <div id="doc-result" hidden>
+              <div class="doc-scores-grid">
+                <div class="doc-score-card">
+                  <span class="score-title" data-i18n="Looks genuine">Looks genuine</span>
+                  <span class="score-number" id="doc-auth-score">-</span>
+                  <span class="score-sub" data-i18n="Higher is better">Higher is better</span>
+                </div>
+                <div class="doc-score-card" id="doc-risk-card">
+                  <span class="score-title" data-i18n="Scam risk">Scam risk</span>
+                  <span class="score-number" id="doc-risk-score">-</span>
+                  <span class="score-sub" id="doc-severity-sub">-</span>
+                </div>
+              </div>
+              <div class="report-box">
+                <h4 data-i18n="What to do now">What to do now</h4>
+                <div class="action-alert" id="doc-rec-action"></div>
+              </div>
+              <div class="report-box">
+                <h4 data-i18n="What we found">What we found</h4>
+                <div class="findings-list" id="doc-findings-list"></div>
+              </div>
+              <details class="tech-details">
+                <summary data-i18n="Text that was read">Text that was read</summary>
+                <pre class="terminal-view" id="doc-raw-text"></pre>
+              </details>
             </div>
           </div>
         </div>
@@ -621,304 +587,235 @@
     </section>
 
     <!-- ========================================================
-         TAB 4: GEMINI FRAUD REASONER (VERTEX AI ASSISTANT)
+         TAB: AI ADVISOR
          ======================================================== -->
-    <section id="tab-gemini-advisor" class="tab-content-panel">
+    <section id="tab-gemini-advisor" class="tab-content-panel" aria-labelledby="nav-btn-gemini">
       <div class="section-lead-header">
         <div>
-          <span class="section-kicker">VERTEX AI COGNITIVE REASONING</span>
-          <h2>Gemini Fraud Intelligence Assistant</h2>
-          <p>Conversational fraud advisor backed by <strong>Gemini on Vertex AI</strong> (falls back to fixed rules, clearly labelled, if Gemini is unreachable). Ask any question about suspicious communications, legal procedures, or banking safety in natural language.</p>
+          <span class="section-kicker" data-i18n="AI ADVISOR">AI ADVISOR</span>
+          <h2 data-i18n="Ask a question about a scam">Ask a question about a scam</h2>
+          <p data-i18n="advisor-lead">Describe what happened in your own words. The advisor uses Google's Gemini AI when available and tells you when it is using fixed rules instead. It can make mistakes, so for money matters call 1930 or your bank. Do not type OTPs, PINs or passwords.</p>
         </div>
       </div>
 
       <div class="gemini-chat-container">
-        <!-- SUGGESTED PROMPTS -->
         <div class="gemini-prompt-pills">
-          <span class="pills-title">💡 Example Scenarios:</span>
-          <button class="gemini-pill" data-prompt="Someone on Skype claims they are Mumbai Police and my Aadhaar was found in an illegal parcel to Cambodia. What should I do?">
-            🚨 "Skype call from Mumbai Police about Aadhaar parcel"
-          </button>
-          <button class="gemini-pill" data-prompt="I received a PhonePe collect request of ₹4,999 saying it is a refund from Flipkart. Do I enter my UPI PIN to receive it?">
-            ⚡ "UPI Collect Request of ₹4,999 to receive refund"
-          </button>
-          <button class="gemini-pill" data-prompt="An instant loan app is threatening to send morphed photos to my contact list if I don't repay ₹15,000 today. Can they legally do this?">
-            💸 "Loan app threatening to send photos to contacts"
-          </button>
-          <button class="gemini-pill" data-prompt="Someone offered ₹3,000 daily to like YouTube videos on Telegram, but asked for a ₹1,000 prepaid deposit first. Is this safe?">
-            💼 "Telegram job: ₹3000/day for YouTube likes"
-          </button>
+          <span class="pills-title" data-i18n="Examples:">Examples:</span>
+          <button class="gemini-pill" data-prompt="Someone on Skype claims they are Mumbai Police and my Aadhaar was found in an illegal parcel to Cambodia. What should I do?">🚨 Skype call from "Mumbai Police" about an Aadhaar parcel</button>
+          <button class="gemini-pill" data-prompt="I received a PhonePe collect request of ₹4,999 saying it is a refund from Flipkart. Do I enter my UPI PIN to receive it?">⚡ UPI collect request for a "refund"</button>
+          <button class="gemini-pill" data-prompt="An instant loan app is threatening to send morphed photos to my contact list if I don't repay ₹15,000 today. Can they legally do this?">💸 Loan app threatening to send photos to contacts</button>
+          <button class="gemini-pill" data-prompt="Someone offered ₹3,000 daily to like YouTube videos on Telegram, but asked for a ₹1,000 prepaid deposit first. Is this safe?">💼 Telegram job: ₹3,000 a day for YouTube likes</button>
         </div>
 
-        <div class="chat-display-box" id="gemini-chat-display">
+        <div class="chat-display-box" id="gemini-chat-display" aria-live="polite">
           <div class="chat-message assistant">
-            <div class="msg-avatar">🛡️</div>
+            <div class="msg-avatar" aria-hidden="true">🛡️</div>
             <div class="msg-body">
-              <strong>SafeMeAI Gemini Reasoner:</strong>
-              <p>Welcome! I use Gemini on Vertex AI when it is available, and say so on every answer. You can describe any suspicious phone call, WhatsApp notice, banking alert, or recovery agent threat to evaluate its legitimacy.</p>
+              <strong>SafeMeAI</strong>
+              <p data-i18n="advisor-welcome">Hello! Tell me about the call, message or app that worries you. I will explain the risk and what to do next.</p>
             </div>
           </div>
         </div>
 
         <div class="chat-input-row">
-          <input type="text" id="gemini-input-field" aria-label="Describe the suspicious situation" maxlength="2000" placeholder="Ask Gemini about any cyber threat or suspicious request...">
-          <button class="btn-primary" id="btn-send-gemini">
-            <span>Ask Advisor ➔</span>
-          </button>
+          <label for="gemini-input-field" class="sr-only">Describe the suspicious situation</label>
+          <input type="text" id="gemini-input-field" maxlength="2000" data-i18n-ph="Describe what happened..." placeholder="Describe what happened...">
+          <button type="button" class="btn-primary" id="btn-send-gemini"><span data-i18n="Ask">Ask</span></button>
         </div>
       </div>
     </section>
 
     <!-- ========================================================
-         TAB 5: BIGQUERY MULE MATRIX & SOC ANALYTICS
+         TAB: SCAM TRENDS (DEMO)
          ======================================================== -->
-    <section id="tab-bigquery-matrix" class="tab-content-panel">
+    <section id="tab-bigquery-matrix" class="tab-content-panel" aria-labelledby="nav-btn-bq">
       <div class="section-lead-header">
         <div>
-          <span class="section-kicker">HIGH-THROUGHPUT ANALYTICS</span>
-          <h2>BigQuery Mule Matrix & National Threat Intelligence</h2>
-          <p>Dashboard layout for BigQuery-backed mule-network analytics. <strong>Figures here are demo data</strong> unless the server is connected to BigQuery (see the note below).</p>
+          <span class="section-kicker" data-i18n="FOR BANKS AND ANALYSTS (DEMO)">FOR BANKS AND ANALYSTS (DEMO)</span>
+          <h2 data-i18n="Scam trends and money-mule networks">Scam trends and money-mule networks</h2>
+          <p data-i18n="bq-lead">A sample dashboard of how a bank team could view scam trends. <strong>All numbers here are made-up demo data</strong> unless the server is connected to BigQuery (see the note below).</p>
           <p class="datasource-note" id="bq-source-note">Loading data source...</p>
         </div>
       </div>
 
       <div class="bq-dashboard-grid">
-        <!-- TOP THREAT VECTORS -->
         <div class="glass-box">
           <div class="box-header">
-            <h3>Top Scam Vectors in India (24-Hour Telemetry)</h3>
-            <span class="tag-tech">Demo data</span>
+            <h3 data-i18n="Most common scam types (sample)">Most common scam types (sample)</h3>
+            <span class="tag-tech" data-i18n="Demo data">Demo data</span>
           </div>
-          <div class="threat-bars-list" id="threat-bars-container">
-            <!-- Dynamically populated -->
-          </div>
+          <div class="threat-bars-list" id="threat-bars-container"></div>
           <div class="insight-box">
-            <strong>Illustrative insight (demo data):</strong> the sample shows Digital Arrest and UPI Collect scams as the largest vectors.
+            <strong data-i18n="Example insight (demo data):">Example insight (demo data):</strong> <span data-i18n="the sample shows fake-police calls and UPI refund traps as the biggest groups.">the sample shows fake-police calls and UPI refund traps as the biggest groups.</span>
           </div>
         </div>
 
-        <!-- ACTIVE MULE CLUSTERS -->
         <div class="glass-box">
           <div class="box-header">
-            <h3>Active Money Mule Syndicates (ML Anomaly Isolation)</h3>
-            <span class="tag-tech">Demo data</span>
+            <h3 data-i18n="Suspected mule-account groups (sample)">Suspected mule-account groups (sample)</h3>
+            <span class="tag-tech" data-i18n="Demo data">Demo data</span>
           </div>
           <div class="mule-clusters-table-wrap">
             <table class="mule-table" id="mule-clusters-table">
               <thead>
                 <tr>
-                  <th>Cluster ID</th>
-                  <th>Mule Nodes</th>
-                  <th>24h Volume</th>
-                  <th>Risk Score</th>
-                  <th>Action Status</th>
+                  <th>Group</th><th>Accounts</th><th>24h amount</th><th>Risk</th><th>Status</th>
                 </tr>
               </thead>
-              <tbody id="mule-table-body">
-                <!-- Dynamically populated -->
-              </tbody>
+              <tbody id="mule-table-body"></tbody>
             </table>
           </div>
-
-          <div class="bq-sql-preview">
-            <span class="sql-label">Illustrative detection query (sample, not executed):</span>
-            <pre class="sql-code">SELECT payer_vpa, payee_vpa, amount,
+          <details class="tech-details">
+            <summary data-i18n="Technical details (for experts)">Technical details (for experts)</summary>
+            <div class="bq-sql-preview">
+              <span class="sql-label">Illustrative detection query (sample, not executed):</span>
+              <pre class="sql-code">SELECT payer_vpa, payee_vpa, amount,
   ML.DETECT_ANOMALIES(MODEL `safeme_bfsi.mule_isolation_forest`,
     TABLE `safeme_bfsi.realtime_upi_stream`) AS anomaly_status
 FROM `safeme_bfsi.realtime_upi_stream`
 WHERE DATE(timestamp) = CURRENT_DATE()
 ORDER BY anomaly_score DESC LIMIT 50;</pre>
-          </div>
+            </div>
+          </details>
         </div>
       </div>
     </section>
 
     <!-- ========================================================
-         TAB 6: CITIZEN SCAM REPORTER ("FEED SAFEMEAI")
+         TAB: REPORT
          ======================================================== -->
-    <section id="tab-report-scam" class="tab-content-panel">
+    <section id="tab-report-scam" class="tab-content-panel" aria-labelledby="nav-btn-report">
       <div class="section-lead-header">
         <div>
-          <span class="section-kicker">COMMUNITY CYBER DEFENSE</span>
-          <h2>Report a Scam (Protect Millions of Citizens)</h2>
-          <p>Received a fraudulent call, SMS, or scam UPI ID? Report it here. Verified reports are immediately pushed to the SafeMeAI Android edge sensor network to block threats nationwide.</p>
+          <span class="section-kicker" data-i18n="COMMUNITY REPORTS">COMMUNITY REPORTS</span>
+          <h2 data-i18n="Report a scam number, UPI ID or link">Report a scam number, UPI ID or link</h2>
+          <p data-i18n="report-lead">Reports are counted without your name or phone number. When several different people report the same number, UPI ID or link, it can become a community alert. A report here does <strong>not</strong> replace a police complaint: to report real fraud call 1930 or use cybercrime.gov.in.</p>
         </div>
       </div>
 
       <div class="report-grid">
         <div class="glass-box">
-          <h3>Submit Scam Report</h3>
+          <h3 data-i18n="Send a report">Send a report</h3>
           <form id="scam-report-form" class="report-form">
             <div class="form-row">
               <div class="form-group">
-                <label>Scam Category *</label>
+                <label for="report-type" data-i18n="Type of scam *">Type of scam *</label>
                 <select id="report-type" required>
-                  <option value="Digital Arrest">Digital Arrest (Fake Police/CBI)</option>
-                  <option value="UPI Collect Trap">UPI Collect / PIN Trap</option>
-                  <option value="Electricity Bill Cutoff">Electricity / Utility Threat</option>
-                  <option value="Predatory Loan App">Predatory Loan Harassment</option>
-                  <option value="Telegram Task Scam">Telegram / Work-From-Home Task</option>
-                  <option value="Sextortion Blackmail">Sextortion / Video Call Blackmail</option>
-                  <option value="Other">Other Cyber Scam</option>
+                  <option value="Digital Arrest">Fake police / CBI "digital arrest"</option>
+                  <option value="UPI Collect Trap">UPI collect / PIN trap</option>
+                  <option value="Electricity Bill Cutoff">Electricity or utility threat</option>
+                  <option value="Predatory Loan App">Loan-app harassment</option>
+                  <option value="Telegram Task Scam">Telegram / work-from-home task</option>
+                  <option value="Sextortion Blackmail">Video-call blackmail</option>
+                  <option value="Other">Other</option>
                 </select>
               </div>
               <div class="form-group">
-                <label>Scammer's Phone Number, UPI ID, or URL *</label>
-                <input type="text" id="report-target" placeholder="e.g. +91 98201 44102 or rbi.escrow@okhdfc" required>
+                <label for="report-target" data-i18n="Scammer's phone number, UPI ID or link *">Scammer's phone number, UPI ID or link *</label>
+                <input type="text" id="report-target" placeholder="e.g. 98XXXXXXXX or name@bank" required autocomplete="off">
               </div>
             </div>
 
             <div class="form-group">
-              <label>What happened? (Describe the message or call)</label>
-              <textarea id="report-details" rows="4" placeholder="e.g. Received WhatsApp video call from man in police uniform claiming my Aadhaar was found in an illegal parcel..."></textarea>
+              <label for="report-details" data-i18n="What happened? (optional note, no personal details please)">What happened? (optional note, no personal details please)</label>
+              <textarea id="report-details" rows="4" maxlength="500" data-i18n-ph="e.g. Caller in police uniform on WhatsApp video said my Aadhaar was found in a parcel..." placeholder="e.g. Caller in police uniform on WhatsApp video said my Aadhaar was found in a parcel..."></textarea>
             </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label>Your Name (Optional)</label>
-                <input type="text" id="report-name" placeholder="Anonymous or Name">
-              </div>
-              <div class="form-group">
-                <label>Your Phone (Optional)</label>
-                <input type="text" id="report-phone" placeholder="For verification only">
-              </div>
-            </div>
+            <p class="datasource-note" data-i18n="report-privacy">We do not ask for your name or phone number. Please do not write your own details in the note.</p>
 
-            <button type="submit" class="btn-primary" id="btn-submit-report">
-              <span>📢 Submit Scam Report to SafeMeAI Network</span>
-            </button>
-            <div id="report-success-msg" class="success-banner" style="display: none;">
-              ✅ Thank you! Your report has been registered and propagated to the SafeMeAI edge blacklist.
-            </div>
+            <button type="submit" class="btn-primary" id="btn-submit-report"><span data-i18n="Send report">Send report</span></button>
+            <div id="report-success-msg" class="success-banner" role="status" style="display: none;"></div>
+            <div id="report-error-msg" class="error-banner" role="alert" style="display: none;"></div>
           </form>
         </div>
 
-        <!-- RECENT REPORTS TICKER -->
         <div class="glass-box">
           <div class="box-header">
-            <h3>Recent Citizen Reports (Demo Feed)</h3>
-            <span class="tag-live">In-memory demo, not pushed to devices</span>
+            <h3 data-i18n="Recent community reports">Recent community reports</h3>
+            <span class="tag-live" id="reports-source-tag">Loading...</span>
           </div>
-          <div class="reports-feed-list" id="citizen-reports-list">
-            <!-- Dynamically populated -->
-          </div>
+          <div class="reports-feed-list" id="citizen-reports-list" aria-live="polite"></div>
         </div>
       </div>
     </section>
 
     <!-- ========================================================
-         TAB 7: ANDROID APP SHOWCASE & DIRECT APK DOWNLOAD
+         TAB: ANDROID APP
          ======================================================== -->
-    <section id="tab-android-app" class="tab-content-panel">
+    <section id="tab-android-app" class="tab-content-panel" aria-labelledby="nav-btn-app">
       <div class="section-lead-header">
         <div>
-          <span class="section-kicker">ON-DEVICE EDGE PROTECTION</span>
-          <h2>SafeMeAI Android Mobile Application (v1.8)</h2>
-          <p>Zero-latency on-device protection running 24/7 on Android. Shields notifications, calls, and financial apps without sending private messages to the cloud.</p>
+          <span class="section-kicker" data-i18n="ANDROID APP">ANDROID APP</span>
+          <h2 data-i18n="SafeMeAI for Android (v1.8)">SafeMeAI for Android (v1.8)</h2>
+          <p data-i18n="android-lead">The Android app is designed to check messages on your phone and warn you about risky calls, links and loan apps.</p>
+          <p class="dataflow-note" data-i18n="dataflow-note"><strong>Data note:</strong> the on-device claim applies to the Android app only. The checkers on this website send the text you paste to the SafeMeAI server in India (asia-south1) to be analysed. See the <a href="privacy.html">privacy notice</a>.</p>
         </div>
       </div>
 
       <div class="app-showcase-grid" id="android-showcase">
-        <!-- PHONE SIMULATOR CARD -->
         <div class="glass-box phone-card">
+          <p class="sample-label" data-i18n="Illustration only. These are not real detections.">Illustration only. These are not real detections.</p>
           <div class="phone-frame">
             <div class="phone-notch"></div>
             <div class="phone-screen">
               <div class="phone-app-header">
-                <span class="app-icon">🛡️</span>
+                <span class="app-icon" aria-hidden="true">🛡️</span>
                 <span class="app-title">SafeMeAI Protection</span>
-                <span class="app-live-dot">● ACTIVE</span>
+                <span class="app-live-dot">SAMPLE</span>
               </div>
-              
-              <!-- SIMULATED SHIELD OVERLAY -->
               <div class="simulated-shield">
-                <div class="shield-badge-danger">🚨 CYBERCRIME BLOCKED</div>
-                <h4>Digital Arrest Video Intercepted</h4>
-                <p>Fake CBI WhatsApp call detected with coercive threats. Overlaid protective barrier placed.</p>
-                <div class="simulated-metrics">
-                  <span>Risk: 99%</span> • <span>Action: Blocked</span>
-                </div>
+                <div class="shield-badge-danger">🚨 SAMPLE ALERT</div>
+                <h4>Fake police video call</h4>
+                <p>Example of the kind of warning the app is designed to show.</p>
               </div>
-
-              <!-- SIMULATED NOTIFICATION -->
               <div class="simulated-notification">
-                <div class="notif-header">
-                  <span>⚡ UPI Protection Sensor</span>
-                  <span>Just now</span>
-                </div>
-                <div class="notif-body">
-                  <strong>Collect Request Inversion Flagged</strong>
-                  <p>Phishing handle 'refund.desk92@icici' attempted ₹4,999 debit. PIN prompt guarded.</p>
-                </div>
-              </div>
-
-              <div class="simulated-notification">
-                <div class="notif-header">
-                  <span>📱 Sideload Guard</span>
-                  <span>1m ago</span>
-                </div>
-                <div class="notif-body">
-                  <strong>Predatory Loan APK Blocked</strong>
-                  <p>Blocked 'FastCashLoan.apk' trying to access contact list and gallery.</p>
-                </div>
+                <div class="notif-header"><span>⚡ UPI warning (sample)</span><span>example</span></div>
+                <div class="notif-body"><strong>Collect request for a "refund"</strong><p>Example: do not enter your PIN to receive money.</p></div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- DOWNLOAD & FEATURES OVERVIEW -->
         <div class="glass-box download-details-card">
           <div class="release-badge">
             <span class="tag-version">Version 1.8 (Build 10)</span>
-            <span class="tag-target">Target SDK: 36 (Android 15 Ready)</span>
+            <span class="tag-target">Android 15 ready</span>
           </div>
-          <h3>Install SafeMeAI on Your Android Phone</h3>
-          <p>Get instant on-device protection for yourself and your parents. SafeMeAI uses intelligent offline heuristics to safeguard UPI apps, notifications, and calls in under 50 milliseconds.</p>
+          <h3 data-i18n="Install SafeMeAI on your Android phone">Install SafeMeAI on your Android phone</h3>
+          <p data-i18n="android-install-lead">Free for citizens. This is a direct download (APK), not from Google Play. Read the safety note below before installing.</p>
 
           <div class="features-checklist">
-            <div class="check-item">
-              <span class="check-icon">✓</span>
-              <div>
-                <strong>Digital Arrest Call Shield:</strong> Detects impersonation of police/CBI on WhatsApp/Skype and terminates coercive sessions.
-              </div>
-            </div>
-            <div class="check-item">
-              <span class="check-icon">✓</span>
-              <div>
-                <strong>UPI Collect Inversion Blocker:</strong> Prevents unauthorized debit approvals on PhonePe, Google Pay, and Paytm.
-              </div>
-            </div>
-            <div class="check-item">
-              <span class="check-icon">✓</span>
-              <div>
-                <strong>Predatory Loan App Sideload Guard:</strong> Blocks malicious Chinese/unregulated lending APKs from stealing photos and contacts.
-              </div>
-            </div>
-            <div class="check-item">
-              <span class="check-icon">✓</span>
-              <div>
-                <strong>Privacy-First Architecture:</strong> Analyzes messages locally on your device without sending private chats to servers.
-              </div>
-            </div>
+            <div class="check-item"><span class="check-icon" aria-hidden="true">✓</span><div><strong data-i18n="Fake police call warning:">Fake police call warning:</strong> <span data-i18n="designed to spot police/CBI impersonation on WhatsApp and Skype.">designed to spot police/CBI impersonation on WhatsApp and Skype.</span></div></div>
+            <div class="check-item"><span class="check-icon" aria-hidden="true">✓</span><div><strong data-i18n="UPI refund trap warning:">UPI refund trap warning:</strong> <span data-i18n="warns before you approve a collect request.">warns before you approve a collect request.</span></div></div>
+            <div class="check-item"><span class="check-icon" aria-hidden="true">✓</span><div><strong data-i18n="Risky app warning:">Risky app warning:</strong> <span data-i18n="flags loan apps that ask for contacts and photos.">flags loan apps that ask for contacts and photos.</span></div></div>
+            <div class="check-item"><span class="check-icon" aria-hidden="true">✓</span><div><strong data-i18n="Privacy by design:">Privacy by design:</strong> <span data-i18n="the app checks messages on your phone. Only the website checker sends text to our server.">the app checks messages on your phone. Only the website checker sends text to our server.</span></div></div>
           </div>
 
           <div class="download-action-row">
             <a href="downloads/safemeai-app.apk" download class="btn-download-apk">
-              <span class="dl-icon">📥</span>
+              <span class="dl-icon" aria-hidden="true">📥</span>
               <div class="dl-text">
-                <span class="dl-title">Download SafeMeAI (Direct APK)</span>
-                <span class="dl-sub">Size: ~2.9 MB • Free for Citizens</span>
+                <span class="dl-title" data-i18n="Download SafeMeAI (APK)">Download SafeMeAI (APK)</span>
+                <span class="dl-sub">~2.9 MB • v1.8</span>
               </div>
             </a>
           </div>
 
+          <div class="apk-verify" id="apk-verify">
+            <strong data-i18n="Verify your download">Verify your download</strong>
+            <p><span data-i18n="SHA-256 of this file:">SHA-256 of this file:</span></p>
+            <code class="apk-hash" id="apk-sha256">6699d2abe56dfb16d6e094edca284b383fe0261ea5160d4cd4922c072e7935ea</code>
+            <p class="apk-note" data-i18n="apk-sign-note">The file carries an Android signature block, but it is not published on Google Play and the signing certificate fingerprint is not published yet (TODO: owner to publish it here). Compare the SHA-256 above with the file you downloaded before installing.</p>
+            <p class="apk-caution" data-i18n="apk-caution"><strong>Caution:</strong> scammers also send fake APK links. Only install from this official page, never from a link in an SMS or WhatsApp message.</p>
+          </div>
+
           <div class="qr-code-box">
             <div class="qr-placeholder">
-              <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=https://safemeai-bfsi-846801666760.asia-south1.run.app/downloads/safemeai-app.apk" alt="Download SafeMeAI QR Code">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=https://safemeai-bfsi-846801666760.asia-south1.run.app/downloads/safemeai-app.apk" alt="QR code for the SafeMeAI APK download" width="140" height="140">
             </div>
             <div class="qr-info">
-              <strong>Scan with Phone Camera:</strong>
-              <p>Point your mobile camera at this QR code to download and install SafeMeAI instantly on your device.</p>
+              <strong data-i18n="Scan with your phone camera:">Scan with your phone camera:</strong>
+              <p data-i18n="qr-note">Opens the same download on your phone. The QR image is made by a third-party service (api.qrserver.com).</p>
             </div>
           </div>
         </div>
@@ -928,44 +825,46 @@ ORDER BY anomaly_score DESC LIMIT 50;</pre>
   </main>
 
   <!-- ==============================================
-       GLOBAL FOOTER WITH GOVERNMENT HELPLINES
+       FOOTER
        ============================================== -->
   <footer class="app-footer">
     <div class="footer-top">
       <div class="footer-col">
         <div class="logo-badge">
-          <span class="shield-icon">🛡️</span>
+          <span class="shield-icon" aria-hidden="true">🛡️</span>
           <span class="brand-name">SafeMe<span class="highlight">AI</span></span>
         </div>
-        <p class="footer-tagline">
-          India's Real-Time Scam & Cyber Fraud Defense Platform. Protecting citizens and banks from Digital Arrests, UPI traps, and malicious loan APKs.
-        </p>
-      </div>
-
-      <div class="footer-col">
-        <h4>Emergency Cyber Contacts</h4>
-        <ul class="footer-links">
-          <li>🚨 National Cyber Crime Helpline: <a href="tel:1930"><strong>1930</strong> (Toll Free)</a></li>
-          <li>🌐 National Cyber Crime Portal: <a href="https://cybercrime.gov.in" target="_blank" rel="noopener noreferrer">cybercrime.gov.in</a></li>
-          <li>🏦 RBI Complaint Portal: <a href="https://cms.rbi.org.in" target="_blank" rel="noopener noreferrer">cms.rbi.org.in</a></li>
-          <li>📞 Sanchar Saathi (Lost/Stolen Phones): <a href="https://sancharsaathi.gov.in" target="_blank" rel="noopener noreferrer">sancharsaathi.gov.in</a></li>
+        <p class="footer-tagline" data-i18n="footer-tag">A free scam checker for India. It gives advice only and can be wrong. It is not a government or bank service.</p>
+        <ul class="footer-links footer-legal">
+          <li><a href="privacy.html" data-i18n="Privacy notice">Privacy notice</a></li>
+          <li><a href="terms.html" data-i18n="Terms of use">Terms of use</a></li>
         </ul>
       </div>
 
       <div class="footer-col">
-        <h4>Google Cloud Architecture</h4>
+        <h4 data-i18n="Report fraud (official)">Report fraud (official)</h4>
         <ul class="footer-links">
-          <li>⚡ <strong>Google Cloud Run:</strong> Low-latency autoscaling container runtime</li>
-          <li>🧠 <strong>Vertex AI (Gemini):</strong> Escalation reasoning and the fraud advisor (live when configured)</li>
-          <li>📄 <strong>Google Document AI:</strong> OCR for uploads (optional, env-configured)</li>
-          <li>📊 <strong>Google BigQuery:</strong> Threat-vector analytics (optional; demo data by default)</li>
+          <li>🚨 <span data-i18n="National Cyber Crime Helpline:">National Cyber Crime Helpline:</span> <a href="tel:1930"><strong>1930</strong> (<span data-i18n="toll free">toll free</span>)</a></li>
+          <li>🌐 <a href="https://cybercrime.gov.in" target="_blank" rel="noopener noreferrer">cybercrime.gov.in</a></li>
+          <li>🏦 <a href="https://cms.rbi.org.in" target="_blank" rel="noopener noreferrer">RBI complaints: cms.rbi.org.in</a></li>
+          <li>📞 <a href="https://sancharsaathi.gov.in" target="_blank" rel="noopener noreferrer">Sanchar Saathi: sancharsaathi.gov.in</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 data-i18n="Built with">Built with</h4>
+        <ul class="footer-links">
+          <li>⚡ <strong>Google Cloud Run</strong></li>
+          <li>🧠 <strong>Gemini on Vertex AI</strong> <span data-i18n="(used when available)">(used when available)</span></li>
+          <li>🛡️ <strong>Google Web Risk</strong> <span data-i18n="(when configured)">(when configured)</span></li>
+          <li>📄📊 <strong>Document AI, BigQuery</strong> <span data-i18n="(demo only for now)">(demo only for now)</span></li>
         </ul>
       </div>
     </div>
 
     <div class="footer-bottom">
-      <span>© 2026 SafeMeAI Technologies • Built for Google Cloud AI Hackathon • All Rights Reserved</span>
-      <span class="footer-disclaimer">Disclaimer: SafeMeAI is an AI defense companion. Always report cyber fraud incidents to 1930 or your local police station.</span>
+      <span>© 2026 SafeMeAI (prototype)</span>
+      <span class="footer-disclaimer" data-i18n="footer-disc">SafeMeAI gives advice only and may be wrong. If you have lost money, call 1930 immediately or contact your bank and local police.</span>
     </div>
   </footer>
 

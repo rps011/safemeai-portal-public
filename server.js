@@ -7,6 +7,20 @@ const tls = require('tls');
 const dns = require('dns').promises;
 const gcp = require('./lib/gcp');
 const { geminiAdvise } = require('./lib/geminiAdvisor');
+const crypto = require('crypto');
+const { createAudit, detectInputType } = require('./lib/audit');
+const { createKeyStore, safeEqual, TIERS } = require('./lib/apiKeys');
+const rateLimit = require('./lib/rateLimit');
+const systemStatus = require('./lib/systemStatus');
+const openapi = require('./lib/openapi');
+
+const BODY_LIMIT = '64kb';                    // single source of truth for the JSON body limit (used by parser + error handler)
+const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+const platformRefs = {};                      // filled later (threatStore) so audit/status can read live values
+const audit = createAudit({ getSnapshotTs: () => (platformRefs.threatStore && platformRefs.threatStore.lastRefresh) || null });
+const apiKeys = createKeyStore();
+const limiter = rateLimit.createLimiter();
+const INTERNAL_TOKEN = crypto.randomBytes(24).toString('hex'); // lets /api/v1/batch call our own handlers without re-limiting
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -14,6 +28,7 @@ const PORT = process.env.PORT || 8080;
 // ---- Hardening: proxy trust, security headers, CORS, body limits, rate limiting ----
 app.set('trust proxy', 1);          // Cloud Run: exactly one trusted hop (Google front end)
 app.disable('x-powered-by');
+app.use(audit.middleware());        // requestId (x-request-id in/out), response augmentation, audit log line
 
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -41,41 +56,107 @@ const CORS_ORIGINS = (process.env.CORS_ORIGINS || '').split(',').map(s => s.trim
 app.use(cors({
   origin: (origin, cb) => cb(null, !origin ? false : CORS_ORIGINS.includes(origin)),
   methods: ['GET', 'POST'],
+  exposedHeaders: ['x-request-id', 'Retry-After', 'X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset', 'X-RateLimit-Group'],
   maxAge: 600
 }));
 
-app.get('/healthz', (req, res) => res.json({ status: 'ok', uptimeSec: Math.round(process.uptime()) }));
+const healthDoc = () => ({ status: 'ok', uptimeSec: Math.round(process.uptime()), version: audit.engineVersion });
+app.get('/healthz', (req, res) => res.json(healthDoc()));
+app.get('/health', (req, res) => res.json(healthDoc()));       // Cloud Run intercepts /healthz; use these externally
+app.get('/api/health', (req, res) => res.json(healthDoc()));
 
-app.use(express.json({ limit: '64kb' }));
-app.use(express.static(path.join(__dirname, 'public'), { dotfiles: 'ignore', index: 'index.html' }));
+app.use(express.json({ limit: BODY_LIMIT }));
 
-// In-memory per-IP rate limiter (per Cloud Run instance; use Cloud Armor for a global limit).
-const ipRequests = new Map();
-const RATE_LIMIT_WINDOW_MS = 60 * 1000;
-const MAX_REQUESTS_PER_WINDOW = 60;       // cheap routes
-const MAX_EXPENSIVE_PER_WINDOW = 15;      // routes that call Gemini / DNS / TLS / OCR
-const EXPENSIVE_ROUTES = /^\/api\/(scam\/check|domain\/check|gemini\/|document-ai\/analyze)/;
-
+// Optional API keys: X-API-Key: <keyId>.<secret>. No header = anonymous free tier. Bad key = 401.
 app.use((req, res, next) => {
   if (!req.path.startsWith('/api/')) return next();
-  const expensive = EXPENSIVE_ROUTES.test(req.path);
-  const key = (expensive ? 'x:' : 'c:') + (req.ip || 'unknown');
-  const limit = expensive ? MAX_EXPENSIVE_PER_WINDOW : MAX_REQUESTS_PER_WINDOW;
-  const now = Date.now();
-  let c = ipRequests.get(key);
-  if (!c || now > c.resetTime) c = { count: 0, resetTime: now + RATE_LIMIT_WINDOW_MS };
-  c.count++;
-  ipRequests.set(key, c);
-  if (c.count > limit) {
-    res.setHeader('Retry-After', Math.ceil((c.resetTime - now) / 1000));
-    return res.status(429).json({ error: 'Too many requests. Please try again in a minute.' });
+  const tok = req.headers['x-internal-batch'];
+  if (tok && safeEqual(tok, INTERNAL_TOKEN)) { // loopback call from /api/v1/batch
+    req.internalBatch = true; req.internalIp = req.headers['x-internal-ip'];
+    const kid = req.headers['x-internal-key-id'];
+    req.apiAuth = { keyId: kid || null, tier: 'free', rpm: null };
+    return next();
+  }
+  const a = apiKeys.authenticate(req.headers['x-api-key']);
+  if (!a.ok) return res.status(401).json({ error: 'Invalid API key.', code: 'INVALID_API_KEY' });
+  req.apiAuth = a;
+  next();
+});
+
+// Versioned aliases: rewritten to the existing handlers (no logic duplicated).
+app.use((req, res, next) => {
+  if (req.method !== 'POST' || !req.path.startsWith('/api/v1/')) return next();
+  const q = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+  const b = (req.body && typeof req.body === 'object') ? req.body : {};
+  if (req.path === '/api/v1/message/check') { req.url = '/api/scam/check' + q; }
+  else if (req.path === '/api/v1/domain/check') {
+    if (b.input && !b.url && !b.domain) req.body = { ...b, url: b.input };
+    req.url = '/api/domain/check' + q;
+  } else if (req.path === '/api/v1/check') {
+    const input = [b.input, b.text, b.url, b.domain].find(v => typeof v === 'string');
+    req.body = { ...b, text: input };
+    req.detectedType = input ? detectInputType(input) : 'empty';
+    req.url = '/api/scam/check' + q;
+  } else if (req.path === '/api/v1/batch') {
+    const n = Array.isArray(b.items) ? Math.min(b.items.length, 20) : 0;
+    req.rlCost = 1 + Math.ceil(n / 10);
   }
   next();
 });
-setInterval(() => {
-  const now = Date.now();
-  for (const [k, v] of ipRequests) if (now > v.resetTime) ipRequests.delete(k);
-}, 60 * 1000).unref();
+
+app.use(rateLimit.middleware(limiter, TIERS));
+
+app.use(express.static(path.join(__dirname, 'public'), { dotfiles: 'ignore', index: 'index.html' }));
+
+// robots/security.txt: served only when public/ does not provide its own (static above wins).
+const SECURITY_CONTACT = process.env.SECURITY_CONTACT || process.env.INGEST_CONTACT || 'https://safemeai.in/security';
+app.get('/robots.txt', (req, res) => res.type('text/plain').send('User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /internal/\n'));
+const securityTxt = (req, res) => res.type('text/plain').send(`Contact: ${SECURITY_CONTACT}\nExpires: ${new Date(Date.now() + 365 * 864e5).toISOString()}\nPreferred-Languages: en, hi\n`);
+app.get('/.well-known/security.txt', securityTxt);
+app.get('/security.txt', securityTxt);
+
+// ---- API product surface: OpenAPI, docs, system status, batch ----
+const openApiSpec = openapi.buildSpec({ version: audit.engineVersion });
+app.get('/api/v1/openapi.json', (req, res) => res.json(openApiSpec));
+app.get('/api/docs', (req, res) => res.type('html').send(openapi.docsHtml(openApiSpec)));
+
+const statusDoc = systemStatus.cached(() => systemStatus.build({
+  engineVersion: audit.engineVersion, audit,
+  threatStore: platformRefs.threatStore ? { ready: platformRefs.threatStore.ready, ...platformRefs.threatStore.stats() } : null
+}), 30000);
+app.get('/api/system/status', (req, res) => { res.set('Cache-Control', 'public, max-age=30'); res.json(statusDoc()); });
+
+app.post('/api/v1/batch', async (req, res) => {
+  const items = req.body && req.body.items;
+  if (!Array.isArray(items) || items.length < 1 || items.length > 20) {
+    return res.status(400).json({ error: 'items must be an array of 1 to 20 entries.', code: 'BAD_REQUEST' });
+  }
+  const results = new Array(items.length);
+  let next = 0;
+  const worker = async () => {
+    while (next < items.length) {
+      const i = next++;
+      const it = items[i];
+      const input = typeof it === 'string' ? it : (it && typeof it.input === 'string' ? it.input : null);
+      if (input == null) { results[i] = { index: i, httpStatus: 400, error: 'Item must be a string or {input}.' }; continue; }
+      const domain = it && typeof it === 'object' && it.type === 'domain';
+      try {
+        const r = await fetch(`http://127.0.0.1:${PORT}${domain ? '/api/domain/check' : '/api/scam/check'}`, {
+          method: 'POST', signal: AbortSignal.timeout(25000),
+          headers: {
+            'Content-Type': 'application/json', 'x-internal-batch': INTERNAL_TOKEN, 'x-internal-ip': req.ip || '',
+            'x-internal-key-id': (req.apiAuth && req.apiAuth.keyId) || '', 'x-request-id': `${req.requestId}-${i}`
+          },
+          body: JSON.stringify(domain ? { url: input } : { text: input })
+        });
+        const j = await r.json().catch(() => null);
+        results[i] = r.ok ? { index: i, httpStatus: r.status, result: j && (j.data || j) } : { index: i, httpStatus: r.status, error: (j && j.error) || 'Check failed' };
+      } catch (e) { results[i] = { index: i, httpStatus: 502, error: 'Check failed or timed out.' }; }
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(4, items.length) }, worker));
+  res.json({ status: 'success', count: items.length, quotaUnits: req.rlCost || 1, results });
+});
 
 // Uploads: 5 MB, allow-listed types, random server-side names, temp files deleted after processing.
 const UPLOAD_DIR = path.join(__dirname, 'uploads');
@@ -83,7 +164,7 @@ if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 const ALLOWED_UPLOAD = { '.pdf': 'application/pdf', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.txt': 'text/plain' };
 const upload = multer({
   dest: UPLOAD_DIR,
-  limits: { fileSize: 5 * 1024 * 1024, files: 1, fields: 10, fieldSize: 64 * 1024 },
+  limits: { fileSize: MAX_UPLOAD_BYTES, files: 1, fields: 10, fieldSize: 64 * 1024 },
   fileFilter: (req, file, cb) => {
     const ext = path.extname(file.originalname || '').toLowerCase();
     if (!ALLOWED_UPLOAD[ext]) return cb(Object.assign(new Error('Unsupported file type. Use PDF, PNG, JPG or TXT.'), { status: 415 }));
@@ -269,76 +350,31 @@ app.post('/api/document-ai/analyze', upload.single('document'), async (req, res)
     let customText = String(body.customText || '').slice(0, 20000);
     let filename = 'User Submitted Document';
     let ocr = { available: false, reason: 'no file uploaded' };
-    let ocrNote = 'Text pasted by user; analysed by keyword rules.';
+    let ocrNote = 'Text pasted by user; analysed by wording triage (co-occurrence rules). No seal, signature or image forensics were run.';
 
     if (req.file) {
       filename = safeName(req.file.originalname);
       const ext = path.extname(filename).toLowerCase();
       if (ext === '.txt') {
         customText = fs.readFileSync(req.file.path, 'utf8').slice(0, 20000);
-        ocrNote = 'Plain text read directly; analysed by keyword rules.';
+        ocrNote = 'Plain text read directly; analysed by wording triage (co-occurrence rules). No seal, signature or image forensics were run.';
       } else {
         ocr = await gcp.documentAiOcr(fs.readFileSync(req.file.path), ALLOWED_UPLOAD[ext]);
         if (ocr.available) {
           customText = ocr.text;
-          ocrNote = 'Text extracted by Google Document AI; analysed by keyword rules.';
+          ocrNote = 'Text extracted by Google Document AI OCR; then analysed by wording triage (co-occurrence rules). No seal, signature or image forensics were run.';
         } else {
-          customText = `[OCR unavailable: ${ocr.reason}. Only the filename "${filename}" (${(req.file.size / 1024).toFixed(1)} KB) could be assessed.]`;
-          ocrNote = `Document AI not used (${ocr.reason}). Verdict is based on filename only and is NOT a document analysis.`;
+          customText = `[OCR unavailable: ${ocr.reason}. The file "${filename}" (${(req.file.size / 1024).toFixed(1)} KB) was NOT analysed.]`;
+          ocrNote = `Document AI not used (${ocr.reason}). The file was NOT analysed and no score is given.`;
         }
       }
     }
 
-    const hay = customText + ' ' + filename;
-    const isDigitalArrest = /cbi|arrest|police|supreme court|pmla|mdma|customs|escrow|skype|surveillance|verification account/i.test(hay);
-    const isLoanScam = /7-day|processing fee|gallery|contacts|quick cash|urgent loan|predatory/i.test(hay);
-    const ocrMissing = Boolean(req.file) && !ocr.available && path.extname(filename).toLowerCase() !== '.txt';
-
-    let riskScore = ocrMissing ? 50 : 15;
-    let verdict = ocrMissing ? 'UNVERIFIED_NO_OCR' : 'REQUIRES_FURTHER_VERIFICATION';
-    let severity = ocrMissing ? 'MEDIUM' : 'LOW';
-    if (isDigitalArrest) { riskScore = 98; verdict = 'COUNTERFEIT_FORGED_WARRANT'; severity = 'CRITICAL'; }
-    else if (isLoanScam) { riskScore = 94; verdict = 'PREDATORY_UNREGISTERED_LENDER'; severity = 'HIGH'; }
-    const flagged = isDigitalArrest || isLoanScam;
-
-    res.json({
-      status: 'success',
-      mode: req.file ? (ocr.available ? 'FILE_UPLOAD_DOCUMENT_AI_OCR' : (ocrMissing ? 'FILE_UPLOAD_NO_OCR' : 'FILE_UPLOAD_TEXT')) : 'TEXT_KEYWORD_RULES',
-      dataSource: ocr.available ? 'document-ai+rules' : 'rules-engine',
-      dataSourceNote: ocrNote,
-      timestamp: new Date().toISOString(),
-      document: {
-        id: 'DOC-UP-' + Math.floor(Math.random() * 9000 + 1000),
-        title: filename,
-        extractedText: customText || 'No text supplied.'
-      },
-      analysis: {
-        authenticityScore: Math.max(4, 100 - riskScore),
-        riskScore,
-        verdict,
-        severity,
-        findings: [
-          {
-            rule: 'KEYWORD_SCAM_PATTERN_MATCH',
-            status: flagged ? 'FAILED' : (ocrMissing ? 'INCONCLUSIVE' : 'NO_MATCH'),
-            detail: isDigitalArrest
-              ? 'Text matches known digital-arrest / fake-warrant wording. Indian law-enforcement agencies never demand fund transfers.'
-              : isLoanScam ? 'Text matches predatory-lending patterns (upfront fees, contact/gallery access).'
-              : (ocrMissing ? 'Document text could not be extracted, so no content check was possible.' : 'No known scam wording found. This does not prove the document is genuine.')
-          },
-          {
-            rule: 'REGULATORY_REFERENCE',
-            status: flagged ? 'CRITICAL_VIOLATION' : 'NOT_EVALUATED',
-            detail: isDigitalArrest ? 'Digital arrest has no basis in BNSS/CrPC.' : isLoanScam ? 'Contact/gallery harvesting is prohibited under the RBI 2022 Digital Lending guidelines.' : 'Seal/signature and issuer-registry verification are not performed by this demo.'
-          }
-        ],
-        legalCitations: isDigitalArrest ? ['BNSS Section 105', 'IT Act Section 66D', 'BNS Section 318 (Cheating)'] : ['RBI Fair Practices Code', 'IT Act Section 43/66'],
-        recommendedAction: isDigitalArrest
-          ? 'CRITICAL: Do NOT pay any money. Disconnect the call immediately and dial 1930.'
-          : isLoanScam ? 'PREDATORY APP: Do NOT grant contact or gallery permissions. Report to RBI CMS (cms.rbi.org.in).'
-          : 'No scam wording detected, but verify any official document directly with the issuing institution.'
-      }
-    });
+    // Word-boundary, co-occurrence triage (lib/docTriage.js). Files without a text processor stay honestly "not analysed".
+    return res.json(docTriage.buildResponse({
+      text: customText, filename, hasFile: Boolean(req.file), isText: Boolean(req.file) && path.extname(filename).toLowerCase() === '.txt',
+      ocr, ocrNote
+    }));
   } catch (e) {
     console.error('[document-ai] failure:', e.message);
     res.status(500).json({ error: 'Document analysis failed. Treat the document as unverified.' });
@@ -347,14 +383,28 @@ app.post('/api/document-ai/analyze', upload.single('document'), async (req, res)
   }
 });
 
-// Upload/body error handler (multer limits, bad JSON, wrong type)
-app.use((err, req, res, next) => {
+// Global error handler: no parser internals or stack text ever reaches the client.
+function globalErrorHandler(err, req, res, next) {
   if (!err) return next();
-  const status = err.code === 'LIMIT_FILE_SIZE' ? 413 : (err.status || err.statusCode || (err.name === 'MulterError' ? 400 : 500));
-  if (status >= 500) console.error('[error]', err.message);
   if (req.file) rmTemp(req.file);
-  res.status(status).json({ error: status === 413 ? 'File or request too large (max 5 MB).' : (status < 500 ? err.message : 'Internal error') });
-});
+  const rid = req.requestId;
+  if (err.type === 'entity.parse.failed' || (err instanceof SyntaxError && err.status === 400)) {
+    return res.status(400).json({ error: 'Malformed JSON body', code: 'BAD_JSON' });
+  }
+  if (err.type === 'entity.too.large' || err.code === 'LIMIT_FILE_SIZE') {
+    const isFile = err.code === 'LIMIT_FILE_SIZE';
+    const lim = isFile ? `${MAX_UPLOAD_BYTES / 1048576} MB` : `${Math.round(parseFloat(BODY_LIMIT))} KB`;
+    return res.status(413).json({ error: `${isFile ? 'File' : 'Request body'} too large (max ${lim}).`, code: 'PAYLOAD_TOO_LARGE' });
+  }
+  const status = err.status || err.statusCode || (err.name === 'MulterError' ? 400 : 500);
+  if (status >= 400 && status < 500) {
+    const custom = err.name === 'MulterError' || err.expose === true && !err.type;
+    return res.status(status).json({ error: custom ? err.message : 'Bad request', code: 'BAD_REQUEST' });
+  }
+  console.error(JSON.stringify({ severity: 'ERROR', message: 'unhandled error', requestId: rid, error: String(err && err.message).slice(0, 300) }));
+  res.status(500).json({ error: 'Internal error', code: 'INTERNAL', requestId: rid });
+}
+app.use(globalErrorHandler);
 
 // ==========================================
 // API 2: GEMINI ON VERTEX AI (Fraud Reasoning & Financial Advisory)
@@ -652,6 +702,7 @@ const { createPlatform, mountRoutes: mountIngestRoutes } = require('./lib/ingest
 const { createCloudflareCheck } = require('./lib/cloudflareDns');
 const threatPlatform = createPlatform();
 const threatStore = threatPlatform.store;
+platformRefs.threatStore = threatStore;
 mountIngestRoutes(app, threatPlatform);
 let threatWarm = Promise.resolve();
 if (process.env.DISABLE_THREAT_INTEL !== '1') {
@@ -952,6 +1003,8 @@ function performAgenticAiForensics({ host, dns, ssl, isOpenPhish, entropy, isLoo
 // ==========================================
 const engine = require('./lib/domainEngine');
 const textEngine = require('./lib/textEngine');
+const textAi = require('./lib/textAi');
+const docTriage = require('./lib/docTriage');
 const engineDeps = {
   whitelist: PROTECTED_DOMAINS_WHITELIST,
   _matcher: engine.buildMatcher(PROTECTED_DOMAINS_WHITELIST),
@@ -1050,6 +1103,7 @@ const VERDICT_COPY = {
   THREAT_FEED_LISTED: ["🚨 KNOWN THREAT: Listed in a threat-intelligence feed", "🛑 DO NOT OPEN: this address is on a published phishing/malware list. Block and report to 1930."],
   REGULATOR_WARNING_LISTED: ["🚨 REGULATOR WARNING: Unauthorised / unregistered entity", "🛑 DO NOT INVEST OR PAY: a financial regulator lists this entity as unauthorised. Report to 1930 / cybercrime.gov.in."],
   DNS_SECURITY_BLOCKED: ["🚨 DNS SECURITY BLOCK: Flagged as malicious by security DNS", "🛑 DO NOT OPEN: a malware/phishing-filtering DNS service refuses to resolve this domain."],
+  RECOGNISED_BRAND_DOMAIN: ["ℹ️ Recognised global platform (not a bank or government portal)", "This is a well-known consumer platform domain used in routine messages. It is NOT a verified bank/official portal: never enter banking passwords, UPI PIN or OTPs on it."],
   ESTABLISHED_THIRD_PARTY_DOMAIN: ["ℹ️ Established website (not a bank or government portal)", "Looks like an ordinary long-lived website. Still never enter banking passwords or OTPs on non-bank sites."]
 };
 
@@ -1127,25 +1181,7 @@ app.post('/api/scam/check', async (req, res) => {
   if (raw.length > 5000) {
     return res.status(400).json({ error: "Message too long (max 5000 characters)." });
   }
-  const urlRegex = /(?:https?:\/\/|ftp:\/\/)?(?:[^\s\/@<>"']+@)?(?:\d{1,3}(?:\.\d{1,3}){3}|(?:[a-z0-9¡-￿](?:[a-z0-9¡-￿-]*[a-z0-9¡-￿])?\.)+[a-z¡-￿]{2,})(?::\d+)?(?:[\/?#][^\s]*)?/gi;
-  const extractedUrls = [];
-  const seenHosts = new Set();
-  let match;
-  const urlText = textEngine.normalizeForUrls(raw); // NFKC, zero-width stripped, defanged (hxxp, [.])
-  while ((match = urlRegex.exec(urlText)) !== null) {
-    let token = match[0].replace(/[.,;:!?)\]'"]+$/, '');
-    if (!/^[a-z]+:\/\//i.test(token) && !token.includes('@') && !textEngine.isPlausibleLink(token)) continue;
-    const hasScheme = /^[a-z]+:\/\//i.test(token);
-    // scheme-less "name@host.tld" is an e-mail / UPI-like id, not a link: judge the part after '@'
-    if (!hasScheme && token.includes('@')) token = token.split('@').pop();
-    if (/^\d+(\.\d+)?$/.test(token) || /^v?\d+(\.\d+)+$/i.test(token)) continue; // version/decimal numbers
-    const p = engine.parseTarget(token);
-    if (!p.ok || seenHosts.has(p.host)) continue;
-    if (!p.isIp && !p.host.includes('.')) continue;
-    seenHosts.add(p.host);
-    extractedUrls.push({ full: token, domain: p.host });
-    if (extractedUrls.length >= 5) break;
-  }
+  const { urls: extractedUrls, urlText } = textEngine.extractLinks(raw, engine.parseTarget); // NFKC, zero-width stripped, defanged
 
   const trimmedInput = urlText.trim();
   const isDirectUrlQuery = extractedUrls.length === 1 &&
@@ -1194,12 +1230,14 @@ app.post('/api/scam/check', async (req, res) => {
 
   // Message with embedded links: worst link drives the verdict. Unverified link inside a message is >= HIGH.
   let phishingDomainDetected = null;
-  const risky = scored.filter(a => !a.verified).sort((x, y) => y.riskScore - x.riskScore)[0];
+  const trustedOf = scored.filter(a => a.verified || a.recognisedBrand);
+  const linkOpts = { links: extractedUrls.length, trustedLinks: trustedOf.length, recognisedLinks: trustedOf.filter(a => !a.verified).length };
+  const risky = scored.filter(a => !a.verified && !a.recognisedBrand).sort((x, y) => y.riskScore - x.riskScore)[0];
   if (risky || failed) {
     const a = risky || { host: failed.host, verdict: 'UNVERIFIED_THIRD_PARTY_DOMAIN', riskScore: 75, riskLevel: 'HIGH', flags: ['Link could not be analysed — treated as unverified'], evidenceForTrust: [], verified: false, hardBlock: false, tld: '', dns: {}, ssl: {}, isOpenPhish: false, webRisk: {}, entropy: 0, registrable: failed.host, gemini: { available: false, reason: 'engine error' }, domainAge: {} };
     const boosted = { ...a, riskScore: Math.max(a.riskScore, 75), riskLevel: levelBoost(Math.max(a.riskScore, 75)) };
     // Merge the text-engine verdict so scam wording (digital arrest, KYC, ...) is not lost behind the link verdict.
-    const tv = textEngine.analyze(raw, { links: extractedUrls.length });
+    const tv = textEngine.analyze(raw, linkOpts);
     const ind = await indicators.assess(raw, { threatStore, reports: crowdReports });
     const textStrong = tv._meta && tv._meta.category !== 'legit' && tv._meta.category !== 'unknown' && tv.riskScore >= 60;
     const mergedScore = Math.max(boosted.riskScore, tv.riskScore);
@@ -1229,10 +1267,12 @@ app.post('/api/scam/check', async (req, res) => {
   // only until it can be deleted in a quiet edit window.
   // -------------------------------------------------------------
   {
-    const textVerdict = textEngine.analyze(raw, { links: extractedUrls.length });
-    delete textVerdict._meta;
+    const textVerdict = textEngine.analyze(raw, linkOpts);
+    // Optional Gemini second opinion for ambiguous mid-range scores (PII-redacted, 4s timeout, fails open; see lib/textAi.js).
+    const opined = await textAi.secondOpinion(raw, textVerdict, { levelFor: textEngine.levelFor }).catch(() => textVerdict);
+    delete opined._meta;
     const ind = await indicators.assess(raw, { threatStore, reports: crowdReports });
-    return res.json({ status: 'success', data: indicators.applyToVerdict(textVerdict, ind, textEngine.levelFor) });
+    return res.json({ status: 'success', data: indicators.applyToVerdict(opined, ind, textEngine.levelFor) });
   }
 
   // -------------------------------------------------------------
@@ -1685,53 +1725,77 @@ app.post('/api/scam/check', async (req, res) => {
 // API 7: DIGITAL ARREST EMERGENCY RAPID SCREENER (Authoritative I4C/MHA Protocol)
 // ==========================================
 app.post('/api/emergency/digital-arrest-screen', (req, res) => {
-  const { isUniformOrAgency, isCoerciveSurveillance, isContrabandOrPMLA, isMoneyDemand } = req.body || {};
+  const b = req.body || {};
+  const sig = {
+    agency: b.isUniformOrAgency === true,
+    contraband: b.isContrabandOrPMLA === true,
+    surveillance: b.isCoerciveSurveillance === true,
+    money: b.isMoneyDemand === true,
+    sensitive: b.isAskingSensitiveInfo === true,   // OTP / Aadhaar / card / PIN details
+    appOrVideo: b.isAppOrVideoMove === true         // install an app / move to Skype-WhatsApp video
+  };
+  const signals = [];
+  if (sig.agency) signals.push('Caller claims to be police / CBI / customs / court / RBI');
+  if (sig.contraband) signals.push('Claims a parcel, drugs, money-laundering or a case in your name');
+  if (sig.surveillance) signals.push('Orders you to stay on a video call or tells you to keep it secret');
+  if (sig.money) signals.push('Demands money, a "verification" transfer or your bank details');
+  if (sig.sensitive) signals.push('Asks you to share an OTP, Aadhaar, card or PIN details');
+  if (sig.appOrVideo) signals.push('Asks you to install an app or move to Skype / WhatsApp video');
+  const n = signals.length;
 
-  let positiveCount = 0;
-  if (isUniformOrAgency) positiveCount++;
-  if (isCoerciveSurveillance) positiveCount++;
-  if (isContrabandOrPMLA) positiveCount++;
-  if (isMoneyDemand) positiveCount++;
-
-  // Under Indian Law (BNSS/CrPC), "Digital Arrest" is non-existent.
-  // If ANY core threat tactic is active, it is definitively a scam.
-  const isExtremeScam = isMoneyDemand || isUniformOrAgency || isCoerciveSurveillance || positiveCount >= 2;
-
-  let verdict = "NORMAL_COMMUNICATION";
-  let certainty = 5;
-  let headline = "No Critical Coercion Signals Detected";
-  let steps = [
-    "Always remain cautious when receiving calls from unknown numbers.",
-    "Never share OTPs, passwords, or banking PINs."
-  ];
-
-  if (isExtremeScam) {
-    verdict = "CONFIRMED_DIGITAL_ARREST_CRIME";
-    certainty = 100;
-    headline = "🚨 100% CONFIRMED: YOU ARE BEING TARGETED BY A DIGITAL ARREST SCAM!";
+  // Graded, not binary: every answer changes the result. No police agency or court in India arrests anyone over a
+  // video call or asks for money, so even ONE signal is a red flag; several signals together leave no doubt.
+  let verdict, level, certainty, headline, summary, steps;
+  if (n === 0) {
+    verdict = 'NO_SIGNALS_SELECTED'; level = 'LOW'; certainty = 5;
+    headline = 'No scam signals selected';
+    summary = 'Nothing you selected matches the digital-arrest pattern. Stay careful: never share OTP, UPI PIN or passwords on a call, and if anything feels wrong dial 1930.';
     steps = [
-      "1. 🛑 HANG UP THE VIDEO CALL IMMEDIATELY: You are in ZERO danger of arrest. Indian law (BNSS / CrPC) has NO provision for arrests or interrogations over Skype or WhatsApp.",
-      "2. 🚫 DO NOT TRANSFER ANY MONEY: The Reserve Bank of India (RBI) and Police NEVER maintain 'Escrow' or 'Verification' accounts. Any demand for money transfer is pure extortion.",
-      "3. 🗣️ INFORM YOUR FAMILY / FRIENDS RIGHT NOW: Scammers depend on keeping you isolated in fear. Once you tell a family member or friend, the scam loses all psychological power.",
-      "4. 📞 DIAL 1930 IMMEDIATELY: Report the scammer's phone number and WhatsApp account to the National Cyber Crime Helpline (1930) or cybercrime.gov.in."
+      'Do not share OTP, UPI PIN, CVV or passwords with anyone who calls you.',
+      'If unsure, hang up and call the organisation back on its official number.',
+      'Report anything suspicious on 1930 or cybercrime.gov.in.'
     ];
-  } else if (positiveCount === 1 && isContrabandOrPMLA) {
-    verdict = "SUSPICIOUS_EXTORTION_LURE";
-    certainty = 90;
-    headline = "⚠️ HIGH DANGER: Fraudulent Contraband / Customs Parcel Lure";
+  } else if (n === 1) {
+    verdict = 'SUSPICIOUS_SIGNAL'; level = 'HIGH'; certainty = sig.money ? 70 : (sig.sensitive ? 65 : 55);
+    headline = sig.money ? 'Warning: a demand for money is a major red flag'
+      : (sig.surveillance ? 'Warning: being told to stay on camera or keep quiet is a scam tactic'
+        : (sig.agency ? 'Warning: real agencies do not threaten you on WhatsApp or Skype'
+          : (sig.sensitive ? 'Warning: nobody genuine asks for your OTP, Aadhaar or card details on a call'
+            : (sig.appOrVideo ? 'Warning: being asked to install an app or switch to video is a scam tactic'
+              : 'Warning: this sounds like a fake parcel / drugs / case lure'))));
+    summary = 'One warning sign is present. Do not continue the call or act on instructions until you verify independently.';
     steps = [
-      "1. Courier companies (FedEx, DHL, India Post) NEVER call demanding you speak with 'cyber police' on video call.",
-      "2. Do NOT accept any Skype or WhatsApp video call invitation.",
-      "3. Disconnect and report the number to 1930."
+      'Do not send money, share OTPs or install any app while this call continues.',
+      'Hang up and call the agency or your bank yourself on the number from its official website.',
+      'Tell a family member or friend what is happening right now.',
+      'Report the number on 1930 or cybercrime.gov.in.'
+    ];
+  } else if (n === 2 && !sig.money) {
+    verdict = 'LIKELY_DIGITAL_ARREST_SCAM'; level = 'CRITICAL'; certainty = 90;
+    headline = 'Very likely a digital-arrest scam';
+    summary = 'Two scam signs together match the standard digital-arrest script. You are not under arrest. Stop engaging.';
+    steps = [
+      'Hang up the call or video call now. In India no one is "arrested" over WhatsApp or Skype.',
+      'Do NOT transfer money or share any bank detail, even if they say it is refundable.',
+      'Tell a family member or friend immediately; scammers rely on isolating you.',
+      'Dial 1930 and report the number and account on cybercrime.gov.in.'
+    ];
+  } else {
+    verdict = 'CONFIRMED_DIGITAL_ARREST_CRIME'; level = 'CRITICAL'; certainty = n >= 4 ? 100 : (n === 3 ? 98 : 97);
+    headline = 'Confirmed: this is a digital-arrest extortion scam';
+    summary = 'You are in no legal danger from the police. You are facing an organised criminal extortion attempt.';
+    steps = [
+      '1. HANG UP the call now. Indian law (BNSS) has no arrest or interrogation over Skype or WhatsApp.',
+      '2. DO NOT TRANSFER ANY MONEY. The RBI and the police never keep "escrow" or "verification" accounts for citizens.',
+      '3. TELL YOUR FAMILY OR A FRIEND RIGHT NOW. The scam loses its power the moment someone else knows.',
+      '4. DIAL 1930 immediately. If you already paid, call within the first hour: banks can freeze the money. Also report on cybercrime.gov.in.'
     ];
   }
 
   res.json({
     status: 'success',
     engine: 'deterministic-rules',
-    verdict,
-    certainty,
-    headline,
+    verdict, level, certainty, headline, summary, signals, signalCount: n,
     emergencyProtocol: steps
   });
 });
@@ -1858,10 +1922,33 @@ app.post('/api/v1/admin/reports/review', adminOnly, async (req, res) => {
 });
 
 
-app.listen(PORT, () => {
-  console.log(`=======================================================`);
-  console.log(` SafeMeAI BFSI Enterprise Command Center is RUNNING!`);
-  console.log(` Port: ${PORT}`);
-  console.log(` Gemini: ${process.env.DISABLE_GEMINI === '1' ? 'disabled' : 'enabled (falls back to rules if unreachable)'}`);
-  console.log(`=======================================================`);
+app.use(globalErrorHandler); // also catch errors thrown by routes registered after the first handler
+
+const vertexLoc = process.env.VERTEX_LOCATION || 'asia-south1';
+const server = app.listen(PORT, () => {
+  if (!/^asia-south[12]$/.test(vertexLoc) && !process.env.GEMINI_API_KEY) {
+    console.warn(JSON.stringify({ severity: 'WARNING', message: `VERTEX_LOCATION=${vertexLoc} is outside India (asia-south1/2); prompts leave the Indian region. Check DPDP/RBI data-localisation obligations.` }));
+  }
+  if (audit.ephemeralSecret) console.warn(JSON.stringify({ severity: 'WARNING', message: 'AUDIT_HMAC_SECRET not set: client network hashes are per-instance and not correlatable across instances/restarts.' }));
+  console.log(JSON.stringify({
+    severity: 'INFO', message: 'startup', service: 'safemeai-portal', engineVersion: audit.engineVersion, node: process.version, port: Number(PORT),
+    cloudRunRevision: process.env.K_REVISION || null, vertexLocation: vertexLoc,
+    flags: {
+      gemini: process.env.DISABLE_GEMINI !== '1', threatIntel: process.env.DISABLE_THREAT_INTEL !== '1', apiKeys: apiKeys.size,
+      webRisk: Boolean(process.env.WEB_RISK_API_KEY || process.env.GOOGLE_API_KEY), documentAI: Boolean(process.env.DOCUMENT_AI_PROCESSOR),
+      auditBigQuery: audit.bigQueryEnabled, threatStore: process.env.THREAT_STORE || 'default'
+    }
+  }));
 });
+
+// Graceful shutdown: Cloud Run sends SIGTERM then SIGKILL after 10 s.
+let shuttingDown = false;
+function shutdown(sig) {
+  if (shuttingDown) return; shuttingDown = true;
+  console.log(JSON.stringify({ severity: 'INFO', message: 'shutdown', signal: sig }));
+  const force = setTimeout(() => process.exit(0), 8000); force.unref();
+  server.close(async () => { try { await audit.flush(); } catch (_) {} process.exit(0); });
+  audit.flush().catch(() => {});
+}
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
