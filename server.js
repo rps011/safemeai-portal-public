@@ -111,7 +111,7 @@ app.use(express.static(path.join(__dirname, 'public'), { dotfiles: 'ignore', ind
 // robots/security.txt: served only when public/ does not provide its own (static above wins).
 const SECURITY_CONTACT = process.env.SECURITY_CONTACT || process.env.INGEST_CONTACT || 'https://safemeai.in/security';
 app.get('/robots.txt', (req, res) => res.type('text/plain').send('User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /internal/\n'));
-const securityTxt = (req, res) => res.type('text/plain').send(`Contact: ${SECURITY_CONTACT}\nExpires: ${new Date(Date.now() + 365 * 864e5).toISOString()}\nPreferred-Languages: en, hi\n`);
+const securityTxt = (req, res) => res.type('text/plain').send(`Contact: ${SECURITY_CONTACT}\nExpires: ${new Date(Date.UTC(new Date().getUTCFullYear() + 1, 0, 1)).toISOString()}\nPreferred-Languages: en, hi\n`);
 app.get('/.well-known/security.txt', securityTxt);
 app.get('/security.txt', securityTxt);
 
