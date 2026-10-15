@@ -38,6 +38,7 @@ const HI = {
   'kpi-note': 'ऊपर के चारों आँकड़े सिर्फ़ दिखाने के उदाहरण हैं। ये असली माप नहीं हैं।',
   'FREE SCAM CHECK': 'मुफ़्त स्कैम जाँच',
   'Paste a message, link, UPI ID or phone number': 'संदेश, लिंक, UPI आईडी या फ़ोन नंबर पेस्ट करें',
+  'hero-sub-short': 'संदेश, लिंक, UPI आईडी या नंबर पेस्ट करें। सीधा जवाब पाएँ: स्कैम, ठीक लगता है, या पक्का नहीं।',
   'checker-lead': 'हम स्कैम वाली भाषा, नकली वेबसाइट और बुरे नंबर खोजते हैं। सिर्फ़ वेबसाइट का पता पेस्ट करने पर भी यहीं सीधा जवाब मिलेगा। विस्तृत वेबसाइट रिपोर्ट के लिए <a href="#tab-domain-checker" data-switch-tab="tab-domain-checker">वेबसाइट जाँच</a> खोलें।',
   'Try an example:': 'उदाहरण आज़माएँ:',
   'Fake police / CBI call': 'फ़र्ज़ी पुलिस / CBI कॉल',
@@ -249,6 +250,21 @@ const HI = {
   'If you already lost money, call 1930 right away. Banks can sometimes freeze the money if you act within the first hour.': 'अगर पैसे जा चुके हैं तो तुरंत 1930 पर कॉल करें। पहले घंटे में बताने पर बैंक कभी-कभी पैसे रोक सकते हैं।',
   'No warning signs were found by the automated checks. This is not proof that it is safe.': 'स्वचालित जाँच में चेतावनी के संकेत नहीं मिले। इसका मतलब यह नहीं कि यह सुरक्षित है।',
   'Official website:': 'आधिकारिक वेबसाइट:',
+  'Official website': 'आधिकारिक वेबसाइट',
+  'Lookalike of an official site': 'आधिकारिक साइट की नक़ल',
+  'Official website (certificate problem)': 'आधिकारिक वेबसाइट (सर्टिफ़िकेट में दिक़्क़त)',
+  'Lookalike address': 'मिलता-जुलता नकली पता',
+  'Shortened link': 'छोटा किया गया लिंक',
+  'App download link': 'ऐप डाउनलोड लिंक',
+  'Website not found': 'वेबसाइट नहीं मिली',
+  'Not a public website': 'सार्वजनिक वेबसाइट नहीं',
+  'Known dangerous website': 'ज्ञात ख़तरनाक वेबसाइट',
+  'Ordinary website': 'सामान्य वेबसाइट',
+  'Unverified': 'पुष्टि नहीं हुई',
+  'Flagged for freeze': 'फ़्रीज़ के लिए चिह्नित',
+  'Under monitoring': 'निगरानी में',
+  'Police team dispatched': 'पुलिस टीम भेजी गई',
+  'Auto-throttled': 'अपने-आप धीमा किया गया',
   'Website:': 'वेबसाइट:',
   'Open the Message checker for this': 'इसके लिए संदेश जाँच खोलें',
   'This looks like a UPI ID or phone number, not a website. Checking it in the main checker instead.': 'यह UPI आईडी या फ़ोन नंबर लगता है, वेबसाइट नहीं। इसलिए मुख्य चेकर में जाँच रहे हैं।',
@@ -566,6 +582,7 @@ function showCardNotice(p, title, msg) {
 function ensureRetryVisible(p) { const b = $(`${p}-retry`); if (b) b.hidden = false; }
 
 // ---------- navigation ----------
+const HOME_TAB = 'tab-scam-checker';
 window.switchTab = function (targetId, { scroll = true } = {}) {
   document.querySelectorAll('.nav-tab').forEach(tb => {
     const on = tb.dataset.tab === targetId;
@@ -579,8 +596,16 @@ window.switchTab = function (targetId, { scroll = true } = {}) {
     nav.scrollTo({ left: activeTab.offsetLeft - (nav.clientWidth - activeTab.offsetWidth) / 2, behavior: 'smooth' });
   }
   const panel = $(targetId);
+  const wasHome = document.body.classList.contains('is-home');
+  const isHome = targetId === HOME_TAB;
+  document.body.classList.toggle('is-home', isHome);
   if (scroll && panel) {
-    requestAnimationFrame(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    requestAnimationFrame(() => {
+      const navH = (document.querySelector('.nav-wrap') || { offsetHeight: 0 }).offsetHeight;
+      // Home: show hero from the top when arriving from another tab; otherwise put the panel just under the sticky tab bar.
+      const y = (isHome && !wasHome) ? 0 : Math.max(0, panel.getBoundingClientRect().top + window.scrollY - navH - 8);
+      window.scrollTo({ top: y, behavior: 'auto' });
+    });
   }
   try { history.replaceState(null, '', '#' + targetId); } catch (_) { /* ignore */ }
 };
@@ -835,6 +860,39 @@ async function runDomainCheck(input) {
   }
 }
 
+const DOMAIN_CATEGORY = {
+  BENIGN_AUTHENTICATED_SOVEREIGN: 'Official website',
+  FAKE_OFFICIAL_NAMESPACE: 'Lookalike of an official site',
+  OFFICIAL_NAMESPACE_BAD_TLS: 'Official website (certificate problem)',
+  HOMOGLYPH_LOOKALIKE: 'Lookalike address',
+  TYPOSQUATTING_LOOKALIKE: 'Lookalike address',
+  PHISHING_BRAND_IMPERSONATION: 'Lookalike address',
+  CONFIRMED_PHISHING_BRAND_IMPERSONATION: 'Lookalike address',
+  PHISHING_BRAND_AS_SUBDOMAIN: 'Lookalike address',
+  OBFUSCATED_SHORT_URL: 'Shortened link',
+  DECEPTIVE_URL_STRUCTURE: 'Shortened link',
+  MALICIOUS_APK_DOWNLOAD_VECTOR: 'App download link',
+  NONEXISTENT_DOMAIN: 'Website not found',
+  RAW_IP_PHISHING_HOST: 'Not a public website',
+  GOOGLE_WEB_RISK_FLAGGED: 'Known dangerous website',
+  CONFIRMED_ZERO_DAY_PHISHING: 'Known dangerous website',
+  DNS_SECURITY_BLOCKED: 'Known dangerous website',
+  MALICIOUS_OR_SINKHOLED_HOST: 'Known dangerous website',
+  ESTABLISHED_THIRD_PARTY_DOMAIN: 'Ordinary website',
+  STANDARD_EXTERNAL_BENIGN_DOMAIN: 'Ordinary website'
+};
+function domainCategory(res, code) {
+  if (res.verified === true) return 'Official website';
+  return DOMAIN_CATEGORY[code] || 'Unverified';
+}
+// Never leave an empty pill/badge/tag on screen.
+function hideEmptyPills() {
+  document.querySelectorAll('.pill, .badge, .tag, .status-pill, .scam-type-tag, .finding-status, .src-badge, .risk-pct, [class*="badge"], [class*="-pill"], [class*="-tag"]:not(.hero-tagline)').forEach(el => {
+    if (el.closest('.nav-tab')) return;
+    el.hidden = !el.textContent.trim() && !el.querySelector('img,svg');
+  });
+}
+
 function renderDomainResult(res) {
   const v0 = classifyVerdict(res, { requireVerified: true });
   const code = String(res.verdict || '').toUpperCase();
@@ -845,7 +903,9 @@ function renderDomainResult(res) {
   const host = safeHost(res.officialDomain);
   const extra = host ? `<p class="official-link">${esc(t('Official website:'))} <a href="https://${esc(host)}" target="_blank" rel="noopener noreferrer">${esc(host)}</a></p>` : '';
   const { split } = renderVerdictCard('domain', res, { requireVerified: true, title, desc, actions, extraHtml: extra });
-  $('domain-type-tag').textContent = '';
+  const cat = domainCategory(res, code);
+  $('domain-type-tag').textContent = cat ? `${t('Category')}: ${t(cat)}` : '';
+  hideEmptyPills();
   if (res.realtimeTelemetry) renderTelemetry(res.realtimeTelemetry);
   $('domain-tech-extra').innerHTML = techRows([['verdict', res.verdict], ['riskLevel', res.riskLevel], ['TLD', res.tld], ['law', res.protectionLaw]])
     + (split.ops.length ? `<div class="tech-row tech-ops"><span>${esc(t('Other technical notes'))}</span><strong>${split.ops.map(esc).join('<br>')}</strong></div>` : '');
@@ -1106,6 +1166,19 @@ async function askGemini(prompt) {
 // ========================================================
 // SCAM TRENDS (demo data unless BigQuery is connected server-side)
 // ========================================================
+let pillTimer = null;
+function watchEmptyPills() {
+  const root = document.getElementById('main-content');
+  if (!root || !window.MutationObserver) return hideEmptyPills();
+  new MutationObserver(() => { clearTimeout(pillTimer); pillTimer = setTimeout(hideEmptyPills, 30); })
+    .observe(root, { childList: true, subtree: true, characterData: true });
+  hideEmptyPills();
+}
+const MULE_STATUS = { FLAGGED_FOR_FREEZE: 'Flagged for freeze', UNDER_MONITORING: 'Under monitoring', LEO_DISPATCHED: 'Police team dispatched', AUTO_THROTTLED: 'Auto-throttled' };
+function muleStatus(code) {
+  const c = String(code || '').trim();
+  return MULE_STATUS[c] ? t(MULE_STATUS[c]) : humanise(c);
+}
 async function initBigQueryMatrix() {
   const threatBars = $('threat-bars-container');
   const muleTable = $('mule-table-body');
@@ -1123,7 +1196,7 @@ async function initBigQueryMatrix() {
     if (muleTable && data.liveMuleClusters) {
       muleTable.innerHTML = data.liveMuleClusters.map(m => `<tr>
         <td><strong>${esc(m.clusterId)}</strong></td><td>${esc(m.nodes)}</td><td>${esc(m.volumeINR)}</td>
-        <td><span class="risk-pct">${esc(m.riskScore)}%</span></td><td><span class="finding-status failed">${esc(plain(m.status))}</span></td></tr>`).join('');
+        <td><span class="risk-pct">${esc(m.riskScore)}%</span></td><td><span class="finding-status failed">${esc(muleStatus(m.status))}</span></td></tr>`).join('');
     }
   } catch (err) {
     const note = $('bq-source-note');
@@ -1265,6 +1338,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initDocumentAILab();
   initGeminiAdvisor();
   initBigQueryMatrix();
+  watchEmptyPills();
   initCitizenReporting();
   document.querySelectorAll('.lang-btn').forEach(b => b.addEventListener('click', () => applyLang(b.dataset.lang)));
   let saved = 'en';

@@ -2338,3 +2338,76 @@ a:focus-visible, button:focus-visible, [role="button"]:focus-visible, select:foc
   .download-action-row .btn-download-apk { width: 100%; }
   .release-badge { flex-wrap: wrap; }
 }
+
+/* ---- Hero only on the home tab; compact bar elsewhere; sticky-nav aware scrolling ---- */
+.hero-sub-short { display: none; }
+body:not(.is-home) .hero-section { display: none; }
+.tab-content-panel, .glass-box, #scam-card, #domain-card { scroll-margin-top: 76px; }
+.scam-type-tag:empty, [class*="badge"]:empty, [class*="-pill"]:empty, .tag:empty, .pill:empty { display: none; }
+
+@media (max-width: 700px) {
+  .app-header { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.4rem 0.5rem; padding: 0.4rem 0.75rem; row-gap: 0.3rem; }
+  .app-header .sub-brand, .app-header .cloud-stack-bar, .app-header .btn-app-link { display: none; }
+  .logo-badge { gap: 0.4rem; }
+  .shield-icon { font-size: 1.3rem; }
+  .brand-name { font-size: 1.05rem; }
+  .header-left { flex: 0 0 auto; }
+  .header-right { width: auto; flex: 1 1 auto; justify-content: flex-end; flex-wrap: nowrap; gap: 0.4rem; }
+  .lang-btn { padding: 0.25rem 0.5rem; min-height: 34px; font-size: 0.78rem; }
+  .btn-sos-call { flex: 0 1 auto; font-size: 0.7rem; line-height: 1.15; padding: 0.25rem 0.5rem; min-height: 38px; gap: 0.3rem; max-width: 150px; text-align: left; }
+  .btn-emergency-helpline { display: none; }
+  /* home keeps a 1930 shortcut */
+  body.is-home .btn-emergency-helpline { display: inline-flex; flex: 0 0 auto; min-height: 38px; padding: 0.25rem 0.5rem; font-size: 0.78rem; }
+  body.is-home .btn-emergency-helpline .helpline-text span { display: none; }
+  body.is-home .btn-sos-call { display: none; }
+  .nav-tabs-bar { padding: 0.25rem 0.5rem; }
+  .nav-tab { min-height: 44px; padding: 0.4rem 0.7rem; }
+  .tab-content-panel, .glass-box, #scam-card, #domain-card { scroll-margin-top: 66px; }
+  .main-content-area { padding-top: 0.5rem; }
+  .section-lead-header { margin-bottom: 0.6rem; }
+  .section-lead-header p { font-size: 0.85rem; line-height: 1.4; }
+
+  .hero-section { padding: 0.5rem 0.75rem 0.4rem; }
+  .hero-tagline { margin-bottom: 0.4rem; }
+  .hero-tag-badge { font-size: 0.68rem; padding: 0.15rem 0.5rem; }
+  .hero-title { font-size: 1.3rem; line-height: 1.2; margin-bottom: 0.4rem; }
+  .hero-sub-long { display: none; }
+  .hero-sub-short { display: block; font-size: 0.85rem; line-height: 1.4; margin-bottom: 0.6rem; }
+  .hero-actions-row { flex-direction: row; gap: 0.5rem; margin-bottom: 0.6rem; flex-wrap: nowrap; }
+  .hero-actions-row a { width: auto; flex: 1 1 0; min-height: 44px; padding: 0.4rem 0.5rem; font-size: 0.82rem; }
+  .hero-actions-row .btn-hero-secondary { display: none; }
+  .hero-metrics-bar { display: flex; overflow-x: auto; gap: 0.5rem; padding: 0.4rem; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; }
+  .metric-pill { flex: 0 0 132px; scroll-snap-align: start; padding-top: 1.2rem; padding-bottom: 0.3rem; }
+  .demo-ribbon { font-size: 0.6rem; padding: 0.05rem 0; }
+  .metric-num { font-size: 1rem; }
+  .metric-lbl { font-size: 0.6rem; line-height: 1.2; }
+  .datasource-note { display: none; }
+}
+@media (max-width: 700px) {
+  .section-lead-header .section-kicker, .section-lead-header p { display: none; }
+  .section-lead-header h2 { font-size: 1.2rem; line-height: 1.25; margin: 0 0 0.4rem; }
+  .specimens-bar { margin-bottom: 0.5rem; }
+  .specimens-label { display: none; }
+  .specimen-chips { flex-wrap: nowrap; overflow-x: auto; gap: 0.4rem; padding-bottom: 0.2rem; -webkit-overflow-scrolling: touch; }
+  .specimen-chip { flex: 0 0 auto; white-space: nowrap; min-height: 40px; padding: 0.3rem 0.6rem; font-size: 0.8rem; }
+}
+@media (max-width: 700px) {
+  .doc-lab-grid .glass-box > h3, .doc-lab-grid .panel-desc { margin-bottom: 0.4rem; }
+  .doc-lab-grid .panel-desc { display: none; }
+  .specimens-stack { display: flex; flex-direction: row; overflow-x: auto; gap: 0.5rem; -webkit-overflow-scrolling: touch; padding-bottom: 0.2rem; }
+  .specimens-stack .specimen-card { flex: 0 0 70%; padding: 0.5rem 0.7rem; }
+  .specimens-stack .specimen-card p { display: none; }
+  .specimens-stack .specimen-card h4 { font-size: 0.85rem; margin: 0.2rem 0 0; }
+  .mode-badge { display: none; }
+  .gemini-prompt-pills { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 0.4rem; -webkit-overflow-scrolling: touch; }
+  .gemini-prompt-pills .pills-title { display: none; }
+  .gemini-pill { flex: 0 0 auto; max-width: 70%; white-space: normal; font-size: 0.78rem; padding: 0.35rem 0.6rem; }
+  .chat-display-box { height: 170px; padding: 0.7rem; margin-bottom: 0.6rem; }
+  .doc-upload-dropzone { padding: 0.6rem; }
+  .doc-upload-dropzone .upload-prompt p, .doc-upload-dropzone .upload-icon { display: none; }
+  .doc-lab-grid .divider-text { margin: 0.5rem 0; }
+}
+@media (max-width: 700px) {
+  /* home: hero already states the purpose, so drop the repeated heading */
+  #tab-scam-checker .section-lead-header { display: none; }
+}

@@ -12,6 +12,8 @@ GEMINI_MODEL="${GEMINI_MODEL:-gemini-2.5-flash}"
 SA_NAME="safemeai-run"
 SA_EMAIL="${SA_NAME}@${PROJECT}.iam.gserviceaccount.com"
 SECRET_NAME="web-risk-api-key"
+# Document AI OCR processor (Mumbai, OCR_PROCESSOR "safemeai-ocr"); documents stay in India.
+DOCUMENT_AI_PROCESSOR="${DOCUMENT_AI_PROCESSOR:-projects/846801666760/locations/asia-south1/processors/37cbfc50db1e85d3}"
 
 ACCOUNT=$(gcloud config get-value account 2>/dev/null || true)
 if [ -z "$ACCOUNT" ] || [ "$ACCOUNT" = "(unset)" ]; then
