@@ -653,9 +653,17 @@ const { createCloudflareCheck } = require('./lib/cloudflareDns');
 const threatPlatform = createPlatform();
 const threatStore = threatPlatform.store;
 mountIngestRoutes(app, threatPlatform);
+let threatWarm = Promise.resolve();
 if (process.env.DISABLE_THREAT_INTEL !== '1') {
-  threatPlatform.start().catch(err => console.warn('[ThreatIntel] start failed:', err.message));
+  threatWarm = threatPlatform.start().catch(err => console.warn('[ThreatIntel] start failed:', err.message));
 }
+// Cold Cloud Run instance: wait (bounded) for the in-memory feed index so the first verdicts are not made blind.
+app.use(['/api/domain/check', '/api/scam/check'], async (req, res, next) => {
+  if (!threatStore.ready) {
+    await Promise.race([threatWarm, new Promise(r => setTimeout(r, 12000))]);
+  }
+  next();
+});
 const securityDns = process.env.DISABLE_CLOUDFLARE_DNS === '1' ? null : createCloudflareCheck();
 
 // Legacy-shaped adapter so the engine's OpenPhish path keeps working (O(1) in-memory lookups only).
