@@ -77,7 +77,7 @@ gcloud run deploy "$SERVICE_NAME" \
   --max-instances 5 \
   --concurrency 40 \
   --cpu 1 --memory 1Gi \
-  --timeout 900 \
+  --timeout 1800 \
   --port 8080 \
   --set-env-vars "$ENV_VARS" \
   ${SECRET_ARGS[@]+"${SECRET_ARGS[@]}"} \

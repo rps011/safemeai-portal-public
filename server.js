@@ -1101,6 +1101,7 @@ const CITIZEN_REPORTS = [
   }
 ];
 
+const indicators = require('./lib/indicators');
 app.post('/api/scam/check', async (req, res) => {
   const { text } = req.body;
   const raw = (typeof text === 'string' ? text : '').trim();
@@ -1191,6 +1192,7 @@ app.post('/api/scam/check', async (req, res) => {
     const boosted = { ...a, riskScore: Math.max(a.riskScore, 75), riskLevel: levelBoost(Math.max(a.riskScore, 75)) };
     // Merge the text-engine verdict so scam wording (digital arrest, KYC, ...) is not lost behind the link verdict.
     const tv = textEngine.analyze(raw, { links: extractedUrls.length });
+    const ind = await indicators.assess(raw, { threatStore, reports: crowdReports });
     const textStrong = tv._meta && tv._meta.category !== 'legit' && tv._meta.category !== 'unknown' && tv.riskScore >= 60;
     const mergedScore = Math.max(boosted.riskScore, tv.riskScore);
     const out = toScamShape({ ...boosted, riskScore: mergedScore, riskLevel: levelBoost(mergedScore) }, {
@@ -1208,7 +1210,7 @@ app.post('/api/scam/check', async (req, res) => {
     if (out.headline === undefined) out.headline = domainPayload(boosted, raw).headline;
     if (out.flags === undefined) out.flags = domainPayload(boosted, raw).flags;
     if (textStrong) out.protectionLaw = tv.protectionLaw;
-    return res.json({ status: 'success', data: out });
+    return res.json({ status: 'success', data: indicators.applyToVerdict(out, ind, textEngine.levelFor) });
   }
 
   // -------------------------------------------------------------
@@ -1221,7 +1223,8 @@ app.post('/api/scam/check', async (req, res) => {
   {
     const textVerdict = textEngine.analyze(raw, { links: extractedUrls.length });
     delete textVerdict._meta;
-    return res.json({ status: 'success', data: textVerdict });
+    const ind = await indicators.assess(raw, { threatStore, reports: crowdReports });
+    return res.json({ status: 'success', data: indicators.applyToVerdict(textVerdict, ind, textEngine.levelFor) });
   }
 
   // -------------------------------------------------------------

@@ -507,3 +507,20 @@ test('engine.lookupIndicator: phone / UPI / entity hook (normalises input, hides
   assert.deepEqual(engine.lookupIndicator('phone', 'garbage', deps), []);
   assert.deepEqual(engine.lookupIndicator('phone', '9876543210', {}), []);
 });
+
+test('popular site is not penalised by a weak host-level URLhaus listing (github.com regression)', async () => {
+  const engine = require('../lib/domainEngine');
+  const store = {
+    lookup: (type, v) => (type === 'domain' && v === 'github.com') ? [{ type: 'domain', value: 'github.com', category: 'malware', source: 'urlhaus', sourceName: 'URLhaus', confidence: 0.5, ingestedAt: Date.now() }] : [],
+    lookupDomainSuffixes: (h) => (h === 'github.com') ? [{ type: 'domain', value: 'github.com', category: 'malware', source: 'urlhaus', sourceName: 'URLhaus', confidence: 0.5, ingestedAt: Date.now() }] : [],
+    popularRank: (d) => d === 'github.com' ? { rank: 40, source: 'tranco' } : null
+  };
+  const ok = { resolved: true, status: 'NOERROR', ips: ['1.2.3.4'], ttl: 300, isNxDomain: false };
+  const a = await engine.assessDomain('github.com', {
+    whitelist: new Set(), brands: [], suspiciousTlds: new Set(), shorteners: new Set(),
+    dnsCheck: async () => ok, sslCheck: async () => ({ supported: true, hasValidSsl: true, authorized: true, ageDays: 200, remainingDays: 60 }),
+    openPhish: { domains: new Set(), urls: new Set() }, threatStore: store, useGemini: false, securityDns: async () => ({ available: false })
+  });
+  assert.ok(a.ok);
+  assert.ok(a.riskScore < 35, `github.com scored ${a.riskScore} (${a.verdict})`);
+});

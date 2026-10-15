@@ -36,7 +36,7 @@ gcloud projects add-iam-policy-binding "$PROJECT" --member="serviceAccount:${RUN
 URL="$(gcloud run services describe "$SERVICE" --region="$REGION" --format='value(status.url)')"
 gcloud run services update "$SERVICE" --region="$REGION" \
   --update-env-vars="THREAT_STORE=firestore,INGEST_AUDIENCE=${URL},INGEST_SA_EMAIL=${SA_EMAIL},INGEST_INPROCESS=1,GOOGLE_CLOUD_PROJECT=${PROJECT}" \
-  --memory=1Gi --timeout=900
+  --memory=1Gi --timeout=1800
 # URLhaus now needs a free abuse.ch Auth-Key; store it in Secret Manager and mount it:
 #   gcloud secrets create urlhaus-auth-key --data-file=-   (paste key, Ctrl-D)
 #   gcloud run services update "$SERVICE" --region="$REGION" --update-secrets=URLHAUS_AUTH_KEY=urlhaus-auth-key:latest
@@ -48,18 +48,21 @@ mk_job () {  # name  cron  query
     --location="$REGION" --schedule="$cron" --time-zone="Asia/Kolkata" \
     --uri="${URL}/internal/ingest/run?${query}" --http-method=POST \
     --oidc-service-account-email="$SA_EMAIL" --oidc-token-audience="$URL" \
-    --attempt-deadline=900s --max-retry-attempts=1 --min-backoff=120s \
+    --attempt-deadline=1800s --max-retry-attempts=1 --min-backoff=120s \
   || gcloud scheduler jobs update http "$name" \
     --location="$REGION" --schedule="$cron" --time-zone="Asia/Kolkata" \
     --uri="${URL}/internal/ingest/run?${query}" --http-method=POST \
     --oidc-service-account-email="$SA_EMAIL" --oidc-token-audience="$URL" \
-    --attempt-deadline=900s --max-retry-attempts=1 --min-backoff=120s
+    --attempt-deadline=1800s --max-retry-attempts=1 --min-backoff=120s
 }
 
 # Global feeds every 3h (Phishing.Database, URLhaus, OpenPhish, Tranco: ETag/If-Modified-Since make unchanged runs ~free)
 mk_job safeme-ingest-global-fast  "7 */3 * * *"  "group=global&source=all"
 # India regulators every 12h, offset so they never overlap with global runs
 mk_job safeme-ingest-india        "25 5,17 * * *" "group=india&source=all"
+
+# Long crawl (about 200 SEBI pages at 1 request / 3 s) gets its own weekly job so it fits the request timeout alone.
+mk_job safeme-ingest-sebi-brokers "40 2 * * 0" "source=sebi-stock-brokers&force=1"
 
 echo "Done. Test one job:  gcloud scheduler jobs run safeme-ingest-global-fast --location=${REGION}"
 echo "Check:  curl -H \"Authorization: Bearer \$(gcloud auth print-identity-token --impersonate-service-account=${SA_EMAIL} --audiences=${URL})\" ${URL}/internal/ingest/status"
