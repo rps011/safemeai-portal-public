@@ -345,3 +345,9 @@ test('Doc: analysed response lists what ran and what did NOT run', () => {
   assert.ok(b.analysis.authenticityScore <= 70, 'wording-only check never claims high authenticity');
   assert.equal(b.analysis.severity, 'LOW');
 });
+
+test('a bare personal UPI id is "not sure" (>= MEDIUM), never LOOKS OK; a UPI id inside normal chat is not escalated', () => {
+  const t = require('../lib/textEngine');
+  assert.ok(t.analyze('scammer123@okaxis', {}).riskScore >= 40);
+  assert.ok(t.analyze('pay me at rahul@oksbi for lunch', {}).riskScore < 40);
+});
