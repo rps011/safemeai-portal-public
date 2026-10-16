@@ -349,8 +349,15 @@ const HI = {
 
 let LANG = 'en';
 function t(en) { return (LANG === 'hi' && HI[en]) ? HI[en] : en; }
+// Risk level code -> plain word. English keeps the code; Hindi never shows the raw English code.
+const RISK_WORD_HI = { CRITICAL: 'अत्यंत ख़तरनाक', HIGH: 'ख़तरा', MEDIUM: 'सावधानी', LOW: 'कम ख़तरा', SAFE: 'सुरक्षित' };
+function riskWord(level) {
+  const code = String(level == null ? '' : level).toUpperCase();
+  return (LANG === 'hi' && RISK_WORD_HI[code]) ? RISK_WORD_HI[code] : String(level == null ? '' : level);
+}
 
 function applyLang(lang) {
+  const prevLang = LANG;
   LANG = lang === 'hi' ? 'hi' : 'en';
   document.documentElement.lang = LANG === 'hi' ? 'hi' : 'en';
   document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -368,7 +375,41 @@ function applyLang(lang) {
     b.setAttribute('aria-pressed', on ? 'true' : 'false');
   });
   try { localStorage.setItem('safemeai_lang', LANG); } catch (_) { /* storage may be blocked */ }
+  applyPills();
   rerenderAll();
+  if (LANG !== prevLang) refetchForLang();
+}
+
+// Server text is translated per request, so after a switch re-run whatever result is on screen in the new language.
+function refetchForLang() {
+  try {
+    if (lastScam && lastScam.text && !$('scam-result').hidden) runScamCheck(lastScam.text);
+    if (lastDomain && lastDomain.input && !$('domain-result').hidden) runDomainCheck(lastDomain.input);
+    if (lastPanic) evaluatePanicRisk();
+    if (lastDoc && lastDocReq && !$('doc-result').hidden) renderDocument(lastDocReq.payload, lastDocReq.btn);
+  } catch (_) { /* the old-language result simply stays */ }
+}
+
+// Advisor example chips: label and prompt are swapped for Hindi (the prompt is what gets sent, so Gemini receives Hindi).
+const PILLS_HI = {
+  'Skype call from "Mumbai Police" about an Aadhaar parcel': ['स्काइप पर "मुंबई पुलिस" का कॉल, आधार वाले पार्सल के बारे में', 'स्काइप पर कोई ख़ुद को मुंबई पुलिस का अधिकारी बता रहा है और कह रहा है कि मेरा आधार कंबोडिया जा रहे एक अवैध पार्सल में मिला है। मुझे क्या करना चाहिए?'],
+  'UPI collect request for a "refund"': ['"रिफ़ंड" के नाम पर UPI कलेक्ट रिक्वेस्ट', 'मुझे PhonePe पर ₹4,999 की कलेक्ट रिक्वेस्ट आई है, लिखा है कि यह Flipkart का रिफ़ंड है। क्या पैसे पाने के लिए मुझे अपना UPI PIN डालना चाहिए?'],
+  'Loan app threatening to send photos to contacts': ['लोन ऐप कॉन्टैक्ट्स को फ़ोटो भेजने की धमकी दे रहा है', 'एक इंस्टेंट लोन ऐप धमकी दे रहा है कि आज ₹15,000 नहीं चुकाए तो वह मेरी एडिट की हुई फ़ोटो मेरे कॉन्टैक्ट्स को भेज देगा। क्या वे ऐसा कर सकते हैं?'],
+  'Telegram job: ₹3,000 a day for YouTube likes': ['टेलीग्राम जॉब: YouTube लाइक के ₹3,000 रोज़', 'टेलीग्राम पर किसी ने YouTube वीडियो लाइक करने के रोज़ ₹3,000 देने की बात कही, लेकिन पहले ₹1,000 का प्रीपेड डिपॉज़िट माँगा। क्या यह सुरक्षित है?']
+};
+function applyPills() {
+  document.querySelectorAll('.gemini-pill').forEach(pill => {
+    if (pill.dataset.enPrompt === undefined) {
+      pill.dataset.enPrompt = pill.dataset.prompt || '';
+      pill.dataset.enText = pill.textContent;
+      const m = pill.textContent.trim().match(/^(\S+)\s+([\s\S]+)$/u);   // leading emoji + label
+      pill.dataset.enIcon = m ? m[1] : '';
+      pill.dataset.enLabel = m ? m[2].trim() : pill.textContent.trim();
+    }
+    const hi = LANG === 'hi' && PILLS_HI[pill.dataset.enLabel];
+    pill.textContent = hi ? `${pill.dataset.enIcon} ${hi[0]}` : pill.dataset.enText;
+    pill.dataset.prompt = hi ? hi[1] : pill.dataset.enPrompt;
+  });
 }
 
 // ---------- fetch wrapper ----------
@@ -382,8 +423,9 @@ async function api(key, url, { method = 'POST', json, form, timeoutMs = 20000 } 
   const ac = new AbortController();
   const timer = setTimeout(() => ac.abort(), timeoutMs);
   try {
-    const opts = { method, signal: ac.signal };
-    if (json !== undefined) { opts.headers = { 'Content-Type': 'application/json' }; opts.body = JSON.stringify(json); }
+    // The chosen language travels as the X-Lang header ('en' | 'hi') on every call; the server translates verdict text for 'hi'.
+    const opts = { method, signal: ac.signal, headers: { 'X-Lang': LANG } };
+    if (json !== undefined) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(json); }
     if (form) opts.body = form;
     let resp;
     try { resp = await fetch(url, opts); }
@@ -511,7 +553,7 @@ function splitFlags(flags) {
   return { user, ops };
 }
 function splitSentences(text) {
-  return plain(text).split(/(?<=[.!?])\s+(?=[A-Z0-9])/).map(s => s.trim()).filter(Boolean).slice(0, 6);
+  return plain(text).split(/(?<=[.!?।])\s+(?=[A-Z0-9\u0900-\u097F])/).map(s => s.trim()).filter(Boolean).slice(0, 6);
 }
 
 // ---------- verdict classification ----------
@@ -713,7 +755,7 @@ async function runScamCheck(text) {
   try {
     const data = await api('scam', '/api/scam/check', { json: { text }, timeoutMs: 25000 });
     if (!data) return;                         // superseded
-    lastScam = { res: data.data };
+    lastScam = { res: data.data, text };
     renderScamResult(data.data);
     if (window.matchMedia && window.matchMedia('(max-width: 992px)').matches) $('scam-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
   } catch (err) {
@@ -768,7 +810,7 @@ function renderScamResult(res) {
   // technical details (experts) - raw codes and internal state live here only
   const extra = ['engine', 'detectionEngine', 'source', 'dataSource', 'model', 'grounded', 'fallbackReason'].map(k => [k, res[k]]);
   $('scam-tech-body').innerHTML = techRows([
-    [t('Category'), res.scamType], ['verdict', res.verdict], ['riskLevel', res.riskLevel], [t('Risk score'), res.riskScore],
+    [t('Category'), res.scamType], ['verdict', res.verdict], ['riskLevel', riskWord(res.riskLevel)], [t('Risk score'), res.riskScore],
     ['law', res.protectionLaw], ...extra
   ]) + (split.ops.length ? `<div class="tech-row tech-ops"><span>${esc(t('Other technical notes'))}</span><strong>${split.ops.map(esc).join('<br>')}</strong></div>` : '');
 }
@@ -849,7 +891,7 @@ async function runDomainCheck(input) {
   try {
     const data = await api('domain', '/api/domain/check', { json: { url: input }, timeoutMs: 30000 });
     if (!data) return;
-    lastDomain = { res: data.data };
+    lastDomain = { res: data.data, input };
     renderDomainResult(data.data);
     if (window.matchMedia && window.matchMedia('(max-width: 992px)').matches) $('domain-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
   } catch (err) {
@@ -907,7 +949,7 @@ function renderDomainResult(res) {
   $('domain-type-tag').textContent = cat ? `${t('Category')}: ${t(cat)}` : '';
   hideEmptyPills();
   if (res.realtimeTelemetry) renderTelemetry(res.realtimeTelemetry);
-  $('domain-tech-extra').innerHTML = techRows([['verdict', res.verdict], ['riskLevel', res.riskLevel], ['TLD', res.tld], ['law', res.protectionLaw]])
+  $('domain-tech-extra').innerHTML = techRows([['verdict', res.verdict], ['riskLevel', riskWord(res.riskLevel)], ['TLD', res.tld], ['law', res.protectionLaw]])
     + (split.ops.length ? `<div class="tech-row tech-ops"><span>${esc(t('Other technical notes'))}</span><strong>${split.ops.map(esc).join('<br>')}</strong></div>` : '');
 }
 
@@ -1003,6 +1045,7 @@ HDFC Bank Limited is regulated by the Reserve Bank of India. For queries visit h
 };
 let currentSelectedFile = null;
 let lastDoc = null;
+let lastDocReq = null;   // so a language switch can re-run the last document check in the new language
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 const DOC_VERDICT_PLAIN = { LIKELY_FORGED: 'Likely a forged or fake notice', GENUINE_LOOKING: 'Wording looks genuine (not a full check)', NEEDS_REVIEW: 'Needs a careful manual check', COUNTERFEIT_MALICIOUS: 'Likely fake or a scam', PREDATORY_UNREGISTERED_LENDER: 'Likely an illegal lender', AUTHENTIC_REGULATED_DOCUMENT: 'This looks genuine.', UNVERIFIED_NO_OCR: 'Could not read this file' };
 
@@ -1071,7 +1114,7 @@ async function renderDocument(payload, btn) {
   try {
     const data = await api('doc', '/api/document-ai/analyze', { ...payload, timeoutMs: 40000 });
     if (!data) return;
-    lastDoc = data;
+    lastDoc = data; lastDocReq = { payload, btn };
     renderDocResult(data);
   } catch (err) {
     const e = errorText(err);
@@ -1148,7 +1191,7 @@ async function askGemini(prompt) {
     const cls = r.riskLevel === 'CRITICAL' || r.riskLevel === 'HIGH' ? 'risk-high' : (r.riskLevel === 'MEDIUM' ? 'risk-med' : 'risk-low');
     const signals = Array.isArray(r.signals) ? r.signals : [];
     loading.innerHTML = `<div class="msg-avatar" aria-hidden="true">🛡️</div><div class="msg-body">
-      <strong>SafeMeAI · ${esc(t('Risk'))}: <span class="${cls}">${esc(r.riskLevel)}</span></strong>
+      <strong>SafeMeAI · ${esc(t('Risk'))}: <span class="${cls}">${esc(riskWord(r.riskLevel))}</span></strong>
       <p>${esc(plain(r.reasoning))}</p>
       ${signals.length ? `<div class="adv-signals"><strong>${esc(t('Key warning signs:'))}</strong><ul>${signals.map(s => `<li>${esc(plain(s))}</li>`).join('')}</ul></div>` : ''}
       <div class="adv-action"><strong>${esc(t('Recommended action:'))}</strong> <span class="pre">${esc(plain(r.recommendedAction))}</span></div>

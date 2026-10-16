@@ -105,6 +105,8 @@ app.use((req, res, next) => {
 });
 
 app.use(rateLimit.middleware(limiter, TIERS));
+// Hindi responses (X-Lang: hi | body.lang; auto-detected for Devanagari/Hinglish when unset): translated as the last step before res.json.
+app.use(require('./lib/i18n').middleware());
 
 app.use(express.static(path.join(__dirname, 'public'), { dotfiles: 'ignore', index: 'index.html' }));
 
@@ -414,7 +416,7 @@ app.post('/api/gemini/advisor', async (req, res) => {
   const userQuery = (typeof raw === 'string' ? raw : '').trim().slice(0, 2000);
   if (!userQuery) return res.status(400).json({ error: 'Please describe the suspicious message or situation.' });
 
-  const g = await geminiAdvise(userQuery);
+  const g = await geminiAdvise(userQuery, req.lang);
   if (g.available) {
     return res.json({
       status: 'success',
