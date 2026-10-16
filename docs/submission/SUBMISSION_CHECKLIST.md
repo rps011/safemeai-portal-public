@@ -46,7 +46,7 @@ SafeMeAI is a browser-based fraud shield for Indian banking customers. A person 
 
 *Responsible AI and privacy.* No raw input is stored: the audit trail keeps a SHA-256 of the input and an HMAC of the client network, written to Cloud Logging and a BigQuery audit table. Compute, storage and Gemini run in India (asia-south1); Document AI OCR also runs in a Mumbai (asia-south1) processor. Rate limits, upload caps, CSP, escaped output and human review for crowd reports defend against abuse.
 
-*Evidence.* The repo contains 1,024 passing tests, an OpenAPI spec, and two evaluations. On a fresh, blind 253-item set (production, Gemini on): messages 82.9% recall and 10.0% false-alarm rate; domains 100% recall (with stated caveats); forged notices only 33.3% recall. Gemini added three true positives and removed one false alarm in the cases it handled. We list known gaps and fix plans openly.
+*Evidence.* The repo contains 1,081 passing tests, an OpenAPI spec, and two evaluations. On a fresh, blind 253-item set (production, Gemini on): messages 82.9% recall and 10.0% false-alarm rate; domains 100% recall (with stated caveats); forged notices only 33.3% recall. Gemini added three true positives and removed one false alarm in the cases it handled. We list known gaps and fix plans openly.
 
 *Path forward.* Shadow-mode bank pilot through the API with an agreed false-positive budget; later Vertex AI Search over RBI/NPCI circulars, a Pub/Sub event pipeline and a classifier trained on confirmed reports (future work, not built).
 
