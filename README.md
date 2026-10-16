@@ -1,3 +1,22 @@
+# SafeMeAI - Intelligent Risk, Fraud & Financial Experiences (BFSI)
+
+**AI Builder Cup submission - category: BFSI (fraud and risk).**
+Live prototype: https://safemeai.in (Firebase Hosting + Cloud Run, Google Cloud asia-south1) |
+Cloud Run URL: https://safemeai-bfsi-846801666760.asia-south1.run.app | API docs: https://safemeai.in/api/docs |
+Deck, video script and checklist: `docs/submission/` | Evaluation reports: `docs/EVALUATION.md`, `docs/EVALUATION_V2.md`
+
+**Build window:** this web platform was built between 14 and 16 October 2026 (see the commit history, which is unmodified apart from the
+removal of unrelated binary files, a legacy page and an unrelated app-audit note). **Disclosure:** SafeMeAI also has a separate, earlier Android app. It is
+not part of this submission and is not included in this repository. Everything here (web portal, API, Gemini / Document AI / Web Risk
+integration, threat-intelligence pipeline, crowd-report pipeline, Hindi support, audit trail, BigQuery analytics, evaluations) was built in the hackathon window.
+
+What it does: a person pastes a message, link, UPI ID or number (or describes a call) and gets one plain-language verdict in English or
+Hindi - scam, looks genuine, or not sure - with what to do next. Gemini on Vertex AI gives a second opinion and powers the Hindi/English
+advisor; Document AI reads photographed notices; Google Web Risk, Google Public DNS and a threat store of ~500,000 indicators (including RBI and
+SEBI lists) back every verdict. Honest accuracy numbers, including the weak spots, are in `docs/EVALUATION_V2.md`.
+
+---
+
 # SafeMeAI BFSI Fraud-Defense Portal
 
 Node/Express + static frontend for Indian banking-fraud defence (scam message checker, domain/URL verifier,

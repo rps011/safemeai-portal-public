@@ -1,0 +1,6 @@
+node_modules/
+uploads/
+data/runtime/*
+!data/runtime/.gitignore
+.env
+*.log
