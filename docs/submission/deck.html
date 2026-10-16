@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280">
+<title>SafeMeAI - AI Builder Cup submission deck</title>
+<style>
+  @page { size: 1280px 720px; margin: 0; }
+  :root{
+    --ink:#0f172a; --muted:#475569; --bg:#ffffff; --panel:#f1f5f9; --line:#cbd5e1;
+    --navy:#0b1b3a; --blue:#1d4ed8; --red:#b91c1c; --green:#15803d; --amber:#92400e; --teal:#0f766e;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#e2e8f0;color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .slide{width:1280px;height:720px;position:relative;overflow:hidden;background:var(--bg);padding:44px 64px 40px;margin:0 auto 24px;page-break-after:always;break-after:page}
+  @media print{ html,body{background:#fff} .slide{margin:0} }
+  h1{font-size:50px;line-height:1.08;margin:0 0 12px;letter-spacing:-.5px}
+  h2{font-size:38px;line-height:1.12;margin:0 0 6px;letter-spacing:-.3px}
+  .kicker{font-size:15px;font-weight:700;letter-spacing:2px;color:var(--blue);text-transform:uppercase;margin-bottom:6px}
+  .sub{font-size:22px;color:var(--muted);margin:0 0 18px;line-height:1.35}
+  ul{margin:0;padding-left:26px;font-size:25px;line-height:1.4}
+  li{margin:0 0 10px}
+  .foot{position:absolute;left:64px;right:64px;bottom:16px;font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 20px}
+  .row{display:flex;gap:20px}
+  .col{flex:1}
+  .tag{display:inline-block;font-size:13px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid}
+  .t-red{color:var(--red);border-color:var(--red);background:#fef2f2}
+  .t-green{color:var(--green);border-color:var(--green);background:#f0fdf4}
+  .t-amber{color:var(--amber);border-color:var(--amber);background:#fffbeb}
+  .t-blue{color:var(--blue);border-color:var(--blue);background:#eff6ff}
+  .shot{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 2px 8px rgba(15,23,42,.12)}
+  .shot img{display:block;width:100%;height:100%;object-fit:cover;object-position:top}
+  .cap{font-size:14.5px;color:var(--ink);margin-top:6px;line-height:1.3}
+  table{border-collapse:collapse;width:100%;font-size:18px}
+  th,td{border:1px solid var(--line);padding:7px 10px;text-align:left}
+  th{background:var(--navy);color:#fff;font-weight:600}
+  td.n{font-variant-numeric:tabular-nums}
+  .big{font-size:60px;font-weight:800;letter-spacing:-1px}
+  .dark{background:var(--navy);color:#fff}
+  .dark .sub{color:#cbd5e1}
+  .dark .kicker{color:#93c5fd}
+  a{color:var(--blue)}
+  .dark a{color:#bfdbfe}
+  .no{color:var(--red);font-weight:700}
+  .yes{color:var(--green);font-weight:700}
+  .pill{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 12px;font-size:17px;margin:3px 4px 3px 0}
+  .step{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:19px;line-height:1.3}
+  .step b{display:block;font-size:15px;color:var(--blue);letter-spacing:1px;margin-bottom:3px}
+  code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92em;background:#e2e8f0;padding:1px 5px;border-radius:4px}
+</style>
+</head>
+<body>
+
+<!-- 1 TITLE -->
+<section class="slide dark" style="padding-top:70px">
+  <div class="kicker">Google AI Builder Cup &middot; BFSI: Intelligent Risk, Fraud &amp; Financial Experiences</div>
+  <h1 style="font-size:84px;margin-top:20px">SafeMeAI</h1>
+  <p style="font-size:34px;line-height:1.3;max-width:1000px;margin:0 0 34px">A browser-based fraud shield for Indian banking customers. Paste a message, link, UPI ID or notice, or answer six questions during a suspicious call, and get a plain answer in English or Hindi. Gemini on Google Cloud reasons about the hard cases; rules and live evidence keep it honest.</p>
+  <div class="row" style="gap:36px;font-size:24px">
+    <div><div style="color:#93c5fd;font-size:15px;letter-spacing:2px">LIVE PROTOTYPE</div><a href="https://safemeai.in">https://safemeai.in</a></div>
+    <div><div style="color:#93c5fd;font-size:15px;letter-spacing:2px">PUBLIC REPO</div><a href="https://github.com/rps011/safemeai-portal-public">github.com/rps011/safemeai-portal-public</a></div>
+  </div>
+  <div class="foot" style="color:#94a3b8"><span>Problem statement: BFSI - Intelligent Risk, Fraud &amp; Financial Experiences</span><span>Runs on Cloud Run, Firebase Hosting, Vertex AI</span></div>
+</section>
+
+<!-- 2 PROBLEM -->
+<section class="slide">
+  <div class="kicker">The problem</div>
+  <h2>Fraud now reaches people through their phone, in their language, in minutes</h2>
+  <p class="sub">India moves more than 10 billion UPI payments a month (NPCI public data). Scammers follow the money.</p>
+  <ul>
+    <li><b>Social engineering beats technology.</b> Fake "KYC blocked" SMS, forged .gov.in and bank links, UPI collect-request traps, and "digital arrest" video calls pressure people into sending money or an OTP themselves.</li>
+    <li><b>Victims decide in seconds, alone.</b> Official advice (RBI, I4C 1930 helpline, cybercrime.gov.in) exists but is not at hand at the moment of the call or the click.</li>
+    <li><b>Tools are English-first and rule-bound.</b> Real scams arrive in Hinglish, Hindi and mixed script, with no trigger words, and a lookalike domain may not exist yet in any blocklist.</li>
+  </ul>
+  <div class="card" style="position:absolute;left:64px;right:64px;bottom:54px;font-size:18px"><b>Our target:</b> a check a person or a bank can run in seconds, that says what is wrong, why, and what to do next, and that never pretends to be sure when it is not.</div>
+  <div class="foot"><span>No statistics beyond the NPCI scale figure are quoted here on purpose. See slide 10 for our own measured results.</span><span>2</span></div>
+</section>
+
+<!-- 3 WHO / JOURNEY -->
+<section class="slide">
+  <div class="kicker">Who it helps</div>
+  <h2>Citizens at the moment of doubt. Banks as a second line of defence.</h2>
+  <div class="row" style="margin:14px 0 18px">
+    <div class="card col"><span class="tag t-blue">CITIZENS</span><p style="font-size:21px;margin:8px 0 0;line-height:1.35">Anyone with a phone and a browser. Nothing to install, English and Hindi, plain-language verdicts, a 1930 call button, and no OTP or PIN ever requested.</p></div>
+    <div class="card col"><span class="tag t-green">BANKS / FINTECHS</span><p style="font-size:21px;margin:8px 0 0;line-height:1.35">A documented API (OpenAPI, batch endpoint, API keys) to score messages and links shown to customers, with an audit trail and explainable reasons. Pilot path on slide 14.</p></div>
+  </div>
+  <div class="row" style="gap:12px;align-items:stretch">
+    <div class="step col"><b>1 &middot; DOUBT</b>Gets an SMS, link, call or notice that feels off</div>
+    <div class="step col"><b>2 &middot; PASTE OR TAP</b>Message, link, UPI ID, photo of a notice, or 6 panic questions</div>
+    <div class="step col"><b>3 &middot; VERDICT</b>Risk level, the evidence found, and what to do now</div>
+    <div class="step col"><b>4 &middot; ASK</b>Gemini advisor answers follow-ups in Hindi or English</div>
+    <div class="step col"><b>5 &middot; ACT</b>Call 1930, report on cybercrime.gov.in, or tell the bank</div>
+  </div>
+  <div class="shot" style="width:720px;height:185px;margin:16px auto 0"><img src="img/laptop_en_home.png" alt="SafeMeAI home screen on laptop"></div>
+  <div class="foot"><span>Live home screen, laptop 1366x768, light theme.</span><span>3</span></div>
+</section>
+
+<!-- 4 SOLUTION AT A GLANCE -->
+<section class="slide">
+  <div class="kicker">The solution at a glance</div>
+  <h2>One site, five ways to check. All screenshots are the live product.</h2>
+  <div class="row" style="gap:16px;margin-top:10px">
+    <div class="col"><div class="shot" style="height:470px"><img src="img/phone_hi_domain.png" alt="Forged gov.in domain verdict in Hindi"></div><div class="cap"><b>Forged .gov.in site</b><br>99% risk, Hindi UI</div></div>
+    <div class="col"><div class="shot" style="height:470px"><img src="img/phone_en_message.png" alt="Hinglish scam message verdict"></div><div class="cap"><b>Hinglish KYC scam</b><br>Critical 99, reasons shown</div></div>
+    <div class="col"><div class="shot" style="height:470px"><img src="img/phone_hi_panic.png" alt="Panic check verdict in Hindi"></div><div class="cap"><b>Panic check</b><br>6 taps, graded level, Hindi</div></div>
+    <div class="col"><div class="shot" style="height:470px"><img src="img/phone_en_doc.png" alt="Document notice upload verdict"></div><div class="cap"><b>Notice photo</b><br>Document AI OCR, then triage</div></div>
+    <div class="col"><div class="shot" style="height:470px"><img src="img/phone_hi_advisor.png" alt="Gemini advisor answering in Hindi"></div><div class="cap"><b>Gemini advisor, Hindi</b><br>Reasons, signals, next steps</div></div>
+  </div>
+  <div class="foot"><span>Captured from https://safemeai.in on 16 Oct 2026, phone 390x844, light theme. The "Live analytics" tab is on slide 11.</span><span>4</span></div>
+</section>
+
+<!-- 5 ARCHITECTURE -->
+<section class="slide">
+  <div class="kicker">Architecture</div>
+  <h2 style="margin-bottom:8px">Stateless Cloud Run engine, Gemini on Vertex AI, live threat data</h2>
+  <svg viewBox="0 0 1152 520" width="1152" height="520" role="img" aria-label="Architecture diagram" font-family="Helvetica,Arial,sans-serif">
+    <defs><marker id="ar" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker></defs>
+    <style>
+      .b{fill:#fff;stroke:#334155;stroke-width:1.6;rx:10}
+      .g{fill:#e8f0fe;stroke:#1d4ed8;stroke-width:1.6;rx:10}
+      .o{fill:#fff7ed;stroke:#9a3412;stroke-width:1.4;rx:10;stroke-dasharray:6 4}
+      .t{font-size:17px;fill:#0f172a;font-weight:700}
+      .s{font-size:13.5px;fill:#334155}
+      .l{stroke:#334155;stroke-width:1.8;fill:none;marker-end:url(#ar)}
+    </style>
+    <!-- user -->
+    <rect class="b" x="0" y="190" width="150" height="80"/><text class="t" x="75" y="224" text-anchor="middle">Citizen / bank</text><text class="s" x="75" y="246" text-anchor="middle">browser or API client</text>
+    <!-- firebase -->
+    <rect class="g" x="195" y="190" width="170" height="80"/><text class="t" x="280" y="222" text-anchor="middle">Firebase Hosting</text><text class="s" x="280" y="244" text-anchor="middle">CDN, safemeai.in</text><text class="s" x="280" y="260" text-anchor="middle">static UI, /api proxy</text>
+    <!-- cloud run -->
+    <rect class="g" x="410" y="110" width="250" height="240" style="stroke-width:2.6"/>
+    <text class="t" x="535" y="140" text-anchor="middle">Cloud Run (asia-south1)</text>
+    <text class="s" x="535" y="162" text-anchor="middle">Node/Express, stateless</text>
+    <rect class="b" x="428" y="176" width="214" height="34"/><text class="s" x="535" y="198" text-anchor="middle">Domain engine (layered)</text>
+    <rect class="b" x="428" y="216" width="214" height="34"/><text class="s" x="535" y="238" text-anchor="middle">Text engine + panic screener</text>
+    <rect class="b" x="428" y="256" width="214" height="34"/><text class="s" x="535" y="278" text-anchor="middle">Notice triage, PII redaction</text>
+    <rect class="b" x="428" y="296" width="214" height="34"/><text class="s" x="535" y="318" text-anchor="middle">Rate limit, audit, API v1</text>
+    <!-- google services right -->
+    <rect class="g" x="730" y="0" width="200" height="62"/><text class="t" x="830" y="28" text-anchor="middle">Gemini 2.5 Flash</text><text class="s" x="830" y="48" text-anchor="middle">Vertex AI, asia-south1</text>
+    <rect class="g" x="730" y="76" width="200" height="56"/><text class="t" x="830" y="101" text-anchor="middle">Document AI</text><text class="s" x="830" y="120" text-anchor="middle">OCR for notice photos</text>
+    <rect class="g" x="730" y="146" width="200" height="56"/><text class="t" x="830" y="171" text-anchor="middle">Web Risk</text><text class="s" x="830" y="190" text-anchor="middle">malicious URL lists</text>
+    <rect class="g" x="730" y="216" width="200" height="56"/><text class="t" x="830" y="241" text-anchor="middle">Google Public DNS</text><text class="s" x="830" y="260" text-anchor="middle">does the name exist?</text>
+    <rect class="b" x="730" y="286" width="200" height="56"/><text class="t" x="830" y="311" text-anchor="middle">RDAP + TLS probe</text><text class="s" x="830" y="330" text-anchor="middle">domain age, certificate</text>
+    <!-- data -->
+    <rect class="g" x="410" y="420" width="190" height="64"/><text class="t" x="505" y="446" text-anchor="middle">Firestore</text><text class="s" x="505" y="466" text-anchor="middle">threat store, reports</text>
+    <rect class="g" x="620" y="420" width="190" height="64"/><text class="t" x="715" y="446" text-anchor="middle">BigQuery</text><text class="s" x="715" y="466" text-anchor="middle">audit sink, Live analytics</text>
+    <rect class="g" x="830" y="420" width="150" height="64"/><text class="t" x="905" y="446" text-anchor="middle">Secret Manager</text><text class="s" x="905" y="466" text-anchor="middle">keys, HMAC</text>
+    <rect class="g" x="995" y="420" width="157" height="64"/><text class="t" x="1073" y="446" text-anchor="middle">Cloud Logging</text><text class="s" x="1073" y="466" text-anchor="middle">hash-only audit lines</text>
+    <!-- scheduler / feeds -->
+    <rect class="g" x="195" y="306" width="170" height="64"/><text class="t" x="280" y="332" text-anchor="middle">Cloud Scheduler</text><text class="s" x="280" y="352" text-anchor="middle">ingest jobs</text>
+    <rect class="o" x="0" y="396" width="165" height="124"/><text class="t" x="82" y="420" text-anchor="middle">Open feeds</text>
+    <text class="s" x="10" y="442">Phishing.Database</text><text class="s" x="10" y="460">URLhaus</text><text class="s" x="10" y="478">Tranco</text><text class="s" x="10" y="496">RBI alert list</text><text class="s" x="10" y="514">SEBI registers</text>
+    <!-- arrows -->
+    <line class="l" x1="150" y1="230" x2="193" y2="230"/>
+    <line class="l" x1="365" y1="230" x2="408" y2="230"/>
+    <line class="l" x1="660" y1="150" x2="728" y2="40"/>
+    <line class="l" x1="660" y1="190" x2="728" y2="104"/>
+    <line class="l" x1="660" y1="215" x2="728" y2="174"/>
+    <line class="l" x1="660" y1="245" x2="728" y2="244"/>
+    <line class="l" x1="660" y1="300" x2="728" y2="314"/>
+    <line class="l" x1="505" y1="352" x2="505" y2="418"/>
+    <line class="l" x1="600" y1="352" x2="700" y2="418"/>
+    <line class="l" x1="650" y1="352" x2="900" y2="418"/>
+    <line class="l" x1="365" y1="338" x2="408" y2="338"/>
+    <text class="s" x="195" y="388">OIDC-signed POST /internal/ingest</text>
+    <path class="l" d="M165 470 L300 470 L300 452 L408 452"/>
+    <text class="s" x="172" y="490">fetched and stored by ingest</text>
+    </svg>
+  <div class="foot"><span>Blue = Google Cloud services in the live deployment. Dashed = external open data. Source: README.md, docs/hosting.md, /api/system/status.</span><span>5</span></div>
+</section>
+
+<!-- 6 GENAI -->
+<section class="slide">
+  <div class="kicker">How Gen AI is used</div>
+  <h2>Gemini reasons about the hard cases. It does not get the last word.</h2>
+  <div class="row" style="margin-top:14px;gap:22px">
+    <div class="col">
+      <p class="sub" style="margin-bottom:8px"><span class="yes">What Gemini does</span> (Gemini 2.5 Flash, Vertex AI, asia-south1)</p>
+      <ul style="font-size:25px">
+        <li><b>Second opinion</b> on ambiguous scores (30-70, and low scores that carry a concrete ask) for messages and suspicious domains.</li>
+        <li><b>Hindi / English advisor</b>: structured JSON (risk, signals, reasoning, action), schema-validated.</li>
+        <li><b>Translation</b> of verdict text to Hindi, as the last step.</li>
+      </ul>
+    </div>
+    <div class="col">
+      <p class="sub" style="margin-bottom:8px"><span class="no">What Gemini does NOT do</span></p>
+      <ul style="font-size:25px">
+        <li>Never marks an unverified domain as safe.</li>
+        <li>Can raise risk only when the text has a concrete signal (link, number, payment or credential ask). Can lower it only if every signal is purely stylistic.</li>
+        <li>Never sees the user's phone, Aadhaar, PAN, card, e-mail, UPI ID or OTP-like codes: redacted before the call.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card" style="position:absolute;left:64px;right:64px;bottom:50px;font-size:19px;line-height:1.4"><b>Guardrails:</b> user text is quoted as untrusted data (prompt-injection resistant) &middot; 4 s hard timeout, fails open to the rules verdict &middot; every response labels its engine ("Gemini live" vs "rules fallback") &middot; output validated before use.</div>
+  <div class="foot"><span>Source: lib/textAi.js, lib/geminiAdvisor.js, lib/redact.js, README.md.</span><span>6</span></div>
+</section>
+
+<!-- 7 LAYERED ENGINE -->
+<section class="slide">
+  <div class="kicker">Layered verification engine</div>
+  <h2>Evidence first: "does it exist, who owns it, is anyone reporting it?"</h2>
+  <div class="row" style="gap:20px;margin-top:10px">
+    <div style="flex:1.05">
+      <table style="font-size:23px">
+        <tr><th>#</th><th>Layer</th></tr>
+        <tr><td>1</td><td>Official namespaces (.gov.in, .bank.in) count only if the name <b>exists</b> in DNS</td></tr>
+        <tr><td>2</td><td>Domain age (RDAP)</td></tr>
+        <tr><td>3</td><td>Google Web Risk</td></tr>
+        <tr><td>4</td><td>Threat feeds + RBI/SEBI lists (522k indicators)</td></tr>
+        <tr><td>5</td><td>Lookalike / homoglyph / brand-as-subdomain</td></tr>
+        <tr><td>6</td><td>Live TLS certificate audit (SSRF-guarded)</td></tr>
+        <tr><td>7</td><td>Gemini second opinion (escalate-only)</td></tr>
+      </table>
+    </div>
+    <div style="flex:1">
+      <div class="card"><span class="tag t-red">LIVE EXAMPLE</span>
+        <p style="font-size:23px;margin:10px 0 6px"><code>parivahan-challan.gov.in</code></p>
+        <p style="font-size:22px;margin:0;line-height:1.4">Verdict: <b>FORGED OFFICIAL DOMAIN, CRITICAL 99</b>.<br>It claims .gov.in but does <b>not exist</b> (NXDOMAIN). Real government sites are always registered. Gemini added a plain-language explanation.</p></div>
+      <div class="card" style="margin-top:14px"><span class="tag t-green">CONTRAST</span>
+        <p style="font-size:22px;margin:10px 0 0;line-height:1.4"><code>www.sbi.co.in</code> is allow-listed <i>and</i> resolves in DNS: VERIFIED OFFICIAL, score 0. Unknown names are never "safe by default"; failures show "could not verify".</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Verdicts re-checked live on 16 Oct 2026. Source: lib/domainEngine.js, README.md.</span><span>7</span></div>
+</section>
+
+<!-- 8 INDIA -->
+<section class="slide">
+  <div class="kicker">India-specific</div>
+  <h2>Built for Indian fraud, not translated from somewhere else</h2>
+  <div class="row" style="gap:18px;margin-top:14px">
+    <div class="card col"><div class="big" style="color:var(--blue);font-size:46px">7,843</div><p style="font-size:19px;margin:6px 0 0;line-height:1.35">SEBI-registered brokers, research analysts and advisers, loaded as allow-lists. 188 RBI Alert List entries (unauthorised forex platforms) plus 9 RBI-authorised platforms.</p></div>
+    <div class="card col"><div class="big" style="color:var(--blue);font-size:46px">English + Hindi</div><p style="font-size:19px;margin:6px 0 0;line-height:1.35">Full Hindi UI and advisor. Scam text engine reads Hindi, Hinglish, mixed script and some obfuscation (leetspeak, Cyrillic homoglyphs).</p></div>
+    <div class="card col"><div class="big" style="color:var(--blue);font-size:46px">6 taps</div><p style="font-size:19px;margin:6px 0 0;line-height:1.35">Digital-arrest panic check: deterministic graded warning level from six yes/no questions; one "yes" already means hang up and call 1930.</p></div>
+  </div>
+  <ul style="margin-top:30px;font-size:27px">
+    <li>UPI-specific traps: collect-request "refunds", QR "receive money" tricks, UPI ID and phone lookups against known indicators.</li>
+    <li>Advice maps to Indian channels: 1930, cybercrime.gov.in, the bank's own app; IT Act s.66D reference on impersonation.</li>
+  </ul>
+  <div class="foot"><span>Counts from /api/analytics/threat-intel on 16 Oct 2026. Source: README.md, tests/panic.test.js.</span><span>8</span></div>
+</section>
+
+<!-- 9 RESPONSIBLE AI -->
+<section class="slide">
+  <div class="kicker">Responsible AI, privacy and security</div>
+  <h2>Minimise data, label uncertainty, harden the edges</h2>
+  <div class="row" style="gap:22px;margin-top:12px">
+    <div class="col">
+      <ul style="font-size:24px;line-height:1.38">
+        <li><b>Privacy notice</b> in the UI and a DPDP-oriented design (hash-only audit, purpose limitation). Not legal advice; open items are listed in the repo.</li>
+        <li><b>Data in India</b>: Cloud Run, Firestore, BigQuery, Gemini and the Document AI OCR processor all run in asia-south1 (Mumbai). Only domain names (never the message) go to public DNS, RDAP and Web Risk.</li>
+        <li><b>No raw input stored.</b> Audit rows hold a SHA-256 of the input and an HMAC of the client /24 network.</li>
+        <li><b>PII redacted</b> before any Gemini call.</li>
+      </ul>
+    </div>
+    <div class="col">
+      <ul style="font-size:24px;line-height:1.38">
+        <li><b>Abuse resistance</b>: token-bucket rate limits per route group, 64 KB JSON and 5 MB upload caps, file-type allow-list, temp-file deletion.</li>
+        <li><b>Web hardening</b>: SSRF guard on TLS probes, CSP without inline scripts, HTML-escaped output, HSTS, same-origin CORS.</li>
+        <li><b>Crowd reports</b> are scored on independent corroboration plus engine evidence, with reporter reputation; reports against allow-listed, government or well-established domains always go to human review and can never auto-block them.</li>
+        <li><b>Fail closed</b>: any network failure reads "could not verify".</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot"><span>Source: README.md, docs/audit.md, lib/redact.js, public/privacy.html.</span><span>9</span></div>
+</section>
+
+<!-- 10 EVALUATION -->
+<section class="slide">
+  <div class="kicker">Evaluation (independent, blind, reproducible)</div>
+  <h2 style="font-size:34px">Honest results on 253 fresh items, production with Gemini on</h2>
+  <table style="margin-top:10px;font-size:21px">
+    <tr><th>Set</th><th>n</th><th>Recall, 95% CI</th><th>False-alarm rate, 95% CI</th><th>Precision</th></tr>
+    <tr><td>Messages</td><td class="n">150 (70 scam / 80 genuine)</td><td class="n"><b>82.9%</b> [72.4-89.9]</td><td class="n"><b>10.0%</b> [5.2-18.5]</td><td class="n">87.9%</td></tr>
+    <tr><td>Domains</td><td class="n">79</td><td class="n">100% [89.8-100]*</td><td class="n">4.4% [1.2-14.8]</td><td class="n">94.4%</td></tr>
+    <tr><td>Notices / documents</td><td class="n">24</td><td class="n"><b>33.3%</b> [13.8-60.9]</td><td class="n">0% [0-24.3]</td><td class="n">100%</td></tr>
+    <tr><td>Pooled</td><td class="n">253</td><td class="n">82.8% [74.9-88.6]</td><td class="n">7.3% [4.0-12.9]</td><td class="n">90.6%</td></tr>
+  </table>
+  <div class="row" style="gap:16px;margin-top:12px">
+    <div class="card" style="flex:1;font-size:19px;line-height:1.38"><b>What Gemini adds (messages):</b> consulted on 9 of 150; +3 true positives, -1 false alarm, 0 regressions. Pooled F1 84.5 to 86.5 vs rules-only. Tiny sample (n=9): directional, not statistically proven. Gemini timed out or was rate-limited on 5 further cases and fell back to rules.</div>
+    <div class="card" style="flex:1.1;font-size:19px;line-height:1.38;border-color:var(--red);background:#fef2f2"><b style="color:var(--red)">KNOWN GAPS AND FIX PLAN</b><br>Weak: forged notices (8 of 12 missed), 12 of 70 scams rated below MEDIUM, 8 of 80 genuine alerts flagged HIGH+ (link floor, "UPI PIN changed" style alerts), letter-spaced obfuscation, www-only sites. Fixes are targeted at these classes and must be re-measured on a new unseen set; v2 is now burned.</div>
+  </div>
+  <p style="font-size:15.5px;color:var(--muted);margin:10px 0 0;line-height:1.4">*Domain recall only shows brand-pattern and non-existent-name detection; no clean-looking live zero-day phishing domain was tested. v1 (88.3% / 13.3% on messages, 50% documents) used a different, older set: <b>v1 vs v2 is not apples-to-apples</b>. Set written by an LLM; hard cases over-represented, so these are not field rates.</p>
+  <div class="foot"><span>Source: docs/EVALUATION_V2.md, tests/eval/v2/ (dataset SHA-256 frozen, raw responses included).</span><span>10</span></div>
+</section>
+
+<!-- 11 ANALYTICS -->
+<section class="slide">
+  <div class="kicker">Real analytics from BigQuery</div>
+  <h2>Every figure is computed live from the audit table, never invented</h2>
+  <div class="row" style="gap:22px;margin-top:10px">
+    <div class="shot" style="flex:1.7;align-self:flex-start"><img src="img/laptop_en_analytics.png" alt="Live analytics tab" style="height:auto"></div>
+    <div style="flex:1">
+      <ul style="font-size:20px;line-height:1.35">
+        <li>Parameterised BigQuery queries over <code>safemeai_audit.checks</code>: checks per day, risk mix, endpoint mix, latency p50/p95, top verdicts.</li>
+        <li>Snapshot on 16 Oct 2026: 296 checks in total, 45.3% rated Safe, 1% of checks used Gemini. Counts keep growing as we test.</li>
+        <li class="no" style="color:var(--red)">These numbers come from the prototype's own test and evaluation traffic, not real customers.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot"><span>Hashed inputs only; 100 MB billing cap per query; 60 s cache. Source: /api/bigquery/analytics.</span><span>11</span></div>
+</section>
+
+<!-- 12 ENGINEERING -->
+<section class="slide">
+  <div class="kicker">Engineering quality</div>
+  <h2>Tested, documented, auditable</h2>
+  <div class="row" style="gap:18px;margin-top:14px">
+    <div class="card col" style="text-align:center"><div class="big" style="color:var(--green)">1,024</div><div style="font-size:19px">tests passing<br><code>node --test</code>, 0 failures (16 Oct 2026)</div></div>
+    <div class="card col" style="text-align:center"><div class="big" style="color:var(--blue)">OpenAPI</div><div style="font-size:19px">/api/v1/openapi.json, versioned routes, batch of up to 20, optional API keys</div></div>
+    <div class="card col" style="text-align:center"><div class="big" style="color:var(--blue)">Audit</div><div style="font-size:19px">one JSON line per check: input hash, verdict, latency, engine; BigQuery sink</div></div>
+  </div>
+  <ul style="margin-top:28px;font-size:26px">
+    <li>Suites cover domain engine, text engine, accuracy regressions, panic screener, Hindi/i18n coverage, ingest, rate limits, analytics, client-IP trust.</li>
+    <li>Evaluation harness with frozen dataset hashes and raw per-case responses, so any reviewer can re-run it.</li>
+    <li>Truthful status page: <code>/api/system/status</code> reports real service health, not a green light by default.</li>
+  </ul>
+  <div class="foot"><span>Tests were run from the repo with <code>node --test</code> on 16 Oct 2026. No hosted CI service is claimed.</span><span>12</span></div>
+</section>
+
+<!-- 13 SCALE -->
+<section class="slide">
+  <div class="kicker">Scalability and feasibility</div>
+  <h2>Serverless by design; cost is dominated by the few Gemini calls</h2>
+  <div class="row" style="gap:20px;margin-top:12px">
+    <div class="col">
+      <ul style="font-size:24px;line-height:1.38">
+        <li><b>Stateless Cloud Run</b> autoscales on request load; threat data is an in-memory index (O(1) lookups) refreshed from Firestore, so no datastore call per check.</li>
+        <li><b>Cheap path first:</b> rules answer most checks in milliseconds; Gemini is consulted only on ambiguous ones (9 of 150 in our evaluation).</li>
+        <li><b>Known limits:</b> rate limits are per instance (Cloud Armor recommended for a global cap, not enabled); scale-to-zero means occasional cold starts.</li>
+      </ul>
+    </div>
+    <div class="card col" style="font-size:21px;line-height:1.42"><b>Cost sketch (ESTIMATE, not a measured bill)</b><br>Assume ~600 input + ~200 output tokens per Gemini call at the public Gemini 2.5 Flash list price (about US$0.30 / US$2.50 per 1M tokens): roughly US$0.0007 per call. If about 6% of message checks consult Gemini, that is roughly <b>US$0.04 per 1,000 message checks</b> for Gemini. Cloud Run compute, Web Risk and Document AI (per page) are extra and small at pilot volumes; confirm against the current Google Cloud price list.</div>
+  </div>
+  <div class="foot"><span>Source: README.md (architecture, SLO targets), docs/api.md, docs/EVALUATION_V2.md. Prices change; estimate labelled accordingly.</span><span>13</span></div>
+</section>
+
+<!-- 14 BUSINESS -->
+<section class="slide">
+  <div class="kicker">Business viability and bank-pilot path</div>
+  <h2>Start in shadow mode: prove value before touching a customer</h2>
+  <div class="row" style="gap:14px;margin-top:14px">
+    <div class="step col"><b>PHASE 1 &middot; SHADOW</b>Bank sends customer-facing messages and links to the API; SafeMeAI scores silently. No customer impact.</div>
+    <div class="step col"><b>PHASE 2 &middot; MEASURE</b>Compare against the bank's confirmed fraud cases. Agree a false-positive budget before anything is shown.</div>
+    <div class="step col"><b>PHASE 3 &middot; ASSIST</b>Warnings in app or SMS banners for high-confidence verdicts only.</div>
+  </div>
+  <ul style="margin-top:28px;font-size:26px">
+    <li><b>Interface ready:</b> API keys with a pilot tier, batch scoring, audit trail with input hashes. SLO <i>targets</i> (not guarantees): 99.9% availability, text p95 &lt; 800 ms, domain p95 &lt; 4 s.</li>
+    <li><b>Before any commercial launch:</b> confirm licences for the Tranco and URLhaus feeds, replace or license OpenPhish (currently not used), finish the DPDP checklist (DPO, breach runbook, processor agreement).</li>
+    <li><b>Honest status:</b> a prototype. No customers, pilots or revenue to report.</li>
+  </ul>
+  <div class="foot"><span>Source: docs/api.md, README.md (licence table, SLOs, DPDP notes).</span><span>14</span></div>
+</section>
+
+<!-- 15 ROADMAP -->
+<section class="slide">
+  <div class="kicker">Roadmap</div>
+  <h2>Future work (not built, not part of this submission)</h2>
+  <div class="row" style="gap:16px;margin-top:16px;flex-wrap:wrap">
+    <div class="card" style="width:calc(50% - 8px)"><span class="tag t-amber">FUTURE</span><p style="font-size:22px;margin:8px 0 0"><b>Vertex AI Search</b> over RBI / NPCI circulars so advice cites the actual rule. (Today's compliance search is static curated citations.)</p></div>
+    <div class="card" style="width:calc(50% - 8px)"><span class="tag t-amber">FUTURE</span><p style="font-size:22px;margin:8px 0 0"><b>Pub/Sub event pipeline</b> for bank telemetry and report streams. (Today's telemetry ingest is a simulated acknowledgement.)</p></div>
+    <div class="card" style="width:calc(50% - 8px)"><span class="tag t-amber">FUTURE</span><p style="font-size:22px;margin:8px 0 0"><b>Trained classifier</b> on human-confirmed reports, evaluated on a larger consented, independently labelled set.</p></div>
+    <div class="card" style="width:calc(50% - 8px)"><span class="tag t-amber">FUTURE</span><p style="font-size:22px;margin:8px 0 0"><b>Real-time device integrations</b> (SMS and link warnings) with the user's explicit consent.</p></div>
+  </div>
+  <div class="foot"><span>Marked future work so nothing here is mistaken for a live feature.</span><span>15</span></div>
+</section>
+
+<!-- 16 TEAM / DISCLOSURE -->
+<section class="slide dark">
+  <div class="kicker">Team, disclosure and links</div>
+  <h2>What is, and is not, part of this submission</h2>
+  <ul style="font-size:24px;margin-top:12px">
+    <li><b>Built for this hackathon:</b> the SafeMeAI web platform (portal, API, engines, evaluation), built 14-16 Oct 2026, inside the 7 Sep - 18 Oct 2026 window.</li>
+    <li><b>Not part of this submission:</b> SafeMeAI also has a separate, earlier Android app. It is not submitted and not judged. (27 seed domains were ported from it as first-party data and are labelled as such in the threat store.)</li>
+    <li><b>Team:</b> Rana Pratap Singh (GitHub: rps011).</li>
+  </ul>
+  <div style="margin-top:28px;font-size:23px;line-height:1.7">
+    Live prototype: <a href="https://safemeai.in">https://safemeai.in</a><br>
+    Cloud Run: <a href="https://safemeai-bfsi-846801666760.asia-south1.run.app">safemeai-bfsi-846801666760.asia-south1.run.app</a><br>
+    Public repo: <a href="https://github.com/rps011/safemeai-portal-public">github.com/rps011/safemeai-portal-public</a><br>
+    Contact: support@safemeai.in
+  </div>
+  <div class="foot" style="color:#94a3b8"><span>Thank you.</span><span>16</span></div>
+</section>
+
+</body>
+</html>

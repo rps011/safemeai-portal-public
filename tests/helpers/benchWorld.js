@@ -9,6 +9,7 @@ const path = require('path');
 const vm = require('vm');
 const engine = require('../../lib/domainEngine');
 const textEngine = require('../../lib/textEngine');
+const linkPolicy = require('../../lib/linkPolicy');
 
 function loadServerData() {
   const src = fs.readFileSync(path.join(__dirname, '..', '..', 'server.js'), 'utf8');
@@ -27,13 +28,18 @@ function loadServerData() {
 
 const OLD_DAYS = 6000;
 // Established, genuinely old sites that are NOT in the BFSI allow-list.
-const ESTABLISHED = new Set(['github.com', 'bbc.com', 'wikipedia.org', 'indiatimes.com', 'whatsapp.com', 'claude.ai', 'zerodha.com', 'groww.in']);
+const ESTABLISHED = new Set(['github.com', 'bbc.com', 'wikipedia.org', 'indiatimes.com', 'whatsapp.com', 'claude.ai', 'zerodha.com', 'groww.in',
+  // post-v2 fixtures (fictional): popular smaller sites that are NOT in the BFSI allow-list, and a site that publishes only www.<name>
+  'campusexams.ac.in', 'carepathlab.com', 'rishtamilap.com', 'unionexchange.io', 'sarvodaya-medical.org.in', 'apexonly-college.edu.in']);
 // Tranco-style ranks (indiatimes.com popular; its RDAP is "unavailable" and its DNS TTL is low, as seen in production).
-const POPULAR = { 'github.com': 40, 'bbc.com': 150, 'indiatimes.com': 900, 'wikipedia.org': 12, 'whatsapp.com': 30 };
-const RDAP_DOWN = new Set(['indiatimes.com']);
+const POPULAR = { 'github.com': 40, 'bbc.com': 150, 'indiatimes.com': 900, 'wikipedia.org': 12, 'whatsapp.com': 30, 'campusexams.ac.in': 9000, 'carepathlab.com': 61000, 'rishtamilap.com': 35000, 'unionexchange.io': 2500 };
+// RDAP_DOWN: registry lookup unavailable, so the domain's age is unknown (and nothing else vouches for it) - the "unknown unverified link" case.
+const RDAP_DOWN = new Set(['indiatimes.com', 'townhospital-portal.in', 'localcoopcredit.in', 'sarvodaya-medical.org.in', 'greenfieldpoly.in']);
 const LOW_TTL = new Set(['indiatimes.com']);
 // Names that exist only as zone apex without an A record (NOERROR, NS+SOA) - e.g. incometax.gov.in
-const APEX_NO_A = new Set(['incometax.gov.in']);
+const APEX_NO_A = new Set(['incometax.gov.in', 'sarvodaya-medical.org.in', 'apexonly-college.edu.in']);
+// Apex has no A record but www.<name> is a CNAME / A (many Indian colleges and hospitals).
+const WWW_ONLY = new Set(['sarvodaya-medical.org.in']);
 const REAL_SOVEREIGN_EXTRA = new Set(['mygov.in', 'cybercrime.gov.in', 'uidai.gov.in']);
 
 function createWorld() {
@@ -83,7 +89,11 @@ function createWorld() {
       }
       if (u.startsWith('https://dns.google/resolve')) {
         const q = new URL(u); const name = q.searchParams.get('name'); const type = q.searchParams.get('type');
-        if (APEX_NO_A.has(name) && (type === 'NS' || type === 'SOA')) {
+        const wwwApex = name.startsWith('www.') ? name.slice(4) : null;
+        if (wwwApex && WWW_ONLY.has(wwwApex) && (type === 'A' || type === 'CNAME')) {
+          return body({ Status: 0, Answer: [{ name: name + '.', type: type === 'A' ? 1 : 5, TTL: 300, data: type === 'A' ? '93.184.216.34' : 'd1234.cloudfront.net.' }] });
+        }
+        if (APEX_NO_A.has(name) && !WWW_ONLY.has(name) && (type === 'NS' || type === 'SOA')) {
           const t = type === 'NS' ? 2 : 6;
           return body({ Status: 0, Answer: [{ name: name + '.', type: t, TTL: 300, data: 'x.' }] });
         }
@@ -114,14 +124,18 @@ async function runMessage(world, raw) {
   const assessments = await Promise.all(urls.map(u => engine.assessDomain(u.full, { ...world.deps }).catch(err => ({ ok: false, error: err.message, host: u.domain }))));
   const failed = assessments.find(a => !a.ok);
   const scored = assessments.filter(a => a.ok);
-  const trusted = scored.filter(a => a.verified || a.recognisedBrand || a.orgValidatedEstablished);
-  const opts = { links: urls.length, trustedLinks: trusted.length, recognisedLinks: trusted.filter(a => !a.verified).length };
-  const risky = scored.filter(a => !a.verified && !a.recognisedBrand && !a.orgValidatedEstablished).sort((x, y) => y.riskScore - x.riskScore)[0];
+  const lp = linkPolicy.plan(scored, failed);
+  const opts = { links: urls.length, ...lp.textOpts };
   const tv = textEngine.analyze(raw, opts);
-  if (risky || failed) {
-    const linkScore = Math.max(risky ? risky.riskScore : 75, 75);
+  const decision = linkPolicy.decide(lp, tv);
+  if (decision.mode === 'boost') {
+    const linkScore = Math.max(decision.link ? decision.link.riskScore : 75, decision.floor);
     const score = Math.max(linkScore, tv.riskScore);
-    return { level: levelBoost(score), score, verdict: 'link:' + (risky ? risky.verdict : 'failed'), flags: tv.flags };
+    return { level: levelBoost(score), score, verdict: 'link:' + (decision.link ? decision.link.verdict : 'failed'), flags: tv.flags };
+  }
+  if (decision.mode === 'soft') {
+    const score = Math.min(59, Math.max(decision.floor, tv.riskScore));
+    return { level: textEngine.levelFor(score), score, verdict: 'link-soft:' + decision.link.verdict, flags: tv.flags };
   }
   return { level: tv.riskLevel, score: tv.riskScore, verdict: tv.scamType, flags: tv.flags };
 }

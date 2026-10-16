@@ -122,6 +122,8 @@ const HI = {
   'Clear interest rate, RBI details and a key fact statement.': 'साफ़ ब्याज दर, RBI विवरण और मुख्य तथ्यों का विवरण।',
   'OR UPLOAD A FILE (TEXT ONLY WORKS FULLY)': 'या फ़ाइल अपलोड करें (पूरी तरह सिर्फ़ टेक्स्ट चलता है)',
   'Tap to choose a file or drop it here': 'फ़ाइल चुनने के लिए दबाएँ या यहाँ छोड़ें',
+  'TXT, PDF, PNG or JPG, max 5 MB. Photos and PDFs are read with Google Document AI (OCR in Mumbai), then the wording is checked.': 'TXT, PDF, PNG या JPG, अधिकतम 5 MB। फ़ोटो और PDF Google Document AI (मुंबई में OCR) से पढ़े जाते हैं, फिर शब्दों की जाँच होती है।',
+  'TXT, PDF, PNG or JPG, max 5 MB. Photos and PDFs cannot be read right now; paste the text instead.': 'TXT, PDF, PNG या JPG, अधिकतम 5 MB। फ़ोटो और PDF अभी पढ़े नहीं जा सकते; टेक्स्ट पेस्ट करें।',
   'upload-note': 'TXT, PDF, PNG या JPG, अधिकतम 5 MB। Document AI जुड़ा न होने से फ़ोटो और PDF अभी पढ़े नहीं जा सकते; टेक्स्ट पेस्ट करें।',
   'Check file': 'फ़ाइल जाँचें',
   'OR PASTE THE NOTICE TEXT': 'या नोटिस का टेक्स्ट पेस्ट करें',
@@ -1430,6 +1432,13 @@ async function loadStatus() {
     badge.dataset.en = docOn ? 'Document AI: connected. Photos and PDFs are read with OCR.' : 'Document AI: not connected. Text triage mode (images and PDFs cannot be read).';
     badge.textContent = t(badge.dataset.en);
     badge.classList.toggle('mode-on', docOn);
+  }
+  const upNote = document.querySelector('[data-upload-note]');
+  if (upNote) {
+    const en = docOn
+      ? 'TXT, PDF, PNG or JPG, max 5 MB. Photos and PDFs are read with Google Document AI (OCR in Mumbai), then the wording is checked.'
+      : 'TXT, PDF, PNG or JPG, max 5 MB. Photos and PDFs cannot be read right now; paste the text instead.';
+    upNote.dataset.i18n = en; upNote.dataset.en = en; upNote.textContent = t(en);
   }
 }
 

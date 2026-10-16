@@ -1,0 +1,2071 @@
+{
+ "meta": {
+  "name": "SafeMeAI evaluation v2 (fresh, written blind to v1/engine code)",
+  "created": "2026-10-16",
+  "counts": {
+   "messages": 150,
+   "domains": 80,
+   "documents": 24
+  }
+ },
+ "messages": [
+  {
+   "id": "S01",
+   "label": "scam",
+   "cat": "digital_arrest",
+   "lang": "en",
+   "obf": "none",
+   "hard": false,
+   "text": "hello sir this is Inspector Vikram Rathore badge no 4471 from Mumbai Cyber Crime branch. a parcel booked in your Aadhaar name from Andheri to Taiwan has been intercepted, it has 140 grams MDMA, 5 passports and one ATM card. this is a non bailable case sir. you are now under digital surveillance, do not disconnect this Skype call and do not tell your family otherwise the case will be compromised. I am sending you the case ID now, download the video call app"
+  },
+  {
+   "id": "S02",
+   "label": "scam",
+   "cat": "digital_arrest",
+   "lang": "hinglish",
+   "obf": "none",
+   "hard": true,
+   "text": "Aapke naam pe ek FedEx parcel customs me pakda gaya hai, usme illegal saman nikla hai. CBI officer aapse video call pe baat karenge. Ye baat kisi ko mat batana warna warrant nikal jayega. Abhi WhatsApp video pe aaiye, camera on rakhna"
+  },
+  {
+   "id": "S03",
+   "label": "scam",
+   "cat": "digital_arrest",
+   "lang": "hi",
+   "obf": "none",
+   "hard": true,
+   "text": "आपके आधार से जुड़े मोबाइल नंबर से अश्लील कॉल और मनी लॉन्ड्रिंग की शिकायत मिली है। आप डिजिटल अरेस्ट में हैं। जब तक जांच पूरी नहीं होती कैमरा चालू रखें और किसी को न बताएं। सत्यापन के लिए RBI सुरक्षित खाते में 2,85,000 रुपये जमा करें, जांच के बाद वापस मिल जाएंगे।"
+  },
+  {
+   "id": "S04",
+   "label": "scam",
+   "cat": "trai_sim",
+   "lang": "en",
+   "obf": "none",
+   "hard": false,
+   "text": "This is an automated message from TRAI. Your mobile number will be disconnected in 2 hours because 17 complaints were registered for illegal advertisement calls. Press 9 to speak to the executive immediately."
+  },
+  {
+   "id": "S05",
+   "label": "scam",
+   "cat": "kyc_upi",
+   "lang": "en",
+   "obf": "none",
+   "hard": false,
+   "text": "*IMPORTANT* Dear customer your SBI YONO account has been BLOCKD today due to PAN not updated 🙏🙏 kindly update immediately otherwise account will be permanently closed. click here http://sbi-yono-pan-update.top/login .... pls forward to all your friends and family also so nobody loses money"
+  },
+  {
+   "id": "S06",
+   "label": "scam",
+   "cat": "job_task",
+   "lang": "en",
+   "obf": "none",
+   "hard": true,
+   "text": "Hi, I'm Priya from the HR team of a global e-commerce review programme. Part-time work from home, you just rate products, earn ₹3,000 to ₹8,000 daily, no experience needed. Add me on Telegram @priya_hr_work and I will send your first task. Salary is settled same day to your UPI."
+  },
+  {
+   "id": "S07",
+   "label": "scam",
+   "cat": "job_task",
+   "lang": "hinglish",
+   "obf": "none",
+   "hard": true,
+   "text": "Bhai YouTube video like karne ka kaam hai, har like pe 50 rupay milenge. Pehle 3 task free hain, fir prepaid task me 1000 daalo to 1500 wapas milega. Group join kar le t.me/earnwithlike_9 jaldi"
+  },
+  {
+   "id": "S08",
+   "label": "scam",
+   "cat": "investment",
+   "lang": "en",
+   "obf": "none",
+   "hard": false,
+   "text": "Welcome to Dhan Vriddhi VIP Club. SEBI registered analyst Mr Arvind Mehta. Our last 5 calls gave 40 to 90 percent in 2 days. Download our trading app from the link, IPO allotment guaranteed in institutional quota with 300% listing gain. Only 20 seats left, deposit 25,000 to enter the group"
+  },
+  {
+   "id": "S09",
+   "label": "scam",
+   "cat": "investment",
+   "lang": "hinglish",
+   "obf": "none",
+   "hard": true,
+   "text": "Sir ye USDT p2p arbitrage hai, daily 2% fixed return, mere cousin ne 50k lagaya tha 3 mahine me 1.2 lakh ho gaya. Wallet address bhejta hu, aap 10000 se start karo, withdrawal kabhi bhi kar sakte ho"
+  },
+  {
+   "id": "S10",
+   "label": "scam",
+   "cat": "loan_app",
+   "lang": "en",
+   "obf": "none",
+   "hard": false,
+   "text": "Instant loan of ₹50,000 in 5 minutes, no CIBIL check, no documents. Download LoanZapp, allow contacts and gallery access. Processing fee ₹1,499 to be paid first by UPI to release the amount."
+  },
+  {
+   "id": "S11",
+   "label": "scam",
+   "cat": "loan_harassment",
+   "lang": "hinglish",
+   "obf": "none",
+   "hard": true,
+   "text": "Tune loan nahi chukaya. Tere contacts ko teri morphed photo bhej denge. 2 ghante me 8500 de de nahi to sab rishtedaar ko pata chalega ki tu chor hai."
+  },
+  {
+   "id": "S12",
+   "label": "scam",
+   "cat": "sextortion",
+   "lang": "en",
+   "obf": "none",
+   "hard": true,
+   "text": "I have recorded our video call from yesterday night. Send 25000 on this GPay number right now or I will post it to all your Facebook friends and upload on YouTube. Deleting is only possible after payment. You have 1 hour."
+  },
+  {
+   "id": "S13",
+   "label": "scam",
+   "cat": "marketplace_qr",
+   "lang": "en",
+   "obf": "none",
+   "hard": true,
+   "text": "Hello is the sofa still available? I'm army personnel posted at Jaisalmer so can't come to see it. I will pay advance through GPay. Scan this QR that I sent and enter your PIN to receive the payment, then I will send transport."
+  },
+  {
+   "id": "S14",
+   "label": "scam",
+   "cat": "marketplace_qr",
+   "lang": "hinglish",
+   "obf": "none",
+   "hard": true,
+   "text": "Bhaiya main 12000 bhej raha hu, aap request accept kar lo UPI PIN daalke, paisa aa jayega. Ek baar galti se 2 baar request chali gayi to dobara bhi accept kar dena"
+  },
+  {
+   "id": "S15",
+   "label": "scam",
+   "cat": "courier",
+   "lang": "en",
+   "obf": "none",
+   "hard": false,
+   "text": "India Post: Your package is held at Gurugram hub, address is incomplete. Update delivery details and pay Rs 24 redelivery fee: https://indiapost-redeliver.cfd/trk"
+  },
+  {
+   "id": "S16",
+   "label": "scam",
+   "cat": "electricity",
+   "lang": "en",
+   "obf": "none",
+   "hard": false,
+   "text": "Dear consumer, your electricity connection will be disconnected tonight at 9:30 pm as your previous month bill was not updated. Immediately contact our officer on 9XXXXXXXXX. - MSEB Customer Care"
+  },
+  {
+   "id": "S17",
+   "label": "scam",
+   "cat": "lottery",
+   "lang": "mixed",
+   "obf": "none",
+   "hard": false,
+   "text": "KBC Lucky Draw 2025: aapka number 25 lakh rupay ka winner hai!! Manager Rana Pratap WhatsApp +92 3XX XXXXXXX pe contact karein. Claim ke liye GST aur security deposit 18,500 jama karna hoga."
+  },
+  {
+   "id": "S18",
+   "label": "scam",
+   "cat": "relative_emergency",
+   "lang": "en",
+   "obf": "none",
+   "hard": true,
+   "text": "Hi Papa this is my new number, my old phone fell in water. Can you do me a favour, I have an urgent bill payment and my banking app is not working. I will return it in the evening. Send 38,500 to this number please. Don't call, I'm in a meeting"
+  },
+  {
+   "id": "S19",
+   "label": "scam",
+   "cat": "remote_access",
+   "lang": "en",
+   "obf": "none",
+   "hard": true,
+   "text": "Sir please open Play Store and download AnyDesk, then tell me the 9 digit code. Your refund of 4,999 from the Flipkart order failed, I will process it from my system. Don't worry sir, just read out the code and stay on the line."
+  },
+  {
+   "id": "S20",
+   "label": "scam",
+   "cat": "fake_customer_care",
+   "lang": "en",
+   "obf": "none",
+   "hard": true,
+   "text": "Agent: Thank you for calling Paytm care. Please tell me the 6 digit number you just received by SMS so I can reverse the debited amount to your account. Customer: it came just now. Agent: yes sir read it slowly."
+  },
+  {
+   "id": "S21",
+   "label": "scam",
+   "cat": "insurance_maturity",
+   "lang": "en",
+   "obf": "none",
+   "hard": false,
+   "text": "Dear policyholder, LIC bonus of Rs 11.4 lakh is pending on your old policy. IRDAI release charge Rs 6,800 and TDS clearance fee required. Contact our maturity desk today."
+  },
+  {
+   "id": "S22",
+   "label": "scam",
+   "cat": "tax_refund",
+   "lang": "en",
+   "obf": "none",
+   "hard": false,
+   "text": "Income Tax Dept: Refund of Rs 15,490 approved for AY 2024-25. Account number mismatch, verify your bank details here: http://incometax-refund-portal.life/claim"
+  },
+  {
+   "id": "S23",
+   "label": "scam",
+   "cat": "romance_parcel",
+   "lang": "en",
+   "obf": "none",
+   "hard": true,
+   "text": "Hello, I am Dr. Ananya working at NHS London, found your profile on Shaadi. I am sending you a gift parcel with pounds and jewellery as a surprise. A customs officer will call you for clearance charges of 32,000, please cooperate."
+  },
+  {
+   "id": "S24",
+   "label": "scam",
+   "cat": "echallan",
+   "lang": "en",
+   "obf": "none",
+   "hard": false,
+   "text": "Traffic e-Challan: Vehicle MH12 violation Rs 500 pending. Pay now to avoid court notice: parivahan-echallan.icu/pay"
+  },
+  {
+   "id": "S25",
+   "label": "scam",
+   "cat": "fastag",
+   "lang": "en",
+   "obf": "none",
+   "hard": false,
+   "text": "Your FASTag is blocked because KYC is incomplete. Recharge and update now: fastag-kyc-update.shop"
+  },
+  {
+   "id": "S26",
+   "label": "scam",
+   "cat": "gas_subsidy",
+   "lang": "hinglish",
+   "obf": "none",
+   "hard": true,
+   "text": "HP Gas ki subsidy Rs 1,450 pending hai. Hamare verification officer ko call karo aur jo OTP aaye woh bata do, paisa seedha khate me aa jayega."
+  },
+  {
+   "id": "S27",
+   "label": "scam",
+   "cat": "govt_scheme",
+   "lang": "hinglish",
+   "obf": "none",
+   "hard": false,
+   "text": "PM Kisan Yojana ki 18vi kist ruk gayi hai. Dobara chalu karne ke liye PMKisan.apk download karo"
+  },
+  {
+   "id": "S28",
+   "label": "scam",
+   "cat": "aadhaar",
+   "lang": "en",
+   "obf": "none",
+   "hard": false,
+   "text": "Aadhaar suspended due to biometric mismatch. Pay Rs 99 online to reactivate: aadhaar-reactivate.in.net"
+  },
+  {
+   "id": "S29",
+   "label": "scam",
+   "cat": "card_reward",
+   "lang": "en",
+   "obf": "none",
+   "hard": false,
+   "text": "Your HDFC credit card reward points worth Rs 9,860 will expire today. Redeem now by installing HDFCReward.apk"
+  },
+  {
+   "id": "S30",
+   "label": "scam",
+   "cat": "tech_support",
+   "lang": "en",
+   "obf": "none",
+   "hard": false,
+   "text": "ALERT: Your Windows is infected with 5 viruses. Call Microsoft support 1800-XXX-XXXX immediately. Do not shut down your computer."
+  },
+  {
+   "id": "S31",
+   "label": "scam",
+   "cat": "review_task",
+   "lang": "en",
+   "obf": "none",
+   "hard": true,
+   "text": "Hey! saw your profile 😊 we pay 500 per Google Maps review, 20 reviews a day. DM 'Join' and I'll add you to the team group, payout every evening."
+  },
+  {
+   "id": "S32",
+   "label": "scam",
+   "cat": "parcel",
+   "lang": "hi",
+   "obf": "none",
+   "hard": true,
+   "text": "भाई साहब आपका पार्सल वापस जा रहा है, पता सही करने के लिए 10 रुपये इस लिंक पर भेजिए, वरना कल पार्सल लौट जाएगा।"
+  },
+  {
+   "id": "S33",
+   "label": "scam",
+   "cat": "kyc_upi",
+   "lang": "mixed",
+   "obf": "mixed-script",
+   "hard": false,
+   "text": "Dear Cust0mer, aapka SBl account ब्लॉक ho gaya hai. K Y C update karo abhi: bit.ly/3xKyC9s"
+  },
+  {
+   "id": "S34",
+   "label": "scam",
+   "cat": "loan_app",
+   "lang": "en",
+   "obf": "spaced",
+   "hard": true,
+   "text": "U r e l i g i b l e f o r 5 0 0 0 0 l o a n.  S h a r e t h e O T P t o c o n f i r m."
+  },
+  {
+   "id": "S35",
+   "label": "scam",
+   "cat": "kyc_upi",
+   "lang": "en",
+   "obf": "leetspeak",
+   "hard": false,
+   "text": "Y0ur @cc0unt w1ll b3 bl0cked t0day. Upd@te P@N n0w http://hdfc-pan.xyz"
+  },
+  {
+   "id": "S36",
+   "label": "scam",
+   "cat": "kyc_upi",
+   "lang": "en",
+   "obf": "homoglyph",
+   "hard": false,
+   "text": "Dеаr custоmer, yоur аccоunt is suspеnded. Vеrify nоw: http://bank-verify-now.top"
+  },
+  {
+   "id": "S37",
+   "label": "scam",
+   "cat": "upi_collect",
+   "lang": "en",
+   "obf": "none",
+   "hard": true,
+   "text": "UPI Lite cashback ₹750 credited to you. Open the collect request from 'NPCI-Reward' in your UPI app and approve it to receive the money."
+  },
+  {
+   "id": "S38",
+   "label": "scam",
+   "cat": "fuel_qr",
+   "lang": "en",
+   "obf": "none",
+   "hard": true,
+   "text": "Sir scan this QR at the counter to get ₹500 cashback on your fuel today. Just enter your UPI PIN on the screen to claim."
+  },
+  {
+   "id": "S39",
+   "label": "scam",
+   "cat": "influencer",
+   "lang": "en",
+   "obf": "none",
+   "hard": true,
+   "text": "Hi! brand collab for you 🔥 we will send an iPhone 15 for promotion. Only a refundable shipping deposit of 4,200 is needed, refunded together with your payout."
+  },
+  {
+   "id": "S40",
+   "label": "scam",
+   "cat": "prepaid_task",
+   "lang": "en",
+   "obf": "none",
+   "hard": true,
+   "text": "Task 3 completed. To withdraw your 14,200 commission you must upgrade to VIP merchant level by depositing 20,000; your funds are frozen until the upgrade is done. Support team is online 24x7."
+  },
+  {
+   "id": "S41",
+   "label": "scam",
+   "cat": "pig_butchering",
+   "lang": "en",
+   "obf": "none",
+   "hard": true,
+   "text": "Good morning dear 😊 my uncle runs a trading desk in Dubai, I made 4x in one week. I told him about you, let me guide you step by step, it's just an app, deposit a small amount first and see."
+  },
+  {
+   "id": "S42",
+   "label": "scam",
+   "cat": "fake_bank_call",
+   "lang": "hinglish",
+   "obf": "none",
+   "hard": false,
+   "text": "Sir main ICICI bank ke fraud department se bol raha hu. Aapke card se 48,000 ka transaction Dubai me hua hai. Cancel karne ke liye card ke peeche ka number aur aane wala code bata dijiye."
+  },
+  {
+   "id": "S43",
+   "label": "scam",
+   "cat": "sim_swap",
+   "lang": "en",
+   "obf": "none",
+   "hard": true,
+   "text": "Sir your 4G SIM needs an upgrade to 5G. Please reply with the 20-digit SIM number printed on the back and press 1 when the confirmation call comes."
+  },
+  {
+   "id": "S44",
+   "label": "scam",
+   "cat": "bec_giftcard",
+   "lang": "en",
+   "obf": "none",
+   "hard": true,
+   "text": "Need 10 Amazon gift cards of 5000 urgently for a client. Keep it confidential, I'm in a meeting and can't talk. I'll reimburse you today. - Rajesh (MD)"
+  },
+  {
+   "id": "S45",
+   "label": "scam",
+   "cat": "fake_bank_call",
+   "lang": "hi",
+   "obf": "none",
+   "hard": true,
+   "text": "हेलो सर, मैं बैंक से बोल रहा हूँ, आपका क्रेडिट कार्ड का वार्षिक शुल्क माफ हो रहा है, बस आप फोन पर आए हुए कोड को बता दीजिए।"
+  },
+  {
+   "id": "S46",
+   "label": "scam",
+   "cat": "apk_malware",
+   "lang": "hinglish",
+   "obf": "none",
+   "hard": false,
+   "text": "Aapki gaadi ka challan aaya hai. e-Challan.apk install karo aur dekho warna court notice aayega"
+  },
+  {
+   "id": "S47",
+   "label": "scam",
+   "cat": "romance_parcel",
+   "lang": "hinglish",
+   "obf": "none",
+   "hard": true,
+   "text": "Aap bahut acche ho, mujhe aapse shaadi karni hai. Main aapko gift bhej raha hu, customs 45000 maange to de dena, main wapas kar dunga pakka."
+  },
+  {
+   "id": "S48",
+   "label": "scam",
+   "cat": "rental",
+   "lang": "en",
+   "obf": "none",
+   "hard": true,
+   "text": "Flat available 1BHK at Powai Rs 18k, owner is abroad. Pay token ₹10,000 and the keys will be couriered. Send your Aadhaar photo and pay the token to this Paytm number to block the flat."
+  },
+  {
+   "id": "S49",
+   "label": "scam",
+   "cat": "refund_phish",
+   "lang": "en",
+   "obf": "none",
+   "hard": false,
+   "text": "Your Goibibo booking is cancelled; to receive refund click: goibibo-refund-claim.vip and enter card number, expiry and CVV."
+  },
+  {
+   "id": "S50",
+   "label": "scam",
+   "cat": "fake_agency",
+   "lang": "en",
+   "obf": "none",
+   "hard": false,
+   "text": "Sir you are an investor in a fraud scheme, ED has frozen your holdings. To unfreeze, pay 3% security through RTGS to the Supreme Court escrow account within 24 hours."
+  },
+  {
+   "id": "S51",
+   "label": "scam",
+   "cat": "scholarship",
+   "lang": "en",
+   "obf": "none",
+   "hard": true,
+   "text": "Dear student you are selected for PM Scholarship of Rs 50,000. Pay Rs 350 registration to the account below to confirm your seat and the amount will be credited tomorrow."
+  },
+  {
+   "id": "S52",
+   "label": "scam",
+   "cat": "wrong_transfer",
+   "lang": "en",
+   "obf": "none",
+   "hard": true,
+   "text": "Hi, I accidentally transferred ₹8,000 to your account. Please send it back to this number. I'm a poor student, my mother is in the hospital, please help."
+  },
+  {
+   "id": "S53",
+   "label": "scam",
+   "cat": "electricity",
+   "lang": "hinglish",
+   "obf": "none",
+   "hard": false,
+   "text": "Bijli ka bill update nahi hua, aaj raat 10 baje connection kat jayega. Turant is number pe call karo 9XXXXXXXXX"
+  },
+  {
+   "id": "S54",
+   "label": "scam",
+   "cat": "demat_otp",
+   "lang": "en",
+   "obf": "none",
+   "hard": true,
+   "text": "Share the OTP you received to activate your demat account and get 5 free Reliance shares worth ₹14,000."
+  },
+  {
+   "id": "S55",
+   "label": "scam",
+   "cat": "epfo",
+   "lang": "en",
+   "obf": "none",
+   "hard": false,
+   "text": "EPFO: Your PF of Rs 87,000 is ready to withdraw. Confirm Aadhaar and OTP at epfo-claim-status.live"
+  },
+  {
+   "id": "S56",
+   "label": "scam",
+   "cat": "free_recharge",
+   "lang": "hinglish",
+   "obf": "none",
+   "hard": false,
+   "text": "Jio 3 mahine ka free recharge Diwali offer! Click karke 20 WhatsApp groups me share karo activate karne ke liye: jio-diwali-offer.club"
+  },
+  {
+   "id": "S57",
+   "label": "scam",
+   "cat": "social_phish",
+   "lang": "en",
+   "obf": "none",
+   "hard": false,
+   "text": "Your Instagram copyright violation notice: appeal within 24 hours at meta-appeal-center.help or your account will be deleted."
+  },
+  {
+   "id": "S58",
+   "label": "scam",
+   "cat": "recovery_scam",
+   "lang": "en",
+   "obf": "none",
+   "hard": true,
+   "text": "We are from cyber cell, we have recovered your lost money of 1.5 lakh. Pay 5% recovery charge Rs 7,500 to release the amount to your account."
+  },
+  {
+   "id": "S59",
+   "label": "scam",
+   "cat": "note_exchange",
+   "lang": "hinglish",
+   "obf": "none",
+   "hard": true,
+   "text": "Bhai mera dost RBI me hai, usne bola 2000 ke note wapas liye jaa rahe hain, kal tak bank me jama kar do ya fir bekar. Mere paas 10 lakh hai, tu 70% me le le, cash me de de."
+  },
+  {
+   "id": "S60",
+   "label": "scam",
+   "cat": "lucky_draw",
+   "lang": "en",
+   "obf": "none",
+   "hard": true,
+   "text": "Hey, I'm from Meesho. You won a lucky draw for watching reels. Pay just 99 for delivery and your prize will be shipped."
+  },
+  {
+   "id": "S61",
+   "label": "scam",
+   "cat": "fwd_upi",
+   "lang": "en",
+   "obf": "none",
+   "hard": false,
+   "text": "Fwd: Friends please be careful... new rule from RBI, from 1 Nov every UPI user must register on https://rbi-upi-register.xyz else transactions will stop. Share to all groups urgently"
+  },
+  {
+   "id": "S62",
+   "label": "scam",
+   "cat": "fake_customer_care",
+   "lang": "en",
+   "obf": "none",
+   "hard": true,
+   "text": "Hello I am calling from Amazon Prime, we have charged you 7,999 for subscription renewal. If you did not authorise press 1 and a person will help with cancellation. Please install QuickSupport so I can see your screen and stop it."
+  },
+  {
+   "id": "S63",
+   "label": "scam",
+   "cat": "loan_fee",
+   "lang": "hi",
+   "obf": "none",
+   "hard": true,
+   "text": "आपका 5 लाख का लोन पास हो गया है, बस फाइल चार्ज 3,000 रुपये फोनपे कर दें, उसके बाद पैसे आपके खाते में आ जाएंगे।"
+  },
+  {
+   "id": "S64",
+   "label": "scam",
+   "cat": "block_call",
+   "lang": "mixed",
+   "obf": "mixed-script",
+   "hard": true,
+   "text": "Aapka account ko ब्लॉक kar diya gaya hai. Bachne ke liye अभी call karein 7XXXXXXXXX"
+  },
+  {
+   "id": "S65",
+   "label": "scam",
+   "cat": "fake_shop",
+   "lang": "en",
+   "obf": "none",
+   "hard": false,
+   "text": "Flat 90% off on Nike shoes only today! Rs 499 only. Pay via UPI on the link: nike-clearance-india.sale . COD not available."
+  },
+  {
+   "id": "S66",
+   "label": "scam",
+   "cat": "fake_job",
+   "lang": "en",
+   "obf": "none",
+   "hard": true,
+   "text": "Congratulations you are shortlisted by Infosys. Pay Rs 5,600 refundable security deposit for laptop and ID card to join on Monday."
+  },
+  {
+   "id": "S67",
+   "label": "scam",
+   "cat": "kyc_upi",
+   "lang": "en",
+   "obf": "dotted",
+   "hard": false,
+   "text": "Y.o.u.r  A.d.h.a.a.r  b.l.o.c.k.e.d !! call 9XXXXXXXXX n.o.w"
+  },
+  {
+   "id": "S68",
+   "label": "scam",
+   "cat": "mudra_fee",
+   "lang": "hinglish",
+   "obf": "none",
+   "hard": true,
+   "text": "Bank manager bol raha hu, aapka Mudra loan 4 lakh sanction ho gaya hai. Insurance premium 2,500 pehle PhonePe karna hoga, uske baad paisa aa jayega."
+  },
+  {
+   "id": "S69",
+   "label": "scam",
+   "cat": "bank_merger",
+   "lang": "mixed",
+   "obf": "none",
+   "hard": false,
+   "text": "Dear Customer, aapke Bank of Baroda account ka merger ke karan IFSC badal gaya hai. Naya IFSC update nahi kiya to khata band ho jayega. Link: bob-ifsc-update.top"
+  },
+  {
+   "id": "S70",
+   "label": "scam",
+   "cat": "pension",
+   "lang": "hinglish",
+   "obf": "none",
+   "hard": true,
+   "text": "Pension band hone wali hai jab tak aap life certificate nahi dete. Mera beta bank me hai, aap apna Aadhaar aur OTP bata do, ghar baithe ho jayega."
+  },
+  {
+   "id": "G01",
+   "label": "genuine",
+   "cat": "bank_alert",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Rs 1,249.00 debited from A/c XX4821 on 12-Oct-25 to VPA swiggy@icici (UPI Ref 528194730112). Not you? Call 1800 202 6161 or SMS BLOCK UPI to 7308080808. -HDFC Bank"
+  },
+  {
+   "id": "G02",
+   "label": "genuine",
+   "cat": "bank_otp",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "123456 is the OTP for txn of INR 2,300.00 at AMAZON on SBI Card ending 7712. Valid for 10 mins. Do not share it with anyone, SBI never asks for your OTP."
+  },
+  {
+   "id": "G03",
+   "label": "genuine",
+   "cat": "bank_kyc",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Dear Customer, your Axis Bank KYC re-verification is due by 31-Dec. Visit your nearest branch with Aadhaar and PAN or update through the Axis Mobile app. Ignore if already done. Never share OTP/PIN with anyone."
+  },
+  {
+   "id": "G04",
+   "label": "genuine",
+   "cat": "coop_bank",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "Saraswat Bank: Your FD no. xxx5521 for Rs 2,00,000 matures on 04/11/2025. Please visit the branch or renew through net banking. Helpline 1800 22 5252."
+  },
+  {
+   "id": "G05",
+   "label": "genuine",
+   "cat": "coop_bank",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "Dear Member, your Thrissur Urban Co-op Bank loan EMI of Rs 6,450 is due on 05th. Please maintain balance in your SB account to avoid penal interest."
+  },
+  {
+   "id": "G06",
+   "label": "genuine",
+   "cat": "insurance",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Dear Policyholder, premium of Rs 12,480 for policy 4xxxx891 is due on 28-10-2025. Pay via LIC Customer Portal on licindia.in or at any branch. A grace period of 30 days is available."
+  },
+  {
+   "id": "G07",
+   "label": "genuine",
+   "cat": "insurance",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Star Health: Your claim no. CL/2025/88123 for Rs 38,200 has been approved and will be credited to your registered bank account within 3 working days."
+  },
+  {
+   "id": "G08",
+   "label": "genuine",
+   "cat": "broker",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "Zerodha: Funds of Rs 25,000 added to your trading account. Contract note for 10-Oct has been emailed to your registered email id."
+  },
+  {
+   "id": "G09",
+   "label": "genuine",
+   "cat": "broker",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "Your SIP of Rs 5,000 in Parag Parikh Flexi Cap will be debited on 5 Nov. Please keep sufficient balance in your bank account. -Groww"
+  },
+  {
+   "id": "G10",
+   "label": "genuine",
+   "cat": "telco",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Your Jio plan Rs 299 expires tomorrow. Recharge on the MyJio app or jio.com to continue enjoying benefits without interruption."
+  },
+  {
+   "id": "G11",
+   "label": "genuine",
+   "cat": "telco",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "Dear customer, your postpaid bill of Rs 749 has been generated. Pay by 20 Oct via the Airtel Thanks app to avoid late fee."
+  },
+  {
+   "id": "G12",
+   "label": "genuine",
+   "cat": "telco",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "BSNL: Your landline xx2281 bill for September is Rs 412. Due date 25-10-2025. Pay at bsnl.co.in or any CSC centre."
+  },
+  {
+   "id": "G13",
+   "label": "genuine",
+   "cat": "utility",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "MSEDCL: Bill of Rs 2,340 for consumer no 170xxxx0123 is generated. Due date 18-10-2025. Pay online at the official website. Non-payment may lead to disconnection as per rules."
+  },
+  {
+   "id": "G14",
+   "label": "genuine",
+   "cat": "utility",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "BESCOM: Planned power interruption on 14-Oct from 10am to 2pm in Jayanagar 4th Block for maintenance work. Inconvenience regretted."
+  },
+  {
+   "id": "G15",
+   "label": "genuine",
+   "cat": "utility",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "Tata Power-DDL: Your bill for Aug is Rs 1,876. Last date 21-Oct. Pay through the Tata Power-DDL app. Helpline 19124."
+  },
+  {
+   "id": "G16",
+   "label": "genuine",
+   "cat": "utility",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Indane: Your LPG refill is booked, delivery on 14-Oct. Delivery code 4581 - share this code with the delivery person only at the time of delivery."
+  },
+  {
+   "id": "G17",
+   "label": "genuine",
+   "cat": "travel",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "IRCTC: Booking confirmed PNR 4521xxxxxx, 12951 Mumbai Rajdhani, 15-Oct. Refund of Rs 410 for the cancelled ticket will be credited to the source account within 3-5 days."
+  },
+  {
+   "id": "G18",
+   "label": "genuine",
+   "cat": "ecommerce",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Your Flipkart order for boAt Rockerz has been shipped. Track at https://www.flipkart.com/orders. Delivery OTP is 4829, share it only with the delivery agent."
+  },
+  {
+   "id": "G19",
+   "label": "genuine",
+   "cat": "ecommerce",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Amazon.in: Refund of Rs 1,299 for order #407-1234567-8901234 has been initiated and will reflect in your account in 3-5 business days."
+  },
+  {
+   "id": "G20",
+   "label": "genuine",
+   "cat": "ecommerce",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "Myntra: Your order #MNT44821 has been delivered. Rate your purchase and get a chance to win rewards. Returns accepted till 14 days."
+  },
+  {
+   "id": "G21",
+   "label": "genuine",
+   "cat": "edtech",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "Unacademy: Your live class on Organic Chemistry starts at 6 PM today. Join from the app. Notes are available in the Library section."
+  },
+  {
+   "id": "G22",
+   "label": "genuine",
+   "cat": "edtech",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "NPTEL: Hall ticket for Jan 2026 exams is available on nptel.ac.in. Last date for exam fee payment of Rs 1,000 is 20 Oct."
+  },
+  {
+   "id": "G23",
+   "label": "genuine",
+   "cat": "travel",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "MakeMyTrip: Your flight 6E 2145 DEL-BOM on 18 Oct has been rescheduled to depart 14:25. Check in opens 24 hrs prior. Web check-in link: makemytrip.com"
+  },
+  {
+   "id": "G24",
+   "label": "genuine",
+   "cat": "hospital",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "Apollo Hospitals: Your appointment with Dr. Rao (Cardiology) is on 16-Oct at 11:30 AM. Please carry old reports. To reschedule call 1860-500-1066."
+  },
+  {
+   "id": "G25",
+   "label": "genuine",
+   "cat": "lab",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "Dr Lal PathLabs: Your report for ID 91XXXX is ready. View at https://www.lalpathlabs.com . Please do not share your report link with others."
+  },
+  {
+   "id": "G26",
+   "label": "genuine",
+   "cat": "rwa",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Dear residents, maintenance of Rs 3,500 for Oct-Dec is due by 20th. Pay via society UPI skylineresidency@sbi or cheque in office. Late fee Rs 100 after due date. - Treasurer, Mr Kulkarni"
+  },
+  {
+   "id": "G27",
+   "label": "genuine",
+   "cat": "rwa",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "Dear residents, water tank cleaning will be done on Sunday 19th from 9 am to 1 pm. Please store water. Lift AMC visit on Monday. -Secretary, Palm Grove CHS"
+  },
+  {
+   "id": "G28",
+   "label": "genuine",
+   "cat": "govt",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "Passport Seva: Your appointment at PSK Pune is on 22-Oct 10:15 AM. Carry original documents. ARN XX1234567. Reach 30 mins early."
+  },
+  {
+   "id": "G29",
+   "label": "genuine",
+   "cat": "govt",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Dear taxpayer, your ITR for AY 2025-26 is processed; refund Rs 14,210 will be credited to your pre-validated bank account (SBI xx4455). Refer incometax.gov.in for status."
+  },
+  {
+   "id": "G30",
+   "label": "genuine",
+   "cat": "govt",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Your Aadhaar update request URN 1234-5678 has been processed. Check status at uidai.gov.in. UIDAI never asks for OTP or money over a phone call."
+  },
+  {
+   "id": "G31",
+   "label": "genuine",
+   "cat": "govt",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "EPFO: Your claim for PF withdrawal of Rs 87,000 against UAN 10xxxxxx has been settled. The amount will be credited within 7 working days."
+  },
+  {
+   "id": "G32",
+   "label": "genuine",
+   "cat": "bank_alert",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "ICICI Bank FASTag: Rs 135 toll deducted at Kherki Daula Plaza. Balance Rs 412. Recharge on iMobile or the FASTag portal."
+  },
+  {
+   "id": "G33",
+   "label": "genuine",
+   "cat": "govt",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "Your driving licence renewal application is approved. Collect the card at the RTO or download the DL from parivahan.gov.in."
+  },
+  {
+   "id": "G34",
+   "label": "genuine",
+   "cat": "govt",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Delhi Traffic Police: e-challan of Rs 1000 issued to vehicle DL3C-XX-1234 for red light violation on 02-10. Pay within 90 days at echallan.parivahan.gov.in, else it may be sent to the virtual court."
+  },
+  {
+   "id": "G35",
+   "label": "genuine",
+   "cat": "bank_alert",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Your ICICI Bank Credit Card XX3004 statement: Total due Rs 18,745, Minimum due Rs 940, due date 25-Oct. Pay via iMobile or net banking."
+  },
+  {
+   "id": "G36",
+   "label": "genuine",
+   "cat": "bank_alert",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Dear customer, your Home Loan EMI Rs 31,200 bounced on 5-Oct due to insufficient balance. Please maintain funds; bounce charges of Rs 500 apply. Contact your branch for details."
+  },
+  {
+   "id": "G37",
+   "label": "genuine",
+   "cat": "bank_alert",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "Rs 5,000 credited to your A/c XX1190 via NEFT from RAMESH KUMAR, ref N28173644. Avl bal Rs 22,431. -Kotak Bank"
+  },
+  {
+   "id": "G38",
+   "label": "genuine",
+   "cat": "bank_kyc",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Dear customer, as per RBI guidelines Re-KYC is due for your account. Visit the branch or send documents from your registered email. No link or phone call will be made to get this done. -PNB"
+  },
+  {
+   "id": "G39",
+   "label": "genuine",
+   "cat": "bank_alert",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "Your debit card ending 9921 expires on 31-10-2025. A new card has been dispatched to your registered address and will arrive in 7 days. Set PIN using the mobile app. -Bank of Baroda"
+  },
+  {
+   "id": "G40",
+   "label": "genuine",
+   "cat": "upi",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "Rs 500.00 sent to Ramesh via PhonePe. UPI Ref No. 528173021455. Check balance in the app."
+  },
+  {
+   "id": "G41",
+   "label": "genuine",
+   "cat": "coop_bank",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "Notice: The 58th AGM of The Mogaveera Co-operative Bank Ltd. will be held on 28 Sept 2025 at 4 pm at the Bank's head office. Members are requested to attend."
+  },
+  {
+   "id": "G42",
+   "label": "genuine",
+   "cat": "personal",
+   "lang": "hinglish",
+   "obf": "none",
+   "tricky": false,
+   "text": "Beta Pune pahunch gaya, mummy ko bolna dawai le le aur electrician ka number bhej dena"
+  },
+  {
+   "id": "G43",
+   "label": "genuine",
+   "cat": "personal",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Bro can you GPay me 500 for the movie tickets? I'll give you cash tomorrow at college"
+  },
+  {
+   "id": "G44",
+   "label": "genuine",
+   "cat": "utility",
+   "lang": "hi",
+   "obf": "none",
+   "tricky": false,
+   "text": "आपका गैस सिलेंडर कल सुबह 10 बजे तक पहुँच जाएगा। कृपया कोड केवल डिलीवरी बॉय को ही बताएं। - भारत गैस"
+  },
+  {
+   "id": "G45",
+   "label": "genuine",
+   "cat": "bank_alert",
+   "lang": "hi",
+   "obf": "none",
+   "tricky": false,
+   "text": "प्रिय ग्राहक, आपके खाते XX1234 में 15,000 रुपये जमा हुए हैं। शेष राशि 42,310 रुपये। - बैंक ऑफ इंडिया"
+  },
+  {
+   "id": "G46",
+   "label": "genuine",
+   "cat": "school",
+   "lang": "hinglish",
+   "obf": "none",
+   "tricky": true,
+   "text": "Dear parents, PTM kal subah 10 baje hai. Fee Rs 12,500 ka last date 20 Oct hai, uske baad late fine lagega. Fee school office me cheque ya online portal se jama karein."
+  },
+  {
+   "id": "G47",
+   "label": "genuine",
+   "cat": "employer",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "Hi Rohan, welcome to TCS. Your offer letter has been sent to your registered email. Please complete onboarding in the portal by 25 Oct. Joining formalities at the Pune campus on 3 Nov."
+  },
+  {
+   "id": "G48",
+   "label": "genuine",
+   "cat": "employer",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Dear candidate, your interview with Wipro HR is scheduled for 18 Oct at 11 AM via MS Teams. No fee is charged by us at any stage of recruitment."
+  },
+  {
+   "id": "G49",
+   "label": "genuine",
+   "cat": "insurance",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Bajaj Allianz Motor policy MH12XX1234 renewal is due on 20-Oct. Renew now to retain your No Claim Bonus at www.bajajallianz.com"
+  },
+  {
+   "id": "G50",
+   "label": "genuine",
+   "cat": "broker",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "CDSL: Your demat statement for Sept 2025 has been emailed. If you did not carry out these transactions, please contact your DP immediately."
+  },
+  {
+   "id": "G51",
+   "label": "genuine",
+   "cat": "advisory",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "SEBI cautions investors against unregistered investment advisors and 'guaranteed return' schemes. Verify intermediaries on sebi.gov.in before investing."
+  },
+  {
+   "id": "G52",
+   "label": "genuine",
+   "cat": "advisory",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "RBI cautions the public against fictitious offers of money from abroad and callers asking for KYC details, OTP or PIN. RBI does not hold accounts of individuals."
+  },
+  {
+   "id": "G53",
+   "label": "genuine",
+   "cat": "advisory",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "If you have lost money in a cyber fraud, dial 1930 immediately or report at cybercrime.gov.in. Early reporting helps freeze the money. - I4C, MHA"
+  },
+  {
+   "id": "G54",
+   "label": "genuine",
+   "cat": "advisory",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Never share your OTP, PIN or CVV with anyone. Bank officials will never ask for these on call or SMS. Report fraud on 1930. - State Bank of India"
+  },
+  {
+   "id": "G55",
+   "label": "genuine",
+   "cat": "courier",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Delhivery: Your parcel will be delivered today between 2-6 PM. Delivery OTP 3321. Track: https://www.delhivery.com/track"
+  },
+  {
+   "id": "G56",
+   "label": "genuine",
+   "cat": "courier",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "India Post: Article EE123456789IN booked at Pune GPO on 10-10 was delivered to the addressee at 11:20 on 13-10. Track on indiapost.gov.in"
+  },
+  {
+   "id": "G57",
+   "label": "genuine",
+   "cat": "dth",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Tata Play: Your a/c balance is Rs 48. Recharge within 2 days to avoid service suspension. Recharge via the Tata Play app or tataplay.com"
+  },
+  {
+   "id": "G58",
+   "label": "genuine",
+   "cat": "food",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "Swiggy: Your order is on the way, arriving in 12 mins. Refund of Rs 189 for the missing item has been credited to your source account."
+  },
+  {
+   "id": "G59",
+   "label": "genuine",
+   "cat": "ride",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "Your Uber OTP is 4412. Share it only with your driver Suresh (MH12 AB 4521). Have a safe ride."
+  },
+  {
+   "id": "G60",
+   "label": "genuine",
+   "cat": "hospital",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Fortis: Your bill of Rs 1,84,200 for the admission of Mrs. Sharma is ready for payment at the billing counter. Insurance TPA pre-authorisation is still pending approval."
+  },
+  {
+   "id": "G61",
+   "label": "genuine",
+   "cat": "govt",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "BBMP: Property tax for 2025-26, Rs 14,820, is due by 31 Oct. 5% rebate is available if paid early on the official BBMP property tax portal."
+  },
+  {
+   "id": "G62",
+   "label": "genuine",
+   "cat": "edu",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Mumbai University: Results of TYBCom Sem 6 are declared at mu.ac.in. Revaluation form can be submitted till 22 Oct, fee Rs 500 per paper."
+  },
+  {
+   "id": "G63",
+   "label": "genuine",
+   "cat": "pension",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "NPS: Your Tier-1 contribution of Rs 5,000 has been received for PRAN 11XXXXXXXXX on 10-Oct. NAV will be allotted at the next NAV date."
+  },
+  {
+   "id": "G64",
+   "label": "genuine",
+   "cat": "bank_alert",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Your UPI PIN was changed successfully on 12-Oct. If this was not done by you, please call your bank's customer care immediately and block UPI."
+  },
+  {
+   "id": "G65",
+   "label": "genuine",
+   "cat": "business",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Dear Sir, as discussed, PFA the invoice for INR 45,000 for the September work. Kindly arrange the payment within 7 days to the account mentioned in our agreement. Regards, Anil, Verma Associates"
+  },
+  {
+   "id": "G66",
+   "label": "genuine",
+   "cat": "personal",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "Hi, rent for October Rs 22,000 please transfer to the same HDFC account by the 5th. I'll give the receipt when you come over."
+  },
+  {
+   "id": "G67",
+   "label": "genuine",
+   "cat": "personal",
+   "lang": "hinglish",
+   "obf": "none",
+   "tricky": false,
+   "text": "Bhaiya kal ke liye 5 kilo aloo aur 2 kilo tamatar bhej dena, paise shaam ko GPay kar dunga."
+  },
+  {
+   "id": "G68",
+   "label": "genuine",
+   "cat": "personal",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "Hello uncle, we saw your daughter's profile on Shaadi.com. We are a family from Nagpur, can we call you this Sunday evening to talk?"
+  },
+  {
+   "id": "G69",
+   "label": "genuine",
+   "cat": "telco",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "You have successfully registered for DND. Promotional messages and calls will stop within 7 days. - TRAI NCPR"
+  },
+  {
+   "id": "G70",
+   "label": "genuine",
+   "cat": "bank_call",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Hello sir, this is Neha from the Kotak relationship team. I'm just calling to let you know your FD is maturing next week, you can renew it from the app or visit the branch. I will not ask for any OTP or card details on this call."
+  },
+  {
+   "id": "G71",
+   "label": "genuine",
+   "cat": "hospital",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "Reminder from Sunrise Clinic: Dr. Iyer's consultation for Aarav is tomorrow at 5:30 PM. Please bring the vaccination card."
+  },
+  {
+   "id": "G72",
+   "label": "genuine",
+   "cat": "travel",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Air India: Flight AI 805 is delayed by 2 hrs, new departure 18:40. In case of long delay you can opt for a refund on airindia.com or at the airport counter."
+  },
+  {
+   "id": "G73",
+   "label": "genuine",
+   "cat": "crypto",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "CoinDCX: Your withdrawal of 0.01 BTC has been initiated. If this was not you, freeze your account immediately at coindcx.com/support."
+  },
+  {
+   "id": "G74",
+   "label": "genuine",
+   "cat": "govt",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "GSTN: Your GSTR-3B for Sept is due on 20 Oct. File on gst.gov.in; late fee and interest applicable after due date."
+  },
+  {
+   "id": "G75",
+   "label": "genuine",
+   "cat": "bank_alert",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "SBI Education Loan: Disbursement of Rs 1,25,000 to Vellore Institute of Technology was made on 12 Oct towards fee. Contact your branch for any queries."
+  },
+  {
+   "id": "G76",
+   "label": "genuine",
+   "cat": "personal",
+   "lang": "telugu-english",
+   "obf": "none",
+   "tricky": false,
+   "text": "Anna repu marriage function ki vastava? Muhurtham 7am ki. Gifts marchipokandi."
+  },
+  {
+   "id": "G77",
+   "label": "genuine",
+   "cat": "coop_bank",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Pune Janata Sahakari Bank: Your Gold Loan GL/2291 interest of Rs 1,820 is due on 30-Oct. Please pay to avoid auction notice as per loan terms; contact branch manager for renewal."
+  },
+  {
+   "id": "G78",
+   "label": "genuine",
+   "cat": "govt",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Dear applicant, your passport police verification is scheduled on 17-Oct. Please keep original Aadhaar and address proof ready. No payment is required to the police at any stage."
+  },
+  {
+   "id": "G79",
+   "label": "genuine",
+   "cat": "insurance",
+   "lang": "en",
+   "obf": "none",
+   "tricky": false,
+   "text": "HDFC Life: Thank you for paying the premium of Rs 25,000 for policy 2XXXXXX on 11-Oct. Receipt emailed to your registered id."
+  },
+  {
+   "id": "G80",
+   "label": "genuine",
+   "cat": "telco",
+   "lang": "en",
+   "obf": "none",
+   "tricky": true,
+   "text": "Vi: Your data balance is nearly exhausted. Recharge with Rs 199 on myvi.in to get 1.5GB/day. Beware of calls asking for OTP/KYC; Vi never asks."
+  }
+ ],
+ "domains": [
+  {
+   "id": "DM01",
+   "label": "malicious",
+   "cat": "brand-hyphen-tld",
+   "input": "hdfcbank-kycupdate-secure.xyz",
+   "believedResolving": "no"
+  },
+  {
+   "id": "DM02",
+   "label": "malicious",
+   "cat": "brand-hyphen-tld",
+   "input": "sbi-yono-reward-claim.top",
+   "believedResolving": "no"
+  },
+  {
+   "id": "DM03",
+   "label": "malicious",
+   "cat": "brand-hyphen-tld",
+   "input": "icici-card-verify-now.cfd",
+   "believedResolving": "no"
+  },
+  {
+   "id": "DM04",
+   "label": "malicious",
+   "cat": "brand-hyphen-tld",
+   "input": "paytm-kyc-center-india.icu",
+   "believedResolving": "no"
+  },
+  {
+   "id": "DM05",
+   "label": "malicious",
+   "cat": "brand-hyphen-tld",
+   "input": "phonepe-cashback-claim.shop",
+   "believedResolving": "no"
+  },
+  {
+   "id": "DM06",
+   "label": "malicious",
+   "cat": "brand-hyphen-tld",
+   "input": "incometax-refund-gov.life",
+   "believedResolving": "no"
+  },
+  {
+   "id": "DM07",
+   "label": "malicious",
+   "cat": "brand-hyphen-tld",
+   "input": "uidai-aadhaar-update-online.vip",
+   "believedResolving": "no"
+  },
+  {
+   "id": "DM08",
+   "label": "malicious",
+   "cat": "brand-hyphen-tld",
+   "input": "irctc-tatkal-booking-pro.club",
+   "believedResolving": "no"
+  },
+  {
+   "id": "DM09",
+   "label": "malicious",
+   "cat": "brand-hyphen-tld",
+   "input": "lic-bonus-maturity-claim.online",
+   "believedResolving": "no"
+  },
+  {
+   "id": "DM10",
+   "label": "malicious",
+   "cat": "brand-hyphen-tld",
+   "input": "amazon-in-prize-winner2025.site",
+   "believedResolving": "no"
+  },
+  {
+   "id": "DM11",
+   "label": "malicious",
+   "cat": "brand-hyphen-tld",
+   "input": "https://flipkart-bigbillion-lucky.top/draw",
+   "believedResolving": "no"
+  },
+  {
+   "id": "DM12",
+   "label": "malicious",
+   "cat": "brand-hyphen-tld",
+   "input": "jio-free-recharge-diwali.xyz",
+   "believedResolving": "no"
+  },
+  {
+   "id": "DM13",
+   "label": "malicious",
+   "cat": "brand-hyphen-tld",
+   "input": "http://epfo-claim-portal.live/login.php",
+   "believedResolving": "no"
+  },
+  {
+   "id": "DM14",
+   "label": "malicious",
+   "cat": "brand-subdomain-trick",
+   "input": "https://secure.sbi.co.in.kyc-verify-portal.xyz/login",
+   "believedResolving": "no"
+  },
+  {
+   "id": "DM15",
+   "label": "malicious",
+   "cat": "brand-subdomain-trick",
+   "input": "https://www.hdfcbank.com.account-verify-center.top/",
+   "believedResolving": "no"
+  },
+  {
+   "id": "DM16",
+   "label": "malicious",
+   "cat": "brand-subdomain-trick",
+   "input": "https://netbanking.icicibank.com-secure-session.ru/index",
+   "believedResolving": "no"
+  },
+  {
+   "id": "DM17",
+   "label": "malicious",
+   "cat": "punycode",
+   "input": "xn--hdfcbnk-secure-w0a.com",
+   "believedResolving": "no"
+  },
+  {
+   "id": "DM18",
+   "label": "malicious",
+   "cat": "lookalike-chars",
+   "input": "http://sbi-0nline-banking.com",
+   "believedResolving": "no"
+  },
+  {
+   "id": "DM19",
+   "label": "malicious",
+   "cat": "lookalike-chars",
+   "input": "http://paytm-wallet-0ffers.com/win",
+   "believedResolving": "no"
+  },
+  {
+   "id": "DM20",
+   "label": "malicious",
+   "cat": "ip-literal",
+   "input": "http://203.0.113.45/sbi/login.html",
+   "believedResolving": "n/a-ip"
+  },
+  {
+   "id": "DM21",
+   "label": "malicious",
+   "cat": "ip-literal",
+   "input": "http://198.51.100.7:8080/kyc.php",
+   "believedResolving": "n/a-ip"
+  },
+  {
+   "id": "DM22",
+   "label": "malicious",
+   "cat": "free-host-brand",
+   "input": "https://sbi-netbanking-login-demo9.netlify.app",
+   "believedResolving": "yes-shared-host"
+  },
+  {
+   "id": "DM23",
+   "label": "malicious",
+   "cat": "free-host-brand",
+   "input": "https://hdfc-kyc-form-demo9.pages.dev",
+   "believedResolving": "yes-shared-host"
+  },
+  {
+   "id": "DM24",
+   "label": "malicious",
+   "cat": "free-host-brand",
+   "input": "https://icici-rewards-claim-demo9.vercel.app",
+   "believedResolving": "yes-shared-host"
+  },
+  {
+   "id": "DM25",
+   "label": "malicious",
+   "cat": "free-host-brand",
+   "input": "https://paytm-help-center-demo9.blogspot.com",
+   "believedResolving": "yes-shared-host"
+  },
+  {
+   "id": "DM26",
+   "label": "malicious",
+   "cat": "free-host-brand",
+   "input": "https://airtel-sim-kyc-demo9.weebly.com",
+   "believedResolving": "yes-shared-host"
+  },
+  {
+   "id": "DM27",
+   "label": "malicious",
+   "cat": "free-host-brand",
+   "input": "https://upi-cashback-claim-demo9.web.app",
+   "believedResolving": "yes-shared-host"
+  },
+  {
+   "id": "DM28",
+   "label": "malicious",
+   "cat": "free-host-brand",
+   "input": "https://npci-refund-form-demo9.github.io",
+   "believedResolving": "yes-shared-host"
+  },
+  {
+   "id": "DM29",
+   "label": "malicious",
+   "cat": "free-host-brand",
+   "input": "https://kbc-lucky-winner-2025-demo9.wixsite.com/claim",
+   "believedResolving": "yes-shared-host"
+  },
+  {
+   "id": "DM30",
+   "label": "malicious",
+   "cat": "shortener",
+   "input": "https://bit.ly/3kYcRp9Zq",
+   "believedResolving": "yes-legit-shortener"
+  },
+  {
+   "id": "DM31",
+   "label": "malicious",
+   "cat": "shortener",
+   "input": "https://tinyurl.com/sbi-kyc-now9x",
+   "believedResolving": "yes-legit-shortener"
+  },
+  {
+   "id": "DM32",
+   "label": "malicious",
+   "cat": "generic-scam-no-brand",
+   "input": "crypto-profit-daily-india.top",
+   "believedResolving": "no"
+  },
+  {
+   "id": "DM33",
+   "label": "malicious",
+   "cat": "generic-scam-no-brand",
+   "input": "quick-loan-instant-approve.cfd",
+   "believedResolving": "no"
+  },
+  {
+   "id": "DM34",
+   "label": "malicious",
+   "cat": "generic-scam-no-brand",
+   "input": "free-iphone-draw-india.click",
+   "believedResolving": "no"
+  },
+  {
+   "id": "DM35",
+   "label": "malicious",
+   "cat": "generic-scam-no-brand",
+   "input": "bank-otp-verify-now.tk",
+   "believedResolving": "no"
+  },
+  {
+   "id": "DL01",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "https://www.sbi.co.in/web/personal-banking",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL02",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "hdfcbank.com",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL03",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "https://www.icicibank.com/personal-banking/cards",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL04",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "axisbank.com",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL05",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "https://www.kotak.com",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL06",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "https://www.irctc.co.in/nget/train-search",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL07",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "https://incometax.gov.in",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL08",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "https://uidai.gov.in",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL09",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "npci.org.in",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL10",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "https://www.rbi.org.in",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL11",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "https://www.flipkart.com",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL12",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "https://www.amazon.in",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL13",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "paytm.com",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL14",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "phonepe.com",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL15",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "https://zerodha.com",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL16",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "jio.com",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL17",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "airtel.in",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL18",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "https://www.licindia.in",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL19",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "nseindia.com",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL20",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "https://www.sebi.gov.in",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL21",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "pib.gov.in",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL22",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "https://www.india.gov.in",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL23",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "digilocker.gov.in",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL24",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "https://www.swiggy.com",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL25",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "zomato.com",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL26",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "https://www.makemytrip.com",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL27",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "https://www.google.com",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL28",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "https://www.irdai.gov.in",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL29",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "https://cybercrime.gov.in",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL30",
+   "label": "legit",
+   "cat": "well-known",
+   "input": "https://www.epfindia.gov.in",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL31",
+   "label": "legit",
+   "cat": "lesser-known-institution",
+   "input": "https://www.saraswatbank.com",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL32",
+   "label": "legit",
+   "cat": "lesser-known-institution",
+   "input": "svcbank.com",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL33",
+   "label": "legit",
+   "cat": "lesser-known-institution",
+   "input": "https://www.cosmosbank.in",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL34",
+   "label": "legit",
+   "cat": "lesser-known-institution",
+   "input": "https://www.janabank.com",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL35",
+   "label": "legit",
+   "cat": "lesser-known-institution",
+   "input": "tmb.in",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL36",
+   "label": "legit",
+   "cat": "lesser-known-institution",
+   "input": "https://www.kvb.co.in",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL37",
+   "label": "legit",
+   "cat": "lesser-known-institution",
+   "input": "https://www.jkbank.com",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL38",
+   "label": "legit",
+   "cat": "lesser-known-institution",
+   "input": "dhanbank.com",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL39",
+   "label": "legit",
+   "cat": "lesser-known-institution",
+   "input": "https://www.mahadiscom.in",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL40",
+   "label": "legit",
+   "cat": "lesser-known-institution",
+   "input": "https://www.unipune.ac.in",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL41",
+   "label": "legit",
+   "cat": "lesser-known-institution",
+   "input": "mu.ac.in",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL42",
+   "label": "legit",
+   "cat": "lesser-known-institution",
+   "input": "https://www.tmc.gov.in",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL43",
+   "label": "legit",
+   "cat": "lesser-known-institution",
+   "input": "https://www.cmch-vellore.edu",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL44",
+   "label": "legit",
+   "cat": "lesser-known-institution",
+   "input": "https://www.nivabupa.com",
+   "believedResolving": "yes"
+  },
+  {
+   "id": "DL45",
+   "label": "legit",
+   "cat": "lesser-known-institution",
+   "input": "https://www.starhealth.in",
+   "believedResolving": "yes"
+  }
+ ],
+ "documents": [
+  {
+   "id": "DF01",
+   "label": "forged",
+   "cat": "ed_notice",
+   "text": "ENFORCEMENT DIRECTORATE, GOVERNMENT OF INDIA\nZonal Office Mumbai\nSummons under Section 50 PMLA 2002\nRef: ED/MZO/2025/8841\n\nTo, the account holder of Aadhaar ending 4471.\nYour bank account has been found linked to a hawala transaction of Rs 4,35,00,000. You are required to appear before the Assistant Director within 24 hours. To avoid arrest and attachment of assets you may deposit a refundable security amount of Rs 1,85,000 in the RBI Verification Account No 3098XXXX7712 (IFSC SBIN0001234). Do not discuss this notice with anyone including family or your bank. Non-compliance will result in an immediate non-bailable warrant.\n\nAssistant Director, ED"
+  },
+  {
+   "id": "DF02",
+   "label": "forged",
+   "cat": "it_notice",
+   "text": "INCOME TAX DEPARTMENT - FINAL DEMAND NOTICE\nNotice u/s 142(1) / 156\nPAN: ABCPX1234Q   Assessment Year 2023-24\n\nIt is found that you have concealed income of Rs 9,40,000. A penalty of Rs 85,000 must be paid within 48 hours through the UPI ID itdept.penalty@okaxis or by purchasing Google Play gift cards and sharing the codes with our officer on WhatsApp 9XXXXXXXXX. Failure will lead to freezing of your bank accounts and a police complaint. Settlement is available only by phone, do not visit any office."
+  },
+  {
+   "id": "DF03",
+   "label": "forged",
+   "cat": "rbi_notice",
+   "text": "RESERVE BANK OF INDIA\nFinancial Intelligence & Anti-Money Laundering Cell\nAML CLEARANCE CERTIFICATE\n\nDear Sir/Madam, your account is flagged under the RBI Digital Arrest Protocol 2025. To obtain the AML clearance certificate you are required to transfer your savings to the RBI Safe Custody Account for verification. After 72 hours of verification the funds will be returned in full. A processing fee of Rs 12,500 is payable upfront. Contact Deputy Governor's special officer on Telegram."
+  },
+  {
+   "id": "DF04",
+   "label": "forged",
+   "cat": "court_warrant",
+   "text": "HON'BLE SUPREME COURT OF INDIA - ARREST WARRANT\nCase No. CRL/2025/00921  State vs. Mobile No. 98XXXXXXXX\n\nWhereas the above named has been found involved in an offence under Sections 420, 120B IPC and PMLA, a non-bailable warrant of arrest is issued. The accused may avoid arrest by depositing bail surety of Rs 2,50,000 online with the Court Registrar through the link provided. This order is confidential under the Official Secrets Act; disclosure to any person will attract additional charges. Judge: Hon'ble Justice R. K. Malhotra (e-signed)"
+  },
+  {
+   "id": "DF05",
+   "label": "forged",
+   "cat": "telecom_notice",
+   "text": "DEPARTMENT OF TELECOMMUNICATIONS\nNotice of Permanent Disconnection\n\nYour SIM numbers (3) registered against your Aadhaar are being misused for sending obscene messages and fraud calls. All connections will be permanently blocked in 2 hours. To stop this you must pay Rs 4,999 re-verification fee and share the OTP to the officer, or press 9 to be connected with the Cyber Crime Cell. Ref: DoT/TERM/2025/1176."
+  },
+  {
+   "id": "DF06",
+   "label": "forged",
+   "cat": "cbi_letter",
+   "text": "CENTRAL BUREAU OF INVESTIGATION\nAnti-Corruption & Cyber Crime Division\nCONFIDENTIAL - FOR ADDRESSEE ONLY\n\nA parcel containing 3 passports, 200 g narcotics and forged ATM cards was seized by Customs at Delhi IGI airport in your name. You are to remain on video surveillance and not leave your residence until the investigation is closed. To prove your innocence all your funds must be moved to the CBI supervised account for audit. Any contact with relatives will be treated as obstruction of justice."
+  },
+  {
+   "id": "DF07",
+   "label": "forged",
+   "cat": "customs_notice",
+   "text": "INDIAN CUSTOMS - NOTICE OF SEIZURE\nConsignment AWB 7741 8832 1190 from United Kingdom (gift parcel: laptop, jewellery, GBP 25,000)\n\nThe consignment is held at Mumbai Air Cargo. To release it, pay customs duty of Rs 38,500, anti-money laundering certificate fee Rs 14,200 and anti-terror clearance Rs 9,900 into the account below within 24 hours or the parcel will be destroyed and legal action will be initiated."
+  },
+  {
+   "id": "DF08",
+   "label": "forged",
+   "cat": "sebi_notice",
+   "text": "SECURITIES AND EXCHANGE BOARD OF INDIA\nRecovery Notice no. SEBI/RC/2025/3321\n\nOur records show you subscribed to an unregistered scheme and are eligible for a refund of Rs 6,70,000. To release the refund deposit a refundable security of 2% (Rs 13,400) and GST of 18% into the SEBI Investor Protection escrow account. Refund within 7 working days of payment. Contact our recovery officer on WhatsApp only."
+  },
+  {
+   "id": "DF09",
+   "label": "forged",
+   "cat": "loan_letter",
+   "text": "GOLDEN FINSERV LIMITED - LOAN SANCTION LETTER\nCongratulations! Your personal loan of Rs 8,00,000 at 5.9% p.a. has been sanctioned without credit check. To disburse the amount please pay Rs 14,500 as insurance, Rs 6,000 as GST and Rs 8,000 as processing fee to our UPI goldenfinserv@paytm. Disbursal in 15 minutes after payment. No documents required except Aadhaar photo and selfie."
+  },
+  {
+   "id": "DF10",
+   "label": "forged",
+   "cat": "offer_letter",
+   "text": "APPOINTMENT LETTER\nInfosys Limited (HR Division) - Ref INF/HR/2025/44112\n\nDear Candidate, we are pleased to offer you the position of Associate Engineer at a CTC of Rs 9.5 LPA. To confirm your joining you must deposit a refundable security of Rs 25,000 towards laptop, ID card and training kit in the HR account given below. Offer lapses if payment is not received within 24 hours. Contact HR on gmail address infosys.hr.recruit@gmail.com."
+  },
+  {
+   "id": "DF11",
+   "label": "forged",
+   "cat": "lic_letter",
+   "text": "LIFE INSURANCE CORPORATION OF INDIA - MATURITY INTIMATION\nYour old policy has matured with total bonus Rs 17,84,000. To receive the payment you must submit TDS clearance fee Rs 21,000, IRDAI NOC fee Rs 7,500 and courier charge Rs 2,100. Payment must be made to the officer's personal account within 3 days, after which the amount will be forfeited to the government."
+  },
+  {
+   "id": "DF12",
+   "label": "forged",
+   "cat": "narcotics_letter",
+   "text": "NARCOTICS CONTROL BUREAU - NOTICE\nYour name appears in a drug trafficking racket investigation. A mobile number registered on your Aadhaar was used. To avoid arrest, contact Inspector Sharma on the WhatsApp number given and pay the case-closing amount of Rs 75,000 by UPI. Keep this confidential; telling anyone will be considered tampering with evidence."
+  },
+  {
+   "id": "DG01",
+   "label": "genuine",
+   "cat": "hospital_bill",
+   "text": "SUNRISE MULTISPECIALITY HOSPITAL, PUNE\nFinal Bill   Bill No: IP/25/008812   Date: 09-10-2025\nPatient: Mrs. Sunita Sharma   UHID: 2231877   Admission: 05-10-2025   Discharge: 09-10-2025\nRoom charges (4 days)       Rs 28,000\nDoctor visit charges        Rs 12,000\nInvestigations              Rs 18,450\nPharmacy                    Rs 22,310\nOT charges                  Rs 64,000\nGross total                 Rs 1,44,760\nLess: TPA approved (Star Health)   Rs 1,10,000\nPatient payable             Rs 34,760\nPayment accepted at billing counter by cash, card or UPI to the hospital's account displayed at the counter. GSTIN 27AAAXX1234A1Z5"
+  },
+  {
+   "id": "DG02",
+   "label": "genuine",
+   "cat": "advocate_notice",
+   "text": "LEGAL NOTICE\nUnder Section 138 of the Negotiable Instruments Act, 1881\nFrom: Adv. S. R. Deshpande, High Court Bar, Nashik\nTo: Mr. Rakesh Patil, Kamat Traders\n\nMy client Mr. Anil Joshi states that you issued cheque no. 004512 dated 01-08-2025 for Rs 3,20,000 drawn on Bank of Maharashtra towards payment for goods supplied vide invoice 118, which was returned unpaid on 12-08-2025 with the remark 'Funds insufficient'. You are called upon to pay the said amount within 15 days of receipt of this notice failing which my client will initiate criminal proceedings under Section 138 and a civil suit for recovery with interest at 18% and costs. Sent by RPAD and email. Date: 26-09-2025."
+  },
+  {
+   "id": "DG03",
+   "label": "genuine",
+   "cat": "it_assessment",
+   "text": "INCOME TAX DEPARTMENT\nOrder under section 143(3) read with section 144B of the Income-tax Act, 1961\nDIN & Order No: ITBA/AST/S/143(3)/2025-26/1234567890\nName: M/s Kamat Traders  PAN: AAAFK1234P  AY: 2023-24\nThe assessment is completed at total income of Rs 14,82,350 against returned income Rs 11,20,000 after addition of Rs 3,62,350 on account of unexplained cash credits. Tax payable including interest u/s 234B/234C: Rs 1,12,430. Demand notice u/s 156 is issued separately. You may pay through the e-Pay Tax facility on the e-filing portal or file an appeal before the CIT(Appeals) within 30 days. Faceless Assessment Unit, NaFAC, Delhi."
+  },
+  {
+   "id": "DG04",
+   "label": "genuine",
+   "cat": "bank_sanction",
+   "text": "BANK OF MAHARASHTRA - SANCTION LETTER\nRef: BOM/PUN/HL/2025/0912   Date: 03-10-2025\nTo: Mr. Rohan Kulkarni and Mrs. Meera Kulkarni\nWe are pleased to inform you that your Home Loan application is sanctioned: Amount Rs 42,00,000; tenure 240 months; interest rate 8.45% p.a. floating linked to RBLR; EMI Rs 36,150. Processing fee Rs 10,000 + GST will be deducted from the first disbursement, as per the schedule of charges. This sanction is valid for 90 days subject to execution of loan documents, mortgage creation and legal/technical verification. Please visit Pune Camp branch with originals."
+  },
+  {
+   "id": "DG05",
+   "label": "genuine",
+   "cat": "electricity_bill",
+   "text": "MAHARASHTRA STATE ELECTRICITY DISTRIBUTION CO. LTD.\nBill for the month of September 2025\nConsumer No: 170012345678  Name: R. S. Patil  Tariff: LT-I Residential\nPrevious reading 4521   Current reading 4780   Units consumed 259\nEnergy charges Rs 1,492  Fixed charge Rs 128  Electricity duty Rs 214  Total Rs 1,834\nDue date 18-10-2025. Prompt payment discount Rs 18. Pay at any authorised centre or online. If the bill is not paid after the due date, a delayed payment charge applies and the supply may be disconnected after notice as per MERC regulations."
+  },
+  {
+   "id": "DG06",
+   "label": "genuine",
+   "cat": "salary_slip",
+   "text": "PAY SLIP - SEPTEMBER 2025\nEmployer: Mahindra Logistics Ltd.  Employee ID: ML20418  Name: Priyanka Desai  Designation: Manager - Ops\nBasic 52,000; HRA 26,000; Special allowance 31,500; Gross 1,09,500\nDeductions: PF 6,240; Professional tax 200; TDS 9,820; Total 16,260. Net pay Rs 93,240 credited to account HDFC xx5521 on 30-09-2025. This is a system generated payslip and does not require signature."
+  },
+  {
+   "id": "DG07",
+   "label": "genuine",
+   "cat": "insurance_schedule",
+   "text": "HDFC ERGO - HEALTH SURAKSHA POLICY SCHEDULE\nPolicy No: 2956 2012 4455 0000  Period: 12-10-2025 to 11-10-2026\nInsured: Mr. Arun Menon (self), Mrs. Latha Menon (spouse)\nSum insured Rs 10,00,000. Premium Rs 21,480 (incl. GST Rs 3,277). Waiting period for pre-existing diseases 3 years. For claims call the 24x7 helpline or intimate through the customer portal. Cashless is available at network hospitals. Fraud warning: the company never asks you to pay claim amounts to personal accounts."
+  },
+  {
+   "id": "DG08",
+   "label": "genuine",
+   "cat": "court_summons",
+   "text": "IN THE COURT OF CIVIL JUDGE (JUNIOR DIVISION), THANE\nRegular Civil Suit No. 412/2025\nSumit Enterprises v. Mr. Vijay Naik\nSUMMONS to the defendant: Whereas the plaintiff has instituted a suit for recovery of Rs 2,75,000 with interest, you are hereby summoned to appear in person or through an advocate on 14-11-2025 at 11:00 a.m. and file your written statement within 30 days of service. In default, the suit shall be heard and decided ex parte. Given under my hand and the seal of the Court, this 30th day of September, 2025. Sd/- Registrar."
+  },
+  {
+   "id": "DG09",
+   "label": "genuine",
+   "cat": "gst_notice",
+   "text": "GOODS AND SERVICES TAX DEPARTMENT, GOVT. OF MAHARASHTRA\nShow Cause Notice under Section 73 of the CGST/MGST Act, 2017  DIN: 20251047XX00001234ZZ\nGSTIN 27AAAFK1234P1ZV   Period: 2022-23\nDiscrepancy of Rs 1,84,000 ITC claimed in GSTR-3B versus GSTR-2A has been noticed. You are required to show cause in form DRC-06 within 30 days why tax of Rs 1,84,000 with interest and penalty should not be demanded. Please reply on the GST common portal. Personal hearing on 28-10-2025 at the Ward 4 office. No payment is to be made anywhere other than through the GST portal challan."
+  },
+  {
+   "id": "DG10",
+   "label": "genuine",
+   "cat": "fee_receipt",
+   "text": "SAVITRIBAI PHULE PUNE UNIVERSITY - FEE RECEIPT\nReceipt No: SPPU/EX/2025/118820  Date: 08-10-2025\nStudent: Ankita Joshi  PRN: 72345678K  Course: M.Sc. Computer Science Sem III\nExamination fee Rs 1,350; Marksheet fee Rs 150; Total Rs 1,500 paid through the official online gateway (txn id 7788123). This is a computer generated receipt."
+  },
+  {
+   "id": "DG11",
+   "label": "genuine",
+   "cat": "property_tax",
+   "text": "PUNE MUNICIPAL CORPORATION - PROPERTY TAX DEMAND NOTICE 2025-26\nProperty ID 123456  Owner: Mr. Satish Gokhale  Annual tax Rs 14,820, arrears Rs 2,310, total Rs 17,130. A rebate of 5% is allowed if paid before 31-10-2025; thereafter 2% per month penalty applies and a warrant of attachment may be issued under the Mumbai Provincial Municipal Corporation Act. Pay online on the PMC property tax portal, through bank challan or at the ward office. Always obtain a receipt."
+  },
+  {
+   "id": "DG12",
+   "label": "genuine",
+   "cat": "bank_statement",
+   "text": "UNION BANK OF INDIA - ACCOUNT STATEMENT\nA/c No XXXXXX4412  Name: Mr. Harish Bhat  Period 01-09-2025 to 30-09-2025\n03-09 UPI/DR/527xx/ZOMATO  Debit 480  Bal 42,115\n05-09 NEFT CR SALARY ACME SOFT  Credit 71,000  Bal 1,13,115\n10-09 ECS/EMI HOME LOAN  Debit 24,350  Bal 88,765\n22-09 ATM WDL  Debit 5,000  Bal 83,765\nClosing balance Rs 83,765. This is a system generated statement. For discrepancies contact the branch within 15 days."
+  }
+ ]
+}

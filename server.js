@@ -1133,6 +1133,7 @@ function domainPayload(a, rawInput) {
 // API 6: COMPREHENSIVE CITIZEN SCAM CHECKER ENGINE (Instant Verification)
 // ==========================================
 const indicators = require('./lib/indicators');
+const linkPolicy = require('./lib/linkPolicy');
 app.post('/api/scam/check', async (req, res) => {
   const { text } = req.body;
   const raw = (typeof text === 'string' ? text : '').trim();
@@ -1197,26 +1198,34 @@ app.post('/api/scam/check', async (req, res) => {
     return res.status(502).json({ error: "Verification engine unavailable. Treat this link as UNVERIFIED." });
   }
 
-  // Message with embedded links: worst link drives the verdict. Unverified link inside a message is >= HIGH.
+  // Message with embedded links: evidence-based (lib/linkPolicy.js). Dangerous link (hard block, young domain, look-alike ...) or an unknown
+  // link next to a concrete risk signal in the wording => >= HIGH; an unknown link on its own => "not sure" (MEDIUM); a link with positive
+  // evidence (verified, recognised, Tranco-popular, org-validated) is never force-boosted.
   let phishingDomainDetected = null;
-  const trustedOf = scored.filter(a => a.verified || a.recognisedBrand || a.orgValidatedEstablished);
-  const linkOpts = { links: extractedUrls.length, trustedLinks: trustedOf.length, recognisedLinks: trustedOf.filter(a => !a.verified).length };
-  const risky = scored.filter(a => !a.verified && !a.recognisedBrand && !a.orgValidatedEstablished).sort((x, y) => y.riskScore - x.riskScore)[0];
-  if (risky || failed) {
-    const a = risky || { host: failed.host, verdict: 'UNVERIFIED_THIRD_PARTY_DOMAIN', riskScore: 75, riskLevel: 'HIGH', flags: ['Link could not be analysed — treated as unverified'], evidenceForTrust: [], verified: false, hardBlock: false, tld: '', dns: {}, ssl: {}, isOpenPhish: false, webRisk: {}, entropy: 0, registrable: failed.host, gemini: { available: false, reason: 'engine error' }, domainAge: {} };
-    const boosted = { ...a, riskScore: Math.max(a.riskScore, 75), riskLevel: levelBoost(Math.max(a.riskScore, 75)) };
+  const lp = linkPolicy.plan(scored, failed);
+  const linkOpts = { links: extractedUrls.length, ...lp.textOpts };
+  const preTv = (lp.dangerous.length || lp.unknown.length || lp.failed) ? textEngine.analyze(raw, linkOpts) : null;
+  const decision = linkPolicy.decide(lp, preTv);
+  if (decision.mode !== 'none') {
+    const soft = decision.mode === 'soft';
+    const a = decision.link || { host: failed.host, verdict: 'UNVERIFIED_THIRD_PARTY_DOMAIN', riskScore: 75, riskLevel: 'HIGH', flags: ['Link could not be analysed — treated as unverified'], evidenceForTrust: [], verified: false, hardBlock: false, tld: '', dns: {}, ssl: {}, isOpenPhish: false, webRisk: {}, entropy: 0, registrable: failed.host, gemini: { available: false, reason: 'engine error' }, domainAge: {} };
+    const linkScore = soft ? decision.floor : Math.max(a.riskScore, decision.floor);
+    const lvl = soft ? textEngine.levelFor : levelBoost;
+    const boosted = { ...a, riskScore: linkScore, riskLevel: lvl(linkScore) };
     // Merge the text-engine verdict so scam wording (digital arrest, KYC, ...) is not lost behind the link verdict.
-    const tv = textEngine.analyze(raw, linkOpts);
+    const tv = preTv;
     const ind = await indicators.assess(raw, { threatStore, reports: crowdReports });
-    const textStrong = tv._meta && tv._meta.category !== 'legit' && tv._meta.category !== 'unknown' && tv.riskScore >= 60;
-    const mergedScore = Math.max(boosted.riskScore, tv.riskScore);
-    const out = toScamShape({ ...boosted, riskScore: mergedScore, riskLevel: levelBoost(mergedScore) }, {
-      scamType: textStrong ? `${tv.scamType} + ${boosted.hardBlock ? "Malicious Link" : "Unverified Link"}` : (boosted.hardBlock ? "Malicious / Impersonation Link" : "Unverified Link in Message"),
-      headline: textStrong ? tv.headline : undefined,
-      verdictDescription: `This message contains a link to '${a.host}'. ${a.flags.slice(0, 2).join(' ')} ${textStrong ? tv.verdictDescription : ''}`.trim(),
+    const textStrong = !soft && tv._meta && tv._meta.category !== 'legit' && tv._meta.category !== 'unknown' && tv.riskScore >= 60;
+    const mergedScore = soft ? Math.min(59, Math.max(boosted.riskScore, tv.riskScore)) : Math.max(boosted.riskScore, tv.riskScore);
+    const out = toScamShape({ ...boosted, riskScore: mergedScore, riskLevel: lvl(mergedScore) }, {
+      scamType: textStrong ? `${tv.scamType} + ${boosted.hardBlock ? "Malicious Link" : "Unverified Link"}` : (boosted.hardBlock ? "Malicious / Impersonation Link" : (soft ? "Link SafeMeAI Cannot Verify" : "Unverified Link in Message")),
+      headline: textStrong ? tv.headline : (soft ? "ℹ️ NOT SURE: the message links to a site SafeMeAI cannot verify" : undefined),
+      verdictDescription: soft
+        ? `This message contains a link to '${a.host}', a site SafeMeAI cannot verify as official. The wording itself shows no OTP, PIN, payment or threat demand, so this is "not sure", not "dangerous". Open the institution's official app or the address you type yourself instead of the link.`
+        : `This message contains a link to '${a.host}'. ${a.flags.slice(0, 2).join(' ')} ${textStrong ? tv.verdictDescription : ''}`.trim(),
       flags: textStrong ? [...tv.flags, ...a.flags.slice(0, 3)] : undefined,
       actionAdvice: [
-        `🛑 DO NOT CLICK '${a.host}'.`,
+        soft ? `⚠️ Do not enter passwords, OTPs or card details on '${a.host}' unless you reached it yourself.` : `🛑 DO NOT CLICK '${a.host}'.`,
         ...(textStrong ? tv.actionAdvice : []),
         "✅ Go to your bank/service via its official app or the website printed on your card.",
         "🛡️ Block the sender and report to 1930."
