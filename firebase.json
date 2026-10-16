@@ -84,6 +84,13 @@
           }
         ]
       }
+    ],
+    "redirects": [
+      {
+        "source": "/security.txt",
+        "destination": "/.well-known/security.txt",
+        "type": 301
+      }
     ]
   }
 }

@@ -18,5 +18,5 @@ The old home page is kept at `/about`, and `/delete-account` (needed for Play St
 
 ## Known gaps
 - `www.safemeai.in`: CNAME `www` -> `fraudshield-daa79c8e.web.app` is set at Hostinger; Firebase may take a few hours to see it and issue the certificate.
-- Placeholder mailboxes `security@safemeai.in` / `grievance@safemeai.in` must exist (marked TODO on the pages).
+- Contact address for privacy, grievance and security reports: `support@safemeai.in`.
 - `safemeai.com` / `www.safemeai.com` are attached to the site but have lost verification.

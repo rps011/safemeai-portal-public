@@ -54,6 +54,7 @@ function walk(dir, base = dir, out = []) {
 function toHostingConfig() {
   const c = { cleanUrls: cfg.cleanUrls, trailingSlashBehavior: cfg.trailingSlash ? 'ADD' : 'REMOVE' };
   c.rewrites = (cfg.rewrites || []).map(r => ({ glob: r.source, run: r.run }));
+  c.redirects = (cfg.redirects || []).map(r => ({ glob: r.source, statusCode: r.type || 301, location: r.destination }));
   c.headers = (cfg.headers || []).map(h => ({ glob: h.source, headers: Object.fromEntries(h.headers.map(x => [x.key, x.value])) }));
   return c;
 }

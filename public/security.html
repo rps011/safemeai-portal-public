@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security and responsible disclosure - SafeMeAI</title>
+  <meta name="description" content="Security practices and how to report a vulnerability">
+  <meta name="robots" content="index,follow">
+  <meta name="theme-color" content="#f3f5f9">
+  <script src="js/theme-init.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="legal-top"><a href="/" class="brand-name">&larr; SafeMe<span class="highlight">AI</span></a><span class="legal-actions"><button type="button" class="theme-toggle" aria-pressed="false" aria-label="Switch to dark theme"><span class="theme-ico" aria-hidden="true">🌙</span><span class="theme-label">Dark</span></button><a href="tel:1930" class="btn-emergency-helpline">Cyber Helpline: <strong>1930</strong></a></span></div>
+  <main class="legal-page">
+    <h1>Security and responsible disclosure</h1>
+    <p class="legal-meta">Last updated: 16 October 2026.</p>
+    <h2>Report a vulnerability</h2>
+    <p>If you find a security problem, email <a href="mailto:support@safemeai.in">support@safemeai.in</a> with the steps to reproduce it. Please give us reasonable time to fix it before sharing it publicly. Our contact details are also in <a href="/.well-known/security.txt">security.txt</a>.</p>
+    <h2>Please do</h2>
+    <ul><li>Test only with your own data and accounts.</li><li>Stop and tell us if you reach another person's data.</li><li>Keep your testing light: no denial-of-service or automated mass scanning.</li></ul>
+    <h2>What we do to protect you</h2>
+    <ul>
+      <li>HTTPS everywhere, with strict browser security headers (no inline scripts, no framing).</li>
+      <li>Text you check is processed in India (Google Cloud Mumbai) and is not stored. Personal data is masked before it is sent to an AI model.</li>
+      <li>Every API request gets a request ID, and a private audit log records a hash of the input, never the message itself.</li>
+      <li>Rate limits protect the service from abuse. Admin and scheduler routes are not reachable from the public site.</li>
+      <li>Crowd reports are anonymised, and a genuine bank or government site can never be blocked automatically by false reports.</li>
+    </ul>
+    <p><a href="/contact">Contact</a> &middot; <a href="/privacy">Privacy notice</a> &middot; <a href="/">Back to SafeMeAI</a></p>
+  </main>
+</body>
+</html>

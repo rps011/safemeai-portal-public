@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How SafeMeAI works - SafeMeAI</title>
+  <meta name="description" content="How SafeMeAI checks messages, links and documents">
+  <meta name="robots" content="index,follow">
+  <meta name="theme-color" content="#f3f5f9">
+  <script src="js/theme-init.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="legal-top"><a href="/" class="brand-name">&larr; SafeMe<span class="highlight">AI</span></a><span class="legal-actions"><button type="button" class="theme-toggle" aria-pressed="false" aria-label="Switch to dark theme"><span class="theme-ico" aria-hidden="true">🌙</span><span class="theme-label">Dark</span></button><a href="tel:1930" class="btn-emergency-helpline">Cyber Helpline: <strong>1930</strong></a></span></div>
+  <main class="legal-page">
+    <h1>How SafeMeAI works</h1>
+    <p class="legal-meta">In plain words first, then the technology. SafeMeAI gives advice only and can be wrong. It is not a government or bank service.</p>
+    <h2>What happens when you check something</h2>
+    <ol>
+      <li><strong>You paste</strong> a message, link, UPI ID or number, or describe a call.</li>
+      <li><strong>Facts are gathered:</strong> does the website exist, how old is it, does it copy a bank's name, is it on a known-fraud list, is it listed by RBI or SEBI?</li>
+      <li><strong>Rules and AI work together:</strong> fixed rules catch known patterns. Google Gemini reads the message for tricks the rules miss.</li>
+      <li><strong>You get one clear answer</strong> in English or Hindi, with what to do next. Technical details are one tap away.</li>
+    </ol>
+    <h2>Why you can trust the answer (and when not to)</h2>
+    <ul>
+      <li>A website is called "verified" only after it is on our list of official sites <em>and</em> it really exists. A made-up name ending in .gov.in is flagged as fake.</li>
+      <li>Unknown never means safe. We say "not sure" and tell you what to check.</li>
+      <li>The AI can raise a warning but can never lower a proven danger.</li>
+      <li>Nothing here replaces your bank or the police. For any money matter, call your bank or 1930.</li>
+    </ul>
+    <h2>The technology (Google Cloud)</h2>
+    <table>
+      <tr><th>Part</th><th>What it does</th></tr>
+      <tr><td>Cloud Run (Mumbai)</td><td>Runs the application and API</td></tr>
+      <tr><td>Firebase Hosting</td><td>Serves the website on safemeai.in through Google's CDN</td></tr>
+      <tr><td>Gemini 2.5 Flash on Vertex AI (Mumbai)</td><td>Second opinion on messages and websites, the Hindi/English advisor and Hindi translation</td></tr>
+      <tr><td>Document AI (Mumbai)</td><td>Reads text from photos and PDFs of notices</td></tr>
+      <tr><td>Google Web Risk</td><td>Google's own list of dangerous websites</td></tr>
+      <tr><td>Firestore</td><td>Threat database (about 500,000 indicators) and anonymised community reports</td></tr>
+      <tr><td>Cloud Scheduler</td><td>Refreshes the threat feeds on a schedule, including RBI and SEBI lists</td></tr>
+      <tr><td>Google Public DNS</td><td>Checks that a website really exists</td></tr>
+    </table>
+    <p>Other open sources: Phishing.Database, URLhaus, Tranco popularity ranking, Cloudflare security DNS and domain registries (RDAP).</p>
+    <h2>For developers</h2>
+    <p>A versioned API with batch checking and an OpenAPI description is available: <a href="/api/docs">API documentation</a>.</p>
+    <p><a href="/privacy">Privacy notice</a> &middot; <a href="/security">Security</a> &middot; <a href="/">Back to SafeMeAI</a></p>
+  </main>
+</body>
+</html>

@@ -189,7 +189,7 @@ const HI = {
   'Scan with your phone camera:': 'अपने फ़ोन कैमरे से स्कैन करें:',
   'qr-note': 'आपके फ़ोन पर वही डाउनलोड खुलेगा। QR इमेज एक थर्ड-पार्टी सेवा (api.qrserver.com) बनाती है।',
   'footer-tag': 'भारत के लिए मुफ़्त स्कैम चेकर। यह सिर्फ़ सलाह देता है और ग़लत हो सकता है। यह सरकारी या बैंक की सेवा नहीं है।',
-  'Privacy notice': 'गोपनीयता सूचना',
+  'How it works': 'यह कैसे काम करता है', 'Security': 'सुरक्षा', 'Contact': 'संपर्क', 'About': 'हमारे बारे में', 'Privacy notice': 'गोपनीयता सूचना',
   'Terms of use': 'उपयोग की शर्तें',
   'Report fraud (official)': 'ठगी की रिपोर्ट (आधिकारिक)',
   'National Cyber Crime Helpline:': 'राष्ट्रीय साइबर क्राइम हेल्पलाइन:',

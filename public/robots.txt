@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /internal/
+Sitemap: https://safemeai.in/sitemap.xml
