@@ -52,10 +52,20 @@ requests. Streaming inserts are not in the BigQuery free tier, so prefer the log
 ```bash
 bq mk --table $PROJECT:safeme_audit.checks \
   timestamp:TIMESTAMP,request_id:STRING,endpoint:STRING,api_key_id:STRING,client_net_hash:STRING,input_type:STRING,\
-input_hash:STRING,input_length:INTEGER,verdict:STRING,risk_score:FLOAT,engine_version:STRING,gemini_used:BOOLEAN,\
-snapshot_ts:TIMESTAMP,latency_ms:INTEGER,http_status:INTEGER
+input_hash:STRING,input_length:INTEGER,verdict:STRING,risk_score:INTEGER,engine_version:STRING,gemini_used:BOOLEAN,\
+snapshot_ts:STRING,latency_ms:INTEGER,http_status:INTEGER
 ```
 The service account needs `roles/bigquery.dataEditor` on the dataset. SIGTERM flushes the buffer.
+
+## Reading it back: Live analytics
+
+`GET /api/bigquery/analytics` runs fixed, parameterised SQL (jobs.query, location asia-south1, `maximumBytesBilled` 100 MB,
+5 s timeout) against `AUDIT_BIGQUERY_TABLE` as the runtime service account, cached in memory for 60 s. It needs
+`roles/bigquery.jobUser` on the project and read access (dataset WRITER includes it). Output: checks in 24 h / 7 d / 30 d,
+unique anonymised networks, checks per day (14 d), risk buckets (SAFE <20, LOW <40, MEDIUM <60, HIGH <80, CRITICAL),
+mix by endpoint and input type, Gemini share, p50/p95 latency per endpoint, top verdicts, and the SQL used. If BigQuery is
+not configured, unreachable or empty the response is `available:false` with an honest `reason`. Only aggregate counts
+leave the service: no input text, hashes or network hashes are returned.
 
 ## Retention policy (proposal - confirm with counsel/DPO)
 

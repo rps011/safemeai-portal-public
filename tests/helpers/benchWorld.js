@@ -114,9 +114,9 @@ async function runMessage(world, raw) {
   const assessments = await Promise.all(urls.map(u => engine.assessDomain(u.full, { ...world.deps }).catch(err => ({ ok: false, error: err.message, host: u.domain }))));
   const failed = assessments.find(a => !a.ok);
   const scored = assessments.filter(a => a.ok);
-  const trusted = scored.filter(a => a.verified || a.recognisedBrand);
+  const trusted = scored.filter(a => a.verified || a.recognisedBrand || a.orgValidatedEstablished);
   const opts = { links: urls.length, trustedLinks: trusted.length, recognisedLinks: trusted.filter(a => !a.verified).length };
-  const risky = scored.filter(a => !a.verified && !a.recognisedBrand).sort((x, y) => y.riskScore - x.riskScore)[0];
+  const risky = scored.filter(a => !a.verified && !a.recognisedBrand && !a.orgValidatedEstablished).sort((x, y) => y.riskScore - x.riskScore)[0];
   const tv = textEngine.analyze(raw, opts);
   if (risky || failed) {
     const linkScore = Math.max(risky ? risky.riskScore : 75, 75);

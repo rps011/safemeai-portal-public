@@ -493,51 +493,31 @@ function advisorRules(userQuery) {
 // ==========================================
 // API 3: BIGQUERY RISK & ANOMALY ANALYTICS
 // ==========================================
+const analyticsLib = require('./lib/analytics');
+const liveAnalytics = analyticsLib.createAnalytics();
+async function threatIntelDoc() {
+  let feeds = [];
+  try { feeds = (await threatPlatform.runner.status()).feeds || []; } catch (_) { /* status is best-effort */ }
+  return analyticsLib.threatIntelFacts({ stats: { ready: threatStore.ready, ...threatStore.stats() }, feeds });
+}
+app.get('/api/analytics/threat-intel', async (req, res) => {
+  res.set('Cache-Control', 'public, max-age=30');
+  res.json({ status: 'success', dataSource: 'threat-store-live', generatedAt: new Date().toISOString(), data: await threatIntelDoc() });
+});
 app.get('/api/bigquery/analytics', async (req, res) => {
-  const bq = await gcp.bigQueryTopVectors();
-  const live = bq.available ? { topVectors: bq.rows, activeQuerySample: bq.query } : {};
+  res.set('Cache-Control', 'public, max-age=30');
+  const [bq, threatIntel] = await Promise.all([liveAnalytics.bigQuerySummary(), threatIntelDoc()]);
+  if (!bq.available) {
+    return res.json({
+      status: 'success', available: false, empty: Boolean(bq.empty), dataSource: 'bigquery-unavailable',
+      reason: bq.reason, sql: bq.sql || null, threatIntel, generatedAt: new Date().toISOString()
+    });
+  }
+  const { available, ...rest } = bq;
   res.json({
-    status: 'success',
-    dataSource: bq.available ? 'bigquery-live-vectors+demo-simulated-rest' : 'demo-simulated',
-    dataSourceNote: bq.available
-      ? 'Top vectors come from a live BigQuery query; KPIs and mule clusters are illustrative demo data.'
-      : `Illustrative demo data, not a real BigQuery result (${bq.reason}).`,
-    engine: bq.available ? 'Google Cloud BigQuery (live query for vectors; rest simulated)' : 'Simulated analytics (BigQuery not connected)',
-    queryExecutionTimeMs: null,
-    dataset: "safeme_bfsi_lakehouse.transaction_fraud_telemetry",
-    kpis: {
-      totalTransactionsAnalyzed: "14,892,105",
-      threatsBlocked24h: "3,812",
-      fraudLossPreventedINR: "₹18,42,80,000",
-      activeMuleRingsTracked: "148",
-      edgeSensorsReporting: "24,510"
-    },
-    kpisAreSimulated: true,
-    topVectors: [
-      { vector: "UPI Collect / Fake Refund", share: 38, count: 1448 },
-      { vector: "Digital Arrest Video Extortion", share: 29, count: 1105 },
-      { vector: "Predatory Instant Loan Apps", share: 18, count: 686 },
-      { vector: "Task / Mule Account Job Lures", share: 11, count: 419 },
-      { vector: "SIM Swap / Banking Phishing", share: 4, count: 154 }
-    ],
-    liveMuleClusters: [
-      { clusterId: "MULE-DELHI-09", nodes: 24, volumeINR: "₹1.4 Cr", status: "FLAGGED_FOR_FREEZE", riskScore: 99.4 },
-      { clusterId: "MULE-MUMBAI-03", nodes: 18, volumeINR: "₹85 Lakh", status: "UNDER_MONITORING", riskScore: 94.1 },
-      { clusterId: "MULE-BENGALURU-14", nodes: 31, volumeINR: "₹2.2 Cr", status: "LEO_DISPATCHED", riskScore: 98.7 },
-      { clusterId: "MULE-KOLKATA-07", nodes: 12, volumeINR: "₹42 Lakh", status: "AUTO_THROTTLED", riskScore: 89.2 }
-    ],
-    activeQuerySampleIsIllustrative: !bq.available,
-    activeQuerySample: 
-      `SELECT \n` +
-      `  payer_vpa, \n` +
-      `  payee_vpa, \n` +
-      `  amount, \n` +
-      `  ML.DETECT_ANOMALIES(MODEL \`safeme_bfsi.mule_isolation_forest\`, \n` +
-      `    TABLE \`safeme_bfsi.realtime_upi_stream\`) AS anomaly_status \n` +
-      `FROM \`safeme_bfsi.realtime_upi_stream\` \n` +
-      `WHERE DATE(timestamp) = CURRENT_DATE() \n` +
-      `ORDER BY anomaly_score DESC LIMIT 100;`,
-    ...live
+    status: 'success', available: true, dataSource: 'bigquery-live',
+    engine: 'Google Cloud BigQuery (jobs.query, parameterised, asia-south1)',
+    table: process.env.AUDIT_BIGQUERY_TABLE, ...rest, threatIntel, generatedAt: new Date().toISOString()
   });
 });
 
@@ -796,7 +776,20 @@ async function performRealtimeSslCheck(host) {
     if (!host || /^(localhost|.*\.(local|internal|localdomain))$/i.test(host)) return bad('Blocked non-public host');
     const addrs = await dns.lookup(host, { all: true });
     if (!addrs.length || !addrs.every(a => gcp.isPublicIp(a.address))) return bad('Blocked non-public address');
-    return await rawSslCheck(host, addrs[0].address);
+    const first = await rawSslCheck(host, addrs[0].address);
+    // Many Indian sites serve a valid certificate only for www.<name>. A hostname mismatch on the bare name is then a
+    // false alarm: re-probe www.<name> (same SSRF checks) and use that result when the certificate is properly trusted.
+    if (first && first.supported && first.authorized === false && /ALTNAME/i.test(String(first.authError || '')) && !/^www\./i.test(host)) {
+      try {
+        const wwwHost = 'www.' + host;
+        const wa = await dns.lookup(wwwHost, { all: true });
+        if (wa.length && wa.every(a => gcp.isPublicIp(a.address))) {
+          const second = await rawSslCheck(wwwHost, wa[0].address);
+          if (second && second.supported && second.authorized === true) return { ...second, probedHost: wwwHost, note: 'Certificate is valid for the www name.' };
+        }
+      } catch (_) { /* keep the first result */ }
+    }
+    return first;
   } catch (e) {
     return bad(e.code || e.message);
   }
@@ -1139,33 +1132,6 @@ function domainPayload(a, rawInput) {
 // ==========================================
 // API 6: COMPREHENSIVE CITIZEN SCAM CHECKER ENGINE (Instant Verification)
 // ==========================================
-const CITIZEN_REPORTS = [
-  {
-    id: "REP-9102",
-    scamType: "Digital Arrest",
-    target: "+91 98201 44102",
-    details: "Impersonated Mumbai Police Cyber Cell demanding 2.5 Lakh via Skype",
-    time: "10 mins ago",
-    status: "PUSHED_TO_EDGE_SENSORS"
-  },
-  {
-    id: "REP-9101",
-    scamType: "UPI Collect Trap",
-    target: "refund.desk92@icici",
-    details: "Sent GPay collect request for ₹3,499 under pretense of Amazon refund",
-    time: "24 mins ago",
-    status: "BLACKLISTED_ON_DEVICE"
-  },
-  {
-    id: "REP-9100",
-    scamType: "Electricity Bill Threat",
-    target: "+91 88710 99281",
-    details: "SMS claiming electricity cutoff at 9:30 PM with malicious APK link",
-    time: "48 mins ago",
-    status: "DOMAIN_BLOCKED"
-  }
-];
-
 const indicators = require('./lib/indicators');
 app.post('/api/scam/check', async (req, res) => {
   const { text } = req.body;
@@ -1233,9 +1199,9 @@ app.post('/api/scam/check', async (req, res) => {
 
   // Message with embedded links: worst link drives the verdict. Unverified link inside a message is >= HIGH.
   let phishingDomainDetected = null;
-  const trustedOf = scored.filter(a => a.verified || a.recognisedBrand);
+  const trustedOf = scored.filter(a => a.verified || a.recognisedBrand || a.orgValidatedEstablished);
   const linkOpts = { links: extractedUrls.length, trustedLinks: trustedOf.length, recognisedLinks: trustedOf.filter(a => !a.verified).length };
-  const risky = scored.filter(a => !a.verified && !a.recognisedBrand).sort((x, y) => y.riskScore - x.riskScore)[0];
+  const risky = scored.filter(a => !a.verified && !a.recognisedBrand && !a.orgValidatedEstablished).sort((x, y) => y.riskScore - x.riskScore)[0];
   if (risky || failed) {
     const a = risky || { host: failed.host, verdict: 'UNVERIFIED_THIRD_PARTY_DOMAIN', riskScore: 75, riskLevel: 'HIGH', flags: ['Link could not be analysed — treated as unverified'], evidenceForTrust: [], verified: false, hardBlock: false, tld: '', dns: {}, ssl: {}, isOpenPhish: false, webRisk: {}, entropy: 0, registrable: failed.host, gemini: { available: false, reason: 'engine error' }, domainAge: {} };
     const boosted = { ...a, riskScore: Math.max(a.riskScore, 75), riskLevel: levelBoost(Math.max(a.riskScore, 75)) };
@@ -1879,9 +1845,9 @@ app.get('/api/scam/reports', async (req, res) => {
     const live = await crowdReports.publicFeed(20);
     res.json({
       status: 'success',
-      dataSource: live.length ? 'crowd-pipeline' : 'demo-in-memory',
-      dataSourceNote: live.length ? 'Values reported by multiple independent citizens. Targets are partially masked.' : 'No community-confirmed reports yet; showing seeded SAMPLE entries.',
-      data: live.length ? live : CITIZEN_REPORTS
+      dataSource: 'crowd-pipeline',
+      dataSourceNote: live.length ? 'Values reported by multiple independent citizens. Targets are partially masked.' : 'No community-confirmed reports yet.',
+      data: live
     });
   } catch (err) {
     res.status(500).json({ error: 'Could not load reports.' });

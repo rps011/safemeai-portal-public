@@ -2296,10 +2296,9 @@ a:focus-visible, button:focus-visible, [role="button"]:focus-visible, select:foc
 .hero-tag-badge { background: var(--fill-2); }
 .btn-hero-sos { background: #b91c1c !important; color: #fff !important; border: 2px solid var(--sos-border) !important; font-weight: 800; }
 .btn-hero-primary, .btn-hero-secondary, .btn-hero-panic { min-height: 48px; text-align: center; }
-.metric-pill { position: relative; padding-top: 1.7rem; border: 1px dashed rgba(245, 158, 11, 0.55); border-radius: 10px; padding-left: 0.5rem; padding-right: 0.5rem; padding-bottom: 0.6rem; }
-.demo-ribbon { position: absolute; top: 0; left: 0; right: 0; background: #f59e0b; color: #1c1100; font-size: 0.72rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; text-align: center; padding: 0.15rem 0; border-radius: 9px 9px 0 0; }
+.metric-pill { padding: 0.4rem 0.5rem 0.6rem; }
+.metric-pill[hidden] { display: none; }
 .metric-lbl { text-align: center; color: var(--text-soft); }
-.metric-num { opacity: 0.85; }
 .datasource-note { color: var(--text-muted); font-size: 0.78rem; }
 
 /* result states: fixed minimum height so nothing jumps */
@@ -2494,8 +2493,7 @@ body:not(.is-home) .hero-section { display: none; }
   .hero-actions-row a { width: auto; flex: 1 1 0; min-height: 44px; padding: 0.4rem 0.5rem; font-size: 0.82rem; }
   .hero-actions-row .btn-hero-secondary { display: none; }
   .hero-metrics-bar { display: flex; overflow-x: auto; gap: 0.5rem; padding: 0.4rem; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; }
-  .metric-pill { flex: 0 0 132px; scroll-snap-align: start; padding-top: 1.2rem; padding-bottom: 0.3rem; }
-  .demo-ribbon { font-size: 0.6rem; padding: 0.05rem 0; }
+  .metric-pill { flex: 0 0 132px; scroll-snap-align: start; padding-bottom: 0.3rem; }
   .metric-num { font-size: 1rem; }
   .metric-lbl { font-size: 0.6rem; line-height: 1.2; }
   .datasource-note { display: none; }
@@ -2568,8 +2566,7 @@ select option { background: var(--input-bg); color: var(--text-strong); }
 .btn-hero-secondary { color: var(--c-green-text); }
 .btn-hero-panic, .btn-emergency-helpline { color: var(--c-red-text); }
 .btn-hero-sos { color: #fff !important; }
-.demo-ribbon, .sample-chip-tag { background: #f59e0b; color: #1c1100; }
-.metric-pill { border-color: rgba(180, 83, 9, 0.6); }
+.sample-chip-tag { background: #f59e0b; color: #1c1100; }
 .metric-num { color: var(--text-strong); opacity: 1; }
 .metric-lbl { color: var(--text-soft); }
 .btn-text-clear { color: var(--text-muted); text-decoration: underline; min-height: 44px; padding: 0 0.5rem; }
@@ -2612,7 +2609,7 @@ input:focus-visible, textarea:focus-visible, .specimen-card:focus-visible { outl
 .red-flags-list li, .action-card, .msg-body, .mule-table, .insight-box, .verdict-headline-col p, .action-alert, .tech-body, .error-state, .error-banner, .success-banner { font-size: 0.98rem; }
 .section-lead-header p { font-size: 1rem; }
 .stack-item { font-size: 0.8rem; }
-.stack-state, .badge-pulse, .badge-alert, .badge-tech, .badge-demo, .specimen-badge, .finding-status, .feed-item-badge, .tag-sample, .sample-chip-tag, .feed-item-time, .sql-label, .score-sub, .gauge-label, .src-badge, .demo-ribbon { font-size: 0.78rem; }
+.stack-state, .badge-pulse, .badge-alert, .badge-tech, .badge-demo, .specimen-badge, .finding-status, .feed-item-badge, .tag-sample, .sample-chip-tag, .feed-item-time, .sql-label, .score-sub, .gauge-label, .src-badge { font-size: 0.78rem; }
 .pills-title, .specimens-label, .metric-lbl, .telemetry-lbl, .telemetry-val, .score-title, .scam-type-tag, .ai-conf, .sub-heading, .report-box h4, .datasource-note, .dl-sub, .bar-meta { font-size: 0.85rem; }
 .specimen-chip, .gemini-pill, .btn-toggle { font-size: 0.95rem; }
 .btn-toggle { min-height: 44px; }
@@ -2631,7 +2628,6 @@ input:focus-visible, textarea:focus-visible, .specimen-card:focus-visible { outl
   .specimen-chip { min-height: 44px; font-size: 0.85rem; }
   .metric-lbl { font-size: 0.72rem; }
   .metric-num { font-size: 1.1rem; }
-  .demo-ribbon { font-size: 0.7rem; }
   .hero-title { font-size: 1.45rem; }
   .hero-sub-short { font-size: 0.95rem; }
   .section-lead-header p { font-size: 0.95rem; }
@@ -2653,3 +2649,30 @@ button, .btn-primary-glow, .btn-primary, .btn-primary-panic, .btn-primary-small,
 .wm-fill { background: #16a34a; }
 .emergency-verdict-box[data-level="warn"] .wm-fill { background: #d97706; }
 .emergency-verdict-box[data-level="likely"] .wm-fill, .emergency-verdict-box[data-level="confirmed"] .wm-fill { background: #dc2626; }
+
+/* ---------- Live analytics (dependency-free SVG/CSS charts) ---------- */
+#an-empty[hidden], #an-content[hidden], #an-sql-wrap[hidden] { display: none; }
+.an-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; margin: 0 0 1.25rem; }
+.an-kpi { background: var(--panel-b); border: 1px solid var(--border-glass); border-radius: 12px; padding: 0.75rem 0.9rem; min-width: 0; }
+.an-kpi-num { display: block; font-family: var(--font-mono); font-weight: 800; font-size: 1.5rem; color: var(--text-strong); overflow-wrap: anywhere; }
+.an-kpi-lbl { display: block; font-size: 0.8rem; color: var(--text-muted); }
+.an-intel, .an-sql { margin-top: 1.5rem; }
+.an-spark { width: 100%; height: auto; display: block; }
+.an-spark .an-area { fill: var(--accent-blue); opacity: 0.15; }
+.an-spark .an-line { fill: none; stroke: var(--accent-blue); stroke-width: 2; vector-effect: non-scaling-stroke; }
+.an-spark .an-dot { fill: var(--accent-blue); }
+.an-spark-axis { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
+.an-bar-fill { background: var(--accent-blue); }
+.an-bar-fill.lvl-SAFE { background: var(--accent-emerald); }
+.an-bar-fill.lvl-LOW { background: #0ea5e9; }
+.an-bar-fill.lvl-MEDIUM { background: var(--accent-amber); }
+.an-bar-fill.lvl-HIGH { background: #ea580c; }
+.an-bar-fill.lvl-CRITICAL { background: var(--accent-danger); }
+.an-bar-fill.lvl-UNSCORED { background: var(--text-dim); }
+.bar-meta span:first-child { min-width: 0; overflow-wrap: anywhere; padding-right: 0.5rem; }
+.bar-meta span:last-child { white-space: nowrap; font-family: var(--font-mono); }
+.an-sql pre { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0.5rem 0 1rem; padding: 0.75rem; border-radius: 8px; font-size: 0.78rem; }
+.an-sql h4 { margin: 0.5rem 0 0; font-size: 0.85rem; }
+.an-sql-note { font-size: 0.8rem; color: var(--text-muted); }
+#an-latency th, #an-latency td { text-align: left; padding: 0.4rem 0.5rem; }
+.an-empty-title { font-weight: 700; margin: 0 0 0.25rem; }

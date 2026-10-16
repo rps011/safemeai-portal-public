@@ -1,0 +1,440 @@
+{
+ "source": "post-evaluation regression set 2 (paraphrased, written after the held-out evaluation; NOT derived from tests/eval)",
+ "cases": [
+  {
+   "kind": "message",
+   "input": "Mummy, meri bike ka accident ho gaya, main clinic mein hoon. Mera phone gir gaya, ye dost ka number hai. Doctor ko 25000 abhi chahiye, is UPI par bhej do 9876501234@ybl. Papa ko abhi mat batana.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Hello uncle, it's Karan. I changed my number, old one got stolen. I'm at the hospital with a friend, need 18,000 right now. Please pay on this number via PhonePe, will return tonight.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Didi main airport pe phas gaya hoon, wallet kho gaya. 35000 turant GPay karo is number pe, ghar mein kisi ko mat batana.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Hi dear, I am Dr. Emily from London, I want to marry you. I sent you a gift box with dollars and jewellery. Pay Rs 15,500 customs clearance to receive it, send to this account today.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Meri jaan, main Dubai mein hoon aur tumse shaadi karna chahta hoon. Mera visa atak gaya hai, 45000 rupaye bhej do, India aate hi sab lauta dunga.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Sir I am interested in your sofa listed on Quikr. I am CISF officer on transfer. I will send my courier. Please send Rs 1,500 as token and packing, I will repay double with the pickup.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Hello, I saw your flat on a rental app. I am abroad, will courier the keys. To book the flat please pay Rs 10000 advance booking amount on this UPI, fully refundable.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Your resume is shortlisted for Data Entry role at Flipkart. To confirm joining, deposit Rs 3,200 as registration and ID card charges to the HR account. Refundable after first salary.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Congrats! You are selected for Reliance Jio back-office job. Pay Rs 5000 training kit fee on UPI to get the offer letter. Last date today.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Naukri ke liye aapka selection ho gaya hai. Medical aur verification fees 4,500 jama kare is account me, uske baad joining letter milega.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Income Tax Department: A refund of Rs 12,430 is pending for AY 2025-26. Verify your bank account and debit card details at the link to receive the refund now.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "आयकर विभाग - आपका 9,800 रुपये टैक्स रिफंड अटका है। रिफंड पाने के लिए अपने खाते की जानकारी और कार्ड नंबर भरें।",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Dear taxpayer, your ITR refund has been approved. Click the link below and enter your net banking details to claim it. refund-incometax-portal.xyz",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Part time kaam: ghar baithe Instagram reels like karo, har task ke 150 milenge. WhatsApp karo +91 98123 45678 jaldi.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Rat1ng dedo hotels ko, roz ₹4000 kamao, telegram group join karo abhi.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Sbi bank se bol raha hu, aapka KYC pending hai. А pna ОТР batao jaldi warna account band ho jayega.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Beta, main bahut mushkil me hu, jail se phone kar raha hu. Mere dost ke account me 60000 daal do abhi, kisi ko nahi batana.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Hi, I'm your colleague Rahul, using my wife's phone. Salary account locked, can you pay Rs 22,000 to this number for rent? Will return Monday. Don't tell anyone in office.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Army jawan sale: Royal Enfield for 60000 only. Transfer ho gaya hai. Pehle 5000 advance bhejo, gaadi courier se aa jayegi, refundable security bhi dena hoga.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Jaanu, mujhe customs ne rok liya hai, gift ke liye 28000 chahiye, abhi bhej do, main shaadi ke baad lauta dunga.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Maa, main Rahul bol raha hu. Naya number hai mera. Ek accident ho gaya, police wale paise maang rahe hain, 50 hazaar abhi transfer kar do is account me. Papa ko mat bolna.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Hello sir, your son has been caught with drugs. We will release him if you pay Rs 80,000 immediately to this account. Don't inform anyone.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Bhaiya mera bag chori ho gaya station pe, ticket ke liye 8000 chahiye, abhi PhonePe kar do 9988776655 par. Ghar pe mat batana.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "I am Sarah, a nurse in US. I like your profile. I want to send you 10000 dollars gift. Pay Rs 25000 for transfer tax so I can send it.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Namaste, aapki shaadi ke liye rishta aaya hai NRI ladke ka. Unhone gifts bheje hain, customs ke liye 32000 rupaye jama karne honge.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Dear Sir, I am buying your Activa on OLX. Payment done via army canteen. For verification send Rs 1 and scan QR code to receive money.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Aapka OLX par jo mobile list hai, usko main kharidna chahta hu. Pehle 500 rupay token amount bhejiye, baki payment pickup pe karunga.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Job offer from Tata Consultancy: you are selected as HR assistant. Training kit and uniform fees Rs 6,800 to be deposited today, refundable after 1 month.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Online data entry job, no experience. Registration fee Rs 999 only, earn 30000 monthly. Pay on UPI to start.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Aapka naukri ka interview clear ho gaya. Security deposit 10,000 rupaye is bank account me daal dijiye, 3 mahine baad wapas.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "GST department: tax refund of Rs 24,500 is ready. Submit your bank account and card details here to receive the refund.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Government subsidy refund approved Rs 6,000. Click here and enter your debit card details and PIN to credit the amount.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Refund pending on your electricity bill. Verify your Aadhaar and bank details at the link to get Rs 3,200 back.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "आपका पार्सल कस्टम में रुका है, 4500 रुपये जमा करें तुरंत वरना केस दर्ज होगा।",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Dost, mere account me problem hai, tu 15000 meri behen ke UPI pe daal de, kal wapas kar dunga. Kisi ko mat bolna.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Ӏnstant loan approved! Pay processing fee ₹2,500 to receive ₹50,000 in 10 minutes.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Tumhari photo accha hai, main tumse milna chahta hu. Mera visa fee 12000 chahiye, abhi GPay kar do, milte hi lauta dunga.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Sir main CRPF me hu, mera transfer ho raha hai, furniture sasta bech raha hu. Delivery ke liye 3000 advance bhejo UPI par, goods army truck se aayenge.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Hi, we are recruiting for Amazon warehouse. Fill form and pay 500 registration fee at the link, interview fixed after payment.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Taxpayer alert: your pending refund will lapse today. Update your bank details immediately via the portal link to claim it.",
+   "malicious": true
+  },
+  {
+   "kind": "message",
+   "input": "Your Uber trip is arriving. Share OTP 4821 with the driver to start your trip. Drive safe!",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Rapido: Captain Ravi is arriving. Give OTP 1234 to the captain only after you board.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Dear customer, your gas cylinder is out for delivery. Share the OTP 5566 with the delivery person at your door only.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Your electricity bill of Rs 1,420 for Oct is generated. Pay on the official portal bescom.karnataka.gov.in before 25th.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Congratulations! Your home loan of Rs 40,00,000 has been approved by Canara Bank. No processing fee charged for approval. Visit your nearest branch with original documents.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Aapka Axis Bank personal loan sanction ho gaya hai. Branch me aakar documents verify karwayein. Koi charges nahi liye jate. Helpline 1800 419 5959.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "HDFC Bank: Rs 540.00 debited from A/c XX1209 on 03-Oct-26 to VPA zomato@icici. Not you? Call 1800 258 6161 or SMS BLOCK ACCOUNT to 8888808888.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Traffic fine of Rs 1,000 recorded for KA05MN1234. Details and payment: echallan.parivahan.gov.in. Contest within 90 days.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Your Aadhaar update request is complete. Download e-Aadhaar at uidai.gov.in. UIDAI never asks for OTP over phone, kisi se share na karein.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Dear candidate, your interview at Wipro is on 18 Oct at 11 AM, Bengaluru. Wipro does not charge any fee at any stage of recruitment. Carry ID proof.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Your income tax refund of Rs 8,300 has been issued and will be credited to your bank account within 10 days. Check status on incometax.gov.in",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Hi mom, reached office. New phone number saved? Call me in the evening. Love you.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Hey bro, my new number is this one, save it. Match dekhne chalega kal?",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Your Amazon order #407-1234567 is out for delivery. Pay Rs 499 cash to the delivery agent at your door.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Rent reminder: Your flat rent of Rs 18,000 is due on 5th. Kindly transfer to the registered owner account as usual.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Zomato: Your refund of Rs 220 has been initiated to your original payment method and will reflect in 3-5 days.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Jaan, dinner ke liye 8 baje ready rehna, main pick kar lunga. Love you.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Hi, I am interested in your bike listed on OLX. Is 45000 final? I can come see it tomorrow evening.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Is the sofa still available? I can pay cash on pickup. Please share your address.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Dear candidate, your offer letter for the role of Analyst at Accenture is attached. Please sign and return by Friday. We never ask for any payment.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "HR here: please send your PAN and Aadhaar copy to hr@tcs.com for joining formalities.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Mom I'm at the hospital with Dad for his routine checkup, all fine. Will call after lunch.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Priya: bhai rent ke 15000 bhej diye, check kar lena. Love you!",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Amazon: Your refund of Rs 1,299 for order 404-8812 has been processed to your Amazon Pay balance. View at amazon.in/orders",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Jio: Recharge of Rs 299 successful. Validity 28 days. Thanks for choosing Jio.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Your gift card of Rs 500 from Myntra has been credited. Use before 31 Dec. Check balance at myntra.com",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Appointment confirmed with Dr. Mehta at Apollo Clinic, 10 AM tomorrow. Consultation fee Rs 800 payable at the reception.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Dear parent, school fee of Rs 14,500 for Term 2 is due by 20 Oct. Pay online via the school app or at the office.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Your Airtel postpaid bill of Rs 749 is generated. Pay at airtel.in or Thanks app by due date to avoid late fee.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Interview call: Please come to our office with originals. There is no registration fee. Contact HR on 080-4455-6677.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Aapka LIC premium 5,200 rupaye 15 tarikh ko due hai. Kripya licindia.in par ya branch me bharein.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Won the 2nd prize in the office quiz! Collect your gift voucher from reception.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Hey, can you send me the notes for tomorrow's exam? Send on WhatsApp whenever.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Dear customer, your credit card statement of Rs 18,240 is generated. Minimum due Rs 912. Pay by 28 Oct via HDFC NetBanking or app.",
+   "malicious": false
+  },
+  {
+   "kind": "message",
+   "input": "Rs 2,000 received from RAHUL K via UPI on 04-Oct. Ref 3345566778. Bal Rs 14,210. - Union Bank",
+   "malicious": false
+  },
+  {
+   "kind": "document",
+   "input": "INCOME TAX DEPARTMENT - NOTICE OF ATTACHMENT. Your bank account will be attached for undisclosed assets. Deposit Rs 85,000 as compounding charges into the department's clearance account today to stop prosecution. Share the payment screenshot with the officer on WhatsApp. Do not discuss this notice with your CA or family.",
+   "malicious": true
+  },
+  {
+   "kind": "document",
+   "input": "RESERVE BANK OF INDIA - FOREIGN REMITTANCE CLEARANCE. A remittance of USD 40,000 is held in your name. Pay Rs 22,000 as RBI clearance fee and Rs 8,500 anti-money-laundering certificate charges to release it. Keep this confidential from your bank.",
+   "malicious": true
+  },
+  {
+   "kind": "document",
+   "input": "ENFORCEMENT DIRECTORATE - SUMMONS. Under PMLA your savings are under investigation. Transfer Rs 1,10,000 to the ED verification account within 6 hours or you will be arrested. Do not inform the local police.",
+   "malicious": true
+  },
+  {
+   "kind": "document",
+   "input": "SEBI ORDER: Trading in your demat is suspended for insider trading. To lift the freeze remit a penalty of Rs 2,50,000 by UPI to the SEBI recovery officer, otherwise criminal prosecution follows. This order is secret.",
+   "malicious": true
+  },
+  {
+   "kind": "document",
+   "input": "QUICK PAY INSTANT LOAN AGREEMENT. Amount Rs 8,000, tenure 6 days. Platform fee and GST Rs 2,400 are deducted in advance from the loan. The borrower authorises the app to read contacts and gallery, and to message all contacts if payment is late. Penalty 2% per day.",
+   "malicious": true
+  },
+  {
+   "kind": "document",
+   "input": "MINISTRY OF FINANCE - CUSTOMS CLEARANCE NOTICE. Your overseas parcel is held. Pay Rs 14,200 as customs duty to the officer's account immediately, failing which arrest and seizure of property will follow. Confidential.",
+   "malicious": true
+  },
+  {
+   "kind": "document",
+   "input": "AXIS BANK LIMITED. Sanction Letter. Ref No. AXB/RL/2026/88123. Date: 12-Oct-2026. We are pleased to sanction a personal loan of Rs 6,00,000 at 12.1% p.a. for 48 months. Processing fee 1% plus GST will be deducted from the disbursed amount as per the schedule of charges. Sign the acceptance copy and return it to your branch within 15 days. For queries contact your branch or visit axisbank.com.",
+   "malicious": false
+  },
+  {
+   "kind": "document",
+   "input": "Form 16 - Part A. Certificate under section 203 of the Income-tax Act, 1961 for tax deducted at source on salary. Name of employer: Zenith Software Pvt Ltd. TAN: BLRZ12345A. PAN of employee: ABCPK1234F. Assessment year 2026-27. Total tax deducted: Rs 52,300. Signature of person responsible for deduction.",
+   "malicious": false
+  },
+  {
+   "kind": "document",
+   "input": "CAPITAL MARKETS: Contract note No. 5567/2026 dated 03-Oct-2026. Buy 10 shares of Reliance Industries Ltd at Rs 2,910.50. Brokerage Rs 14.55, STT Rs 29.10, GST Rs 2.62. Net amount payable Rs 29,156.77 to be settled through your trading account on T+1. This is a computer generated contract note.",
+   "malicious": false
+  },
+  {
+   "kind": "document",
+   "input": "RBI/2026-27/12. Master Circular on Fraud Risk Management in Banks. Banks are advised to report frauds to law enforcement agencies and to the Reserve Bank. Customers should be educated that the bank or RBI never asks for OTP, PIN or money transfers to safe accounts. Issued under section 35A of the Banking Regulation Act, 1949.",
+   "malicious": false
+  },
+  {
+   "kind": "document",
+   "input": "DISTRICT CONSUMER DISPUTES REDRESSAL COMMISSION, NASHIK. Complaint No. 218 of 2026. NOTICE to the opposite party to file written version within 30 days of receipt. The next hearing is on 05-Dec-2026. Given under my hand and seal of the Commission. Sd/- President.",
+   "malicious": false
+  },
+  {
+   "kind": "document",
+   "input": "Electricity bill for the month of September 2026. Consumer No. 1209833. Units consumed 312. Amount due Rs 2,410. Pay online at the official DISCOM portal or any authorised collection centre by 20-Oct-2026 to avoid late fee. For complaints call the 24x7 helpline 1912.",
+   "malicious": false
+  }
+ ]
+}

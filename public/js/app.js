@@ -23,17 +23,14 @@ const HI = {
   'Notice or document check': 'नोटिस या दस्तावेज़ जाँच',
   'Ask the AI advisor': 'AI सलाहकार से पूछें',
   'Report a scam': 'स्कैम की रिपोर्ट करें',
-  'Scam trends': 'स्कैम के रुझान',
-  'Demo': 'डेमो',
+  'Live analytics': 'लाइव विश्लेषण',
   'Free prototype. Not a government service.': 'मुफ़्त प्रोटोटाइप। यह सरकारी सेवा नहीं है।',
   'Got a strange message, link or call? Check it here first.': 'कोई अजीब संदेश, लिंक या कॉल आया? पहले यहाँ जाँचें।',
   'hero-sub': 'कोई संदेश, लिंक, UPI आईडी या फ़ोन नंबर पेस्ट करें। आपको सीधा जवाब मिलेगा: स्कैम, सही लगता है, या पक्का नहीं, और आगे क्या करना है। फ़र्ज़ी पुलिस "डिजिटल अरेस्ट" कॉल, UPI रिफंड जाल, लोन-ऐप की धमकी और नकली नौकरी के ऑफ़र के लिए।',
-  'Demo figure': 'डेमो आँकड़ा',
-  'Fraud loss prevented (example)': 'बचाई गई ठगी (उदाहरण)',
-  'Protected devices (example)': 'सुरक्षित फ़ोन (उदाहरण)',
-  'Fake-police calls caught (example)': 'पकड़ी गई फ़र्ज़ी पुलिस कॉल (उदाहरण)',
-  'On-phone reaction time (target)': 'फ़ोन पर प्रतिक्रिया समय (लक्ष्य)',
-  'kpi-note': 'ऊपर के चारों आँकड़े सिर्फ़ दिखाने के उदाहरण हैं। ये असली माप नहीं हैं।',
+  'Threat indicators loaded': 'लोड किए गए ख़तरे के संकेतक',
+  'Live data feeds': 'चालू डेटा फ़ीड',
+  'Languages (English, Hindi)': 'भाषाएँ (अंग्रेज़ी, हिन्दी)',
+  'Checks processed in the last 7 days': 'पिछले 7 दिनों में की गई जाँचें',
   'FREE SCAM CHECK': 'मुफ़्त स्कैम जाँच',
   'Paste a message, link, UPI ID or phone number': 'संदेश, लिंक, UPI आईडी या फ़ोन नंबर पेस्ट करें',
   'hero-sub-short': 'संदेश, लिंक, UPI आईडी या नंबर पेस्ट करें। सीधा जवाब पाएँ: स्कैम, ठीक लगता है, या पक्का नहीं।',
@@ -145,14 +142,49 @@ const HI = {
   'advisor-welcome': 'नमस्ते! जो कॉल, संदेश या ऐप आपको परेशान कर रहा है उसके बारे में बताएँ। मैं जोखिम और आगे क्या करना है समझाऊँगा।',
   'Describe what happened...': 'बताएँ क्या हुआ...',
   'Ask': 'पूछें',
-  'FOR BANKS AND ANALYSTS (DEMO)': 'बैंकों और विश्लेषकों के लिए (डेमो)',
-  'Scam trends and money-mule networks': 'स्कैम के रुझान और मनी-म्यूल नेटवर्क',
-  'bq-lead': 'बैंक की टीम स्कैम के रुझान कैसे देख सकती है, इसका नमूना डैशबोर्ड। <strong>यहाँ सभी संख्याएँ बनावटी डेमो डेटा हैं</strong>, जब तक सर्वर BigQuery से न जुड़ा हो (नीचे का नोट देखें)।',
-  'Most common scam types (sample)': 'सबसे आम स्कैम के प्रकार (नमूना)',
-  'Demo data': 'डेमो डेटा',
-  'Example insight (demo data):': 'उदाहरण निष्कर्ष (डेमो डेटा):',
-  'the sample shows fake-police calls and UPI refund traps as the biggest groups.': 'नमूने में फ़र्ज़ी पुलिस कॉल और UPI रिफंड जाल सबसे बड़े समूह हैं।',
-  'Suspected mule-account groups (sample)': 'संदिग्ध म्यूल-खाता समूह (नमूना)',
+  'FOR BANKS AND ANALYSTS': 'बैंकों और विश्लेषकों के लिए',
+  'bq-lead': 'यहाँ की हर संख्या Google BigQuery में रखे गुमनाम ऑडिट लॉग से लाइव निकाली जाती है। संदेश का पाठ, फ़ोन नंबर या UPI आईडी न सहेजे जाते हैं, न दिखाए जाते हैं, सिर्फ़ गिनती।',
+  'Checks per day (last 14 days)': 'प्रतिदिन जाँचें (पिछले 14 दिन)',
+  'Risk levels (last 30 days)': 'जोखिम स्तर (पिछले 30 दिन)',
+  'What people check (by type)': 'लोग क्या जाँचते हैं (प्रकार के अनुसार)',
+  'Checks by service': 'सेवा के अनुसार जाँचें',
+  'Response time (p50 / p95)': 'प्रतिक्रिया समय (p50 / p95)',
+  'Most common outcomes': 'सबसे आम नतीजे',
+  'Threat intelligence loaded now': 'अभी लोड की गई ख़तरे की जानकारी',
+  'Live': 'लाइव',
+  'Show the BigQuery SQL': 'BigQuery SQL दिखाएँ',
+  'Service': 'सेवा',
+  'No data yet.': 'अभी डेटा नहीं।',
+  'No data yet - run a few checks': 'अभी डेटा नहीं - कुछ जाँचें चलाएँ',
+  'Charts appear here as soon as checks are recorded.': 'जाँचें दर्ज होते ही चार्ट यहाँ दिखेंगे।',
+  'Live analytics are not available right now.': 'लाइव विश्लेषण अभी उपलब्ध नहीं है।',
+  'Live analytics could not be loaded.': 'लाइव विश्लेषण लोड नहीं हो सका।',
+  'Connected to BigQuery. The audit table has no checks yet.': 'BigQuery से जुड़ा है। ऑडिट तालिका में अभी कोई जाँच नहीं है।',
+  'Not connected to BigQuery right now. No numbers are shown rather than made-up ones.': 'अभी BigQuery से नहीं जुड़ा। बनावटी संख्याओं की जगह कोई संख्या नहीं दिखाई जा रही।',
+  'Threat intelligence is not available right now.': 'ख़तरे की जानकारी अभी उपलब्ध नहीं है।',
+  'Live from BigQuery table': 'BigQuery तालिका से लाइव',
+  'query time': 'क्वेरी समय',
+  'refreshed at': 'ताज़ा किया',
+  'Checks in 24 hours': '24 घंटे में जाँचें',
+  'Checks in 7 days': '7 दिन में जाँचें',
+  'Checks in 30 days': '30 दिन में जाँचें',
+  'Unique anonymous networks (30 days)': 'अलग गुमनाम नेटवर्क (30 दिन)',
+  'Checks that used Gemini AI': 'Gemini AI से हुई जाँचें',
+  'RBI alert-list entries': 'RBI अलर्ट-सूची की प्रविष्टियाँ',
+  'SEBI registered entities': 'SEBI पंजीकृत संस्थाएँ',
+  'Last refresh': 'आख़िरी रिफ़्रेश',
+  'not yet': 'अभी नहीं',
+  'total': 'कुल',
+  'peak': 'शीर्ष',
+  'Safe': 'सुरक्षित', 'Low': 'कम', 'Medium': 'मध्यम', 'High': 'ज़्यादा', 'Critical': 'गंभीर', 'Not scored': 'स्कोर नहीं',
+  'Message, link, UPI or phone check': 'संदेश, लिंक, UPI या फ़ोन जाँच',
+  'Website check': 'वेबसाइट जाँच',
+  'AI advisor': 'AI सलाहकार',
+  'Document check': 'दस्तावेज़ जाँच',
+  'Batch check (API)': 'बैच जाँच (API)',
+  'Panic check': 'तुरंत जाँच',
+  'Message': 'संदेश', 'Link or website': 'लिंक या वेबसाइट', 'UPI ID': 'UPI आईडी', 'Phone number': 'फ़ोन नंबर', 'Empty': 'ख़ाली',
+  'These fixed, parameterised queries run as the service account. Time windows are passed as query parameters. Billing is capped at 100 MB per query.': 'ये तय, पैरामीटर वाली क्वेरी सर्विस अकाउंट से चलती हैं। समय-सीमाएँ क्वेरी पैरामीटर से जाती हैं। हर क्वेरी का बिल 100 MB तक सीमित है।',
   'COMMUNITY REPORTS': 'समुदाय की रिपोर्ट',
   'Report a scam number, UPI ID or link': 'स्कैम वाला नंबर, UPI आईडी या लिंक रिपोर्ट करें',
   'report-lead': 'रिपोर्ट बिना आपके नाम या फ़ोन नंबर के गिनी जाती है। जब कई अलग लोग एक ही नंबर, UPI आईडी या लिंक की रिपोर्ट करते हैं, तो वह समुदाय की चेतावनी बन सकता है। यहाँ की रिपोर्ट पुलिस शिकायत का विकल्प <strong>नहीं</strong> है: असली ठगी के लिए 1930 पर कॉल करें या cybercrime.gov.in पर जाएँ।',
@@ -173,7 +205,6 @@ const HI = {
   'Built with': 'इनसे बना',
   '(used when available)': '(उपलब्ध होने पर)',
   '(when configured)': '(सेटअप होने पर)',
-  '(demo only for now)': '(अभी सिर्फ़ डेमो)',
   'footer-disc': 'SafeMeAI सिर्फ़ सलाह देता है और ग़लत हो सकता है। अगर पैसे गँवा चुके हैं तो तुरंत 1930 पर कॉल करें या अपने बैंक और स्थानीय पुलिस से संपर्क करें।',
 
   // ----- dynamic strings -----
@@ -269,9 +300,8 @@ const HI = {
   'Only TXT, PDF, PNG or JPG files are accepted.': 'सिर्फ़ TXT, PDF, PNG या JPG फ़ाइलें मान्य हैं।',
   'We could not read this file. Paste the text of the notice into the box instead.': 'हम यह फ़ाइल नहीं पढ़ सके। इसकी जगह नोटिस का टेक्स्ट बॉक्स में पेस्ट करें।',
   'Sample': 'नमूना',
-  'SAMPLE': 'नमूना',
-  'Sample placeholder, not a real report': 'नमूना, असली रिपोर्ट नहीं',
-  'Sample entries only. No community-confirmed reports yet.': 'सिर्फ़ नमूना प्रविष्टियाँ। अभी समुदाय से पुष्ट कोई रिपोर्ट नहीं।',
+  'No reports yet': 'अभी कोई रिपोर्ट नहीं',
+  'No community-confirmed reports yet. When several different people report the same number, UPI ID or link, it appears here.': 'अभी समुदाय से पुष्ट कोई रिपोर्ट नहीं। जब कई अलग लोग एक ही नंबर, UPI आईडी या लिंक की रिपोर्ट करेंगे, तो वह यहाँ दिखेगा।',
   'Confirmed by several people': 'कई लोगों द्वारा पुष्ट',
   'Could not load reports.': 'रिपोर्टें लोड नहीं हो सकीं।',
   'Report received. Thank you.': 'रिपोर्ट मिल गई। धन्यवाद।',
@@ -285,7 +315,6 @@ const HI = {
   'Key warning signs:': 'मुख्य चेतावनी संकेत:',
   'Recommended action:': 'सुझाई गई कार्रवाई:',
   'You': 'आप',
-  'Demo data source note unavailable.': 'डेटा स्रोत नोट उपलब्ध नहीं।',
   'Accounts': 'खाते',
   'Cloud Run: live': 'Cloud Run: चालू',
   'demo': 'डेमो',
@@ -906,7 +935,7 @@ function domainCategory(res, code) {
 // Never leave an empty pill/badge/tag on screen.
 function hideEmptyPills() {
   document.querySelectorAll('.pill, .badge, .tag, .status-pill, .scam-type-tag, .finding-status, .src-badge, .risk-pct, [class*="badge"], [class*="-pill"], [class*="-tag"]:not(.hero-tagline)').forEach(el => {
-    if (el.closest('.nav-tab')) return;
+    if (el.closest('.nav-tab') || el.id === 'metric-checks') return; // metric-checks is shown/hidden by renderHeroMetrics
     el.hidden = !el.textContent.trim() && !el.querySelector('img,svg');
   });
 }
@@ -1183,7 +1212,7 @@ async function askGemini(prompt) {
 }
 
 // ========================================================
-// SCAM TRENDS (demo data unless BigQuery is connected server-side)
+// LIVE ANALYTICS (BigQuery audit table, no simulated data)
 // ========================================================
 let pillTimer = null;
 function watchEmptyPills() {
@@ -1193,33 +1222,113 @@ function watchEmptyPills() {
     .observe(root, { childList: true, subtree: true, characterData: true });
   hideEmptyPills();
 }
-const MULE_STATUS = { FLAGGED_FOR_FREEZE: 'Flagged for freeze', UNDER_MONITORING: 'Under monitoring', LEO_DISPATCHED: 'Police team dispatched', AUTO_THROTTLED: 'Auto-throttled' };
-function muleStatus(code) {
-  const c = String(code || '').trim();
-  return MULE_STATUS[c] ? t(MULE_STATUS[c]) : humanise(c);
+let lastAnalytics = null;
+const nfmt = n => (Number.isFinite(Number(n)) ? Number(n).toLocaleString('en-IN') : '-');
+const RISK_LABEL = { SAFE: 'Safe', LOW: 'Low', MEDIUM: 'Medium', HIGH: 'High', CRITICAL: 'Critical', UNSCORED: 'Not scored' };
+const ENDPOINT_LABEL = {
+  '/api/scam/check': 'Message, link, UPI or phone check', '/api/domain/check': 'Website check', '/api/gemini/advisor': 'AI advisor',
+  '/api/document-ai/analyze': 'Document check', '/api/v1/batch': 'Batch check (API)'
+};
+const INPUT_LABEL = { message: 'Message', url: 'Link or website', upi: 'UPI ID', phone: 'Phone number', empty: 'Empty' };
+function endpointLabel(e) {
+  const k = String(e || '');
+  if (ENDPOINT_LABEL[k]) return t(ENDPOINT_LABEL[k]);
+  if (k.startsWith('/api/emergency/')) return t('Panic check');
+  return k;
+}
+function barRow(label, share, text, cls) {
+  const w = Math.max(0, Math.min(100, Number(share) || 0));
+  return `<div class="threat-bar-item"><div class="bar-meta"><span>${esc(label)}</span><span>${esc(text)}</span></div>` +
+    `<div class="bar-track" role="presentation"><div class="bar-fill an-bar-fill ${cls || ''}" style="width:${w}%"></div></div></div>`;
+}
+function barList(el, rows) {
+  if (!el) return;
+  el.innerHTML = rows.length ? rows.join('') : `<p class="datasource-note">${esc(t('No data yet.'))}</p>`;
+}
+function kpi(num, lbl) { return `<div class="an-kpi"><span class="an-kpi-num">${esc(num)}</span><span class="an-kpi-lbl">${esc(lbl)}</span></div>`; }
+function sparkline(days) {
+  const W = 300, H = 80, P = 6;
+  const max = Math.max(1, ...days.map(d => d.checks));
+  const x = i => P + (i * (W - 2 * P)) / Math.max(1, days.length - 1);
+  const y = v => H - P - (v * (H - 2 * P)) / max;
+  const pts = days.map((d, i) => `${x(i).toFixed(1)},${y(d.checks).toFixed(1)}`);
+  const total = days.reduce((n, d) => n + d.checks, 0);
+  const label = `${t('Checks per day (last 14 days)')}: ${nfmt(total)} ${t('total')}, ${t('peak')} ${nfmt(max)}`;
+  const dots = days.map((d, i) => `<circle class="an-dot" cx="${x(i).toFixed(1)}" cy="${y(d.checks).toFixed(1)}" r="2.5"><title>${esc(d.day)}: ${esc(d.checks)}</title></circle>`).join('');
+  return `<svg class="an-spark" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(label)}" focusable="false">` +
+    `<polygon class="an-area" points="${P},${H - P} ${pts.join(' ')} ${W - P},${H - P}"/><polyline class="an-line" points="${pts.join(' ')}"/>${dots}</svg>` +
+    `<div class="an-spark-axis"><span>${esc(days[0].day)}</span><span>${esc(t('peak'))} ${esc(nfmt(max))}</span><span>${esc(days[days.length - 1].day)}</span></div>` +
+    `<table class="sr-only"><caption>${esc(t('Checks per day (last 14 days)'))}</caption><tbody>${days.map(d => `<tr><th scope="row">${esc(d.day)}</th><td>${esc(d.checks)}</td></tr>`).join('')}</tbody></table>`;
+}
+function renderIntel(ti) {
+  const kp = $('an-intel-kpis'), src = $('an-intel-sources');
+  if (!kp || !src) return;
+  if (!ti) { kp.innerHTML = ''; src.innerHTML = `<p class="datasource-note">${esc(t('Threat intelligence is not available right now.'))}</p>`; return; }
+  const last = ti.lastRefresh ? new Date(ti.lastRefresh).toLocaleString(LANG === 'hi' ? 'hi-IN' : 'en-IN') : t('not yet');
+  kp.innerHTML = kpi(nfmt(ti.totalIndicators), t('Threat indicators loaded')) + kpi(`${nfmt(ti.liveFeeds)} / ${nfmt(ti.feedsConfigured)}`, t('Live data feeds')) +
+    kpi(nfmt(ti.india && ti.india.rbiAlertListEntries), t('RBI alert-list entries')) + kpi(nfmt(ti.india && ti.india.sebiRegisteredEntities), t('SEBI registered entities')) +
+    kpi(last, t('Last refresh'));
+  const max = Math.max(1, ...(ti.indicatorsBySource || []).map(x => x.indicators));
+  barList(src, (ti.indicatorsBySource || []).map(x => barRow(x.name || x.id, (100 * x.indicators) / max, nfmt(x.indicators))));
+}
+function renderAnalytics(d) {
+  const note = $('bq-source-note'), empty = $('an-empty'), content = $('an-content'), sqlWrap = $('an-sql-wrap');
+  if (!d) {
+    note.textContent = t('Live analytics could not be loaded.');
+    empty.hidden = false; content.hidden = true; sqlWrap.hidden = true;
+    empty.innerHTML = `<p class="an-empty-title">${esc(t('Live analytics are not available right now.'))}</p>`;
+    renderIntel(null);
+    return;
+  }
+  renderIntel(d.threatIntel);
+  if (!d.available) {
+    note.textContent = d.empty ? t('Connected to BigQuery. The audit table has no checks yet.') : t('Not connected to BigQuery right now. No numbers are shown rather than made-up ones.');
+    empty.hidden = false; content.hidden = true;
+    empty.innerHTML = d.empty
+      ? `<p class="an-empty-title">${esc(t('No data yet - run a few checks'))}</p><p>${esc(t('Charts appear here as soon as checks are recorded.'))}</p>`
+      : `<p class="an-empty-title">${esc(t('Live analytics are not available right now.'))}</p><p class="datasource-note">${esc(d.reason || '')}</p>`;
+    sqlWrap.hidden = !d.sql;
+    if (d.sql) renderSql(d);
+    return;
+  }
+  empty.hidden = true; content.hidden = false;
+  note.textContent = `${t('Live from BigQuery table')} ${d.table || ''} · ${t('query time')} ${nfmt(d.queryExecutionTimeMs)} ms · ${t('refreshed at')} ${new Date(d.generatedAt).toLocaleTimeString(LANG === 'hi' ? 'hi-IN' : 'en-IN')}`;
+  const tt = d.totals;
+  $('an-kpis').innerHTML = kpi(nfmt(tt.checks24h), t('Checks in 24 hours')) + kpi(nfmt(tt.checks7d), t('Checks in 7 days')) + kpi(nfmt(tt.checks30d), t('Checks in 30 days')) +
+    kpi(nfmt(tt.uniqueNetworks30d), t('Unique anonymous networks (30 days)')) + kpi(`${d.geminiShare.share}%`, t('Checks that used Gemini AI'));
+  $('an-daily').innerHTML = sparkline(d.checksPerDay);
+  barList($('an-risk'), d.riskDistribution.map(r => barRow(t(RISK_LABEL[r.bucket] || r.bucket), r.share, `${r.share}% (${nfmt(r.checks)})`, 'lvl-' + r.bucket)));
+  barList($('an-input'), d.byInputType.map(r => barRow(t(INPUT_LABEL[r.inputType] || r.inputType), r.share, `${r.share}% (${nfmt(r.checks)})`)));
+  barList($('an-endpoint'), d.byEndpoint.map(r => barRow(endpointLabel(r.endpoint), r.share, `${r.share}% (${nfmt(r.checks)})`)));
+  barList($('an-verdicts'), d.topVerdicts.map(r => barRow(humanise(r.verdict), r.share, `${r.share}% (${nfmt(r.checks)})`)));
+  const tbl = $('an-latency');
+  tbl.querySelector('thead').innerHTML = `<tr><th scope="col">${esc(t('Service'))}</th><th scope="col">p50 (ms)</th><th scope="col">p95 (ms)</th></tr>`;
+  tbl.querySelector('tbody').innerHTML = d.byEndpoint.map(r => `<tr><td>${esc(endpointLabel(r.endpoint))}</td><td>${r.p50Ms == null ? '-' : esc(nfmt(r.p50Ms))}</td><td>${r.p95Ms == null ? '-' : esc(nfmt(r.p95Ms))}</td></tr>`).join('');
+  sqlWrap.hidden = false; renderSql(d);
+}
+function renderSql(d) {
+  const el = $('an-sql'); if (!el || !d.sql) return;
+  el.innerHTML = `<p class="an-sql-note">${esc(t('These fixed, parameterised queries run as the service account. Time windows are passed as query parameters. Billing is capped at 100 MB per query.'))}</p>` +
+    Object.entries(d.sql).map(([k, q]) => `<h4>${esc(k)}</h4><pre class="sql-code"><code>${esc(q)}</code></pre>`).join('');
 }
 async function initBigQueryMatrix() {
-  const threatBars = $('threat-bars-container');
-  const muleTable = $('mule-table-body');
   try {
-    const data = await api('bq', '/api/bigquery/analytics', { method: 'GET', timeoutMs: 15000 });
-    if (!data) return;
-    const note = $('bq-source-note');
-    if (note) note.textContent = plain(data.dataSourceNote || '');
-    if (threatBars && data.topVectors) {
-      threatBars.innerHTML = data.topVectors.map(v => {
-        const w = Math.max(0, Math.min(100, Number(v.share) || 0));
-        return `<div class="threat-bar-item"><div class="bar-meta"><span>${esc(v.vector)}</span><span>${w}% (${esc(v.count)})</span></div><div class="bar-track"><div class="bar-fill" style="width:${w}%"></div></div></div>`;
-      }).join('');
-    }
-    if (muleTable && data.liveMuleClusters) {
-      muleTable.innerHTML = data.liveMuleClusters.map(m => `<tr>
-        <td><strong>${esc(m.clusterId)}</strong></td><td>${esc(m.nodes)}</td><td>${esc(m.volumeINR)}</td>
-        <td><span class="risk-pct">${esc(m.riskScore)}%</span></td><td><span class="finding-status failed">${esc(muleStatus(m.status))}</span></td></tr>`).join('');
-    }
-  } catch (err) {
-    const note = $('bq-source-note');
-    if (note) note.textContent = t('Demo data source note unavailable.');
+    lastAnalytics = await api('bq', '/api/bigquery/analytics', { method: 'GET', timeoutMs: 15000 });
+  } catch (err) { lastAnalytics = null; }
+  renderAnalytics(lastAnalytics);
+  renderHeroMetrics(lastAnalytics);
+}
+// Hero counters: all fetched from the API (threat store, feed status, BigQuery audit table). Nothing is hard-coded.
+function renderHeroMetrics(an) {
+  const setNum = (id, v) => { const el = $(id); if (el) el.textContent = v; };
+  const ti = an && an.threatIntel;
+  setNum('metric-indicators-num', ti ? nfmt(ti.totalIndicators) : '-');
+  setNum('metric-feeds-num', ti ? nfmt(ti.liveFeeds) : '-');
+  const box = $('metric-checks');
+  if (box) {
+    const ok = Boolean(an && an.available && an.totals);
+    box.hidden = !ok;
+    if (ok) setNum('metric-checks-num', nfmt(an.totals.checks7d));
   }
 }
 
@@ -1261,24 +1370,17 @@ async function loadCitizenReports() {
   try {
     const data = await api('reports', '/api/scam/reports', { method: 'GET', timeoutMs: 10000 });
     if (!data || !data.data) return;
-    const live = data.dataSource === 'crowd-pipeline';
-    if (tag) { tag.textContent = live ? t('Confirmed by several people') : t('Sample'); tag.className = live ? 'tag-live' : 'tag-sample'; }
-    if (live) {
-      feedList.innerHTML = data.data.map(r => `
+    const items = data.data;
+    if (tag) { tag.textContent = items.length ? t('Confirmed by several people') : t('No reports yet'); tag.className = items.length ? 'tag-live' : 'tag-sample'; }
+    if (items.length) {
+      feedList.innerHTML = items.map(r => `
         <div class="report-feed-item">
           <div class="feed-item-top"><span class="feed-item-badge">${esc(r.scamType)}</span><span class="feed-item-time">${esc(r.time)}</span></div>
           <div class="feed-item-target">${esc(r.target)}</div>
           <div class="feed-item-desc">${esc(r.details)}</div>
         </div>`).join('');
     } else {
-      // Server seeds fake entries when there are no real reports. Never show those numbers: masked placeholders only.
-      const masks = ['+91 9•••• ••••1', 'name••••@••••', 'https://••••••.example'];
-      feedList.innerHTML = `<div class="datasource-note sample-note">${esc(t('Sample entries only. No community-confirmed reports yet.'))}</div>` + data.data.slice(0, 3).map((r, i) => `
-        <div class="report-feed-item sample-item">
-          <div class="feed-item-top"><span class="feed-item-badge">${esc(r.scamType)}</span><span class="sample-chip-tag">${esc(t('SAMPLE'))}</span></div>
-          <div class="feed-item-target">${esc(masks[i % masks.length])}</div>
-          <div class="feed-item-desc">${esc(t('Sample placeholder, not a real report'))}</div>
-        </div>`).join('');
+      feedList.innerHTML = `<div class="datasource-note">${esc(t('No community-confirmed reports yet. When several different people report the same number, UPI ID or link, it appears here.'))}</div>`;
     }
   } catch (err) {
     feedList.innerHTML = `<div class="datasource-note">${esc(t('Could not load reports.'))}</div>`;
@@ -1319,8 +1421,8 @@ async function loadStatus() {
   if (w && w.configured && w.healthy !== false) setDot('svc-webrisk', 'live', 'Google Web Risk is configured');
   else if (w && w.configured) setDot('svc-webrisk', 'warn', 'Google Web Risk is configured but the last call failed');
   else setDot('svc-webrisk', 'off', 'Google Web Risk is not configured');
-  setDot('svc-docai', s.documentAI && s.documentAI.configured ? 'live' : 'demo', s.documentAI && s.documentAI.configured ? 'Document AI is configured' : 'Document AI is not connected (demo)');
-  setDot('svc-bigquery', s.bigQuery && s.bigQuery.configured ? 'live' : 'demo', s.bigQuery && s.bigQuery.configured ? 'BigQuery is configured' : 'BigQuery is not connected (demo data)');
+  setDot('svc-docai', s.documentAI && s.documentAI.configured ? 'live' : 'off', s.documentAI && s.documentAI.configured ? 'Document AI is configured' : 'Document AI is not connected');
+  setDot('svc-bigquery', s.bigQuery && s.bigQuery.configured ? 'live' : 'off', s.bigQuery && s.bigQuery.configured ? 'BigQuery audit log is connected' : 'BigQuery is not connected');
   const docOn = Boolean(s.documentAI && s.documentAI.configured);
   const badge = $('doc-mode-badge');
   if (badge) {
@@ -1340,6 +1442,7 @@ function rerenderAll() {
   if (lastDoc && !$('doc-result').hidden) renderDocResult(lastDoc);
   if (lastSystem !== undefined) loadStatusLabels();
   if ($('citizen-reports-list') && $('citizen-reports-list').children.length) loadCitizenReports();
+  if (lastAnalytics !== undefined && $('an-empty')) { renderAnalytics(lastAnalytics); renderHeroMetrics(lastAnalytics); }
 }
 function loadStatusLabels() {
   document.querySelectorAll('#service-status-bar .stack-item').forEach(el => {

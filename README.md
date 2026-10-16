@@ -6,7 +6,7 @@ with a public API (nothing to install). Checks run on SafeMeAI's cloud servers i
 
 **Google Cloud services:** Cloud Run (app + API, asia-south1), Firebase Hosting (safemeai.in, CDN), Vertex AI Gemini (second opinion, advisor,
 Hindi translation), Document AI (OCR), Web Risk (malicious-URL list), Firestore (threat store, reports), Cloud Scheduler (feed refresh),
-BigQuery (audit sink, analytics; demo for now), Secret Manager, Cloud Logging, Google Public DNS.
+BigQuery (audit sink + live analytics over it), Secret Manager, Cloud Logging, Google Public DNS.
 
 Optional client API: `/api/v1/blocklist/delta` and `/api/v1/app/report` exist for third-party clients (see `docs/blocklist-api.md`); the website does not use them.
 
@@ -68,7 +68,7 @@ keyword rules and labels the answer `rules-engine fallback`.
 - **Data flow & residency**: browser/API client -> Cloud Run (asia-south1) -> in-memory engines + Firestore (threat store, reports) -> optional calls out: Gemini on Vertex AI in `VERTEX_LOCATION` (default asia-south1; a startup warning is logged otherwise), Google Web Risk, public DNS (dns.google / Cloudflare), RDAP, target-site TLS handshake. Text sent to Gemini is PII-redacted first (`lib/redact.js`: phones, Aadhaar, PAN, cards, emails, UPI ids, OTP-like codes). Raw user text is not persisted; logs hold hashes only. Web Risk, DNS and RDAP lookups send the domain being checked to those providers (not the message body).
 - **DPDP notes (not legal advice)**: data minimisation (hash-only audit), purpose limitation (fraud detection), no raw-IP storage, residency in India for compute/storage/Gemini by default, retention table in `docs/audit.md`. Open items: privacy notice/consent text on the UI, DPO contact, breach-notification runbook, DPA with the bank, processor list review.
 - **SLO targets** (targets, not measured guarantees): availability 99.9% monthly (error budget 43 min/month; Cloud Run min-instances=0 means cold starts of a few seconds can eat budget - set min-instances=1 if affordable); p95 latency: text/UPI/phone check < 800 ms, URL/domain check < 4 s (network probes), Gemini advisor < 6 s; 5xx rate < 0.1%. Measure with Cloud Run request metrics and the audit `latencyMs`.
-- **Live vs demo**: live = text/URL/UPI/phone scoring, domain verification (DNS, TLS, RDAP age, threat feeds), crowd reports, signed blocklist, audit/limits/API. Live if configured = Gemini on Vertex, Web Risk (`WEB_RISK_API_KEY`), Document AI (`DOCUMENT_AI_PROCESSOR`), BigQuery analytics (`BIGQUERY_DATASET`), audit BigQuery sink. Demo = document specimens (pre-written findings), compliance search and telemetry-ingest sample data. `/api/system/status` reports the real state.
+- **Live vs demo**: live = text/URL/UPI/phone scoring, domain verification (DNS, TLS, RDAP age, threat feeds), crowd reports, signed blocklist, audit/limits/API. Live if configured = Gemini on Vertex, Web Risk (`WEB_RISK_API_KEY`), Document AI (`DOCUMENT_AI_PROCESSOR`), BigQuery audit sink and the Live analytics tab (`AUDIT_BIGQUERY_TABLE=safemeai_audit.checks`). Demo = document specimens (pre-written findings), compliance search and telemetry-ingest sample data. `/api/system/status` reports the real state.
 - Env: `API_KEYS_JSON`, `AUDIT_HMAC_SECRET`, `AUDIT_BIGQUERY_TABLE`, `GIT_SHA`, `RL_*`, `SECURITY_CONTACT`, `VERTEX_LOCATION`.
 
 ## Run locally
@@ -121,8 +121,8 @@ temp-file deletion, all frontend output HTML-escaped. For a global limit/WAF put
 | Digital-arrest screener | Deterministic rules (no AI) |
 | Document lab: preset specimens | **Demo** (`dataSource: demo-simulated`), pre-written findings |
 | Document lab: uploads | Document AI OCR when `DOCUMENT_AI_PROCESSOR` set; otherwise filename-only, flagged inconclusive. Verdict is keyword rules, not forensic seal/signature analysis |
-| BigQuery analytics | **Demo** KPIs/mule clusters (`kpisAreSimulated`); top vectors are live only with `BIGQUERY_DATASET` |
+| Live analytics (`/api/bigquery/analytics`) | **Real**: parameterised BigQuery queries over the audit table `safemeai_audit.checks` (checks per day, risk buckets, endpoint/input mix, Gemini share, latency p50/p95, top verdicts), cached 60 s, 100 MB billing cap, 5 s timeout. Needs `AUDIT_BIGQUERY_TABLE`; otherwise returns `available:false` with the reason (never invented numbers). Includes live threat-store facts |
 | Compliance search | Curated static citations (Vertex AI Search is not connected) |
 | Telemetry ingest | Simulated ack; nothing published to Pub/Sub or stored |
-| Citizen reports | In-memory demo feed (lost on restart, not pushed to devices) |
-| Hero figures ("24,510 devices", "Rs 18.42 Cr") | Illustrative demo values |
+| Citizen reports | Real community-confirmed reports only (masked); empty state when there are none |
+| Hero figures | Real counters: indicators loaded, live data feeds, languages, checks in the last 7 days (BigQuery; tile hidden when unavailable) |

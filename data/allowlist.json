@@ -1813,6 +1813,246 @@
    "category": "ecommerce-delivery",
    "owner": "Tata Sons",
    "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "saraswatbank.com",
+   "category": "bank",
+   "owner": "Saraswat Co-operative Bank Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "abhyudayabank.co.in",
+   "category": "bank",
+   "owner": "Abhyudaya Co-operative Bank Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "svcbank.com",
+   "category": "bank",
+   "owner": "The Shamrao Vithal Co-operative Bank Ltd (SVC Bank)",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "bharatbank.com",
+   "category": "bank",
+   "owner": "The Bharat Co-operative Bank (Mumbai) Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "apnasahakaribank.com",
+   "category": "bank",
+   "owner": "Apna Sahakari Bank Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "kapolbank.com",
+   "category": "bank",
+   "owner": "The Kapol Co-operative Bank Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "nkgsb.in",
+   "category": "bank",
+   "owner": "NKGSB Co-operative Bank Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "nesfb.com",
+   "category": "bank",
+   "owner": "North East Small Finance Bank Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "southindianbank.com",
+   "category": "bank",
+   "owner": "The South Indian Bank Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "iob.in",
+   "category": "bank",
+   "owner": "Indian Overseas Bank",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "bankofbaroda.com",
+   "category": "bank",
+   "owner": "Bank of Baroda",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "camsonline.com",
+   "category": "investment-broker",
+   "owner": "Computer Age Management Services Ltd (CAMS), SEBI-registered RTA",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "kfintech.com",
+   "category": "investment-broker",
+   "owner": "KFin Technologies Ltd, SEBI-registered RTA",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "infosys.com",
+   "category": "corporate",
+   "owner": "Infosys Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "tcs.com",
+   "category": "corporate",
+   "owner": "Tata Consultancy Services Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "wipro.com",
+   "category": "corporate",
+   "owner": "Wipro Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "hcltech.com",
+   "category": "corporate",
+   "owner": "HCL Technologies Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "techmahindra.com",
+   "category": "corporate",
+   "owner": "Tech Mahindra Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "ril.com",
+   "category": "corporate",
+   "owner": "Reliance Industries Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "tatamotors.com",
+   "category": "corporate",
+   "owner": "Tata Motors Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "tatasteel.com",
+   "category": "corporate",
+   "owner": "Tata Steel Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "larsentoubro.com",
+   "category": "corporate",
+   "owner": "Larsen & Toubro Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "itcportal.com",
+   "category": "corporate",
+   "owner": "ITC Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "hul.co.in",
+   "category": "corporate",
+   "owner": "Hindustan Unilever Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "marutisuzuki.com",
+   "category": "corporate",
+   "owner": "Maruti Suzuki India Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "ongcindia.com",
+   "category": "corporate",
+   "owner": "Oil and Natural Gas Corporation Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "ntpc.co.in",
+   "category": "corporate",
+   "owner": "NTPC Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "coalindia.in",
+   "category": "corporate",
+   "owner": "Coal India Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "iocl.com",
+   "category": "corporate",
+   "owner": "Indian Oil Corporation Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "bharatpetroleum.in",
+   "category": "corporate",
+   "owner": "Bharat Petroleum Corporation Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "hindustanpetroleum.com",
+   "category": "corporate",
+   "owner": "Hindustan Petroleum Corporation Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "sail.co.in",
+   "category": "corporate",
+   "owner": "Steel Authority of India Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "bhel.com",
+   "category": "corporate",
+   "owner": "Bharat Heavy Electricals Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "adani.com",
+   "category": "corporate",
+   "owner": "Adani Enterprises Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "godrej.com",
+   "category": "corporate",
+   "owner": "Godrej & Boyce / Godrej Industries",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "bajajauto.com",
+   "category": "corporate",
+   "owner": "Bajaj Auto Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "heromotocorp.com",
+   "category": "corporate",
+   "owner": "Hero MotoCorp Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "titancompany.in",
+   "category": "corporate",
+   "owner": "Titan Company Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "asianpaints.com",
+   "category": "corporate",
+   "owner": "Asian Paints Ltd",
+   "origin": "2026-10-expansion"
+  },
+  {
+   "domain": "ultratechcement.com",
+   "category": "corporate",
+   "owner": "UltraTech Cement Ltd",
+   "origin": "2026-10-expansion"
   }
  ]
 }

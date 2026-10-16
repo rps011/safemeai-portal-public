@@ -12,6 +12,8 @@ GEMINI_MODEL="${GEMINI_MODEL:-gemini-2.5-flash}"
 SA_NAME="safemeai-run"
 SA_EMAIL="${SA_NAME}@${PROJECT}.iam.gserviceaccount.com"
 SECRET_NAME="web-risk-api-key"
+# BigQuery audit sink (Mumbai): every check is logged as a hashed-input row; the analytics tab reads it back.
+AUDIT_BIGQUERY_TABLE="${AUDIT_BIGQUERY_TABLE:-safemeai_audit.checks}"
 # Document AI OCR processor (Mumbai, OCR_PROCESSOR "safemeai-ocr"); documents stay in India.
 DOCUMENT_AI_PROCESSOR="${DOCUMENT_AI_PROCESSOR:-projects/846801666760/locations/asia-south1/processors/37cbfc50db1e85d3}"
 
@@ -26,7 +28,7 @@ echo "Account: $ACCOUNT | Project: $PROJECT | Region: $REGION | Service: $SERVIC
 echo "Enabling APIs..."
 APIS="run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com aiplatform.googleapis.com webrisk.googleapis.com secretmanager.googleapis.com"
 [ -n "${DOCUMENT_AI_PROCESSOR:-}" ] && APIS="$APIS documentai.googleapis.com"
-[ -n "${BIGQUERY_DATASET:-}" ] && APIS="$APIS bigquery.googleapis.com"
+[ -n "${AUDIT_BIGQUERY_TABLE:-}" ] && APIS="$APIS bigquery.googleapis.com"
 gcloud services enable $APIS
 
 echo "Ensuring dedicated runtime service account..."
@@ -37,7 +39,7 @@ grant() { gcloud projects add-iam-policy-binding "$PROJECT" --member "serviceAcc
 grant roles/aiplatform.user                       # Gemini on Vertex AI
 grant roles/datastore.user                        # Firestore: threat store + crowd reports
 [ -n "${DOCUMENT_AI_PROCESSOR:-}" ] && grant roles/documentai.apiUser
-if [ -n "${BIGQUERY_DATASET:-}" ]; then grant roles/bigquery.jobUser; grant roles/bigquery.dataViewer; fi
+if [ -n "${AUDIT_BIGQUERY_TABLE:-}" ]; then grant roles/bigquery.jobUser; fi   # dataset WRITER access is set on safemeai_audit itself (least privilege)
 
 # Web Risk API key lives in Secret Manager. Create it once with:
 #   gcloud services enable webrisk.googleapis.com
@@ -66,9 +68,8 @@ INGEST_SA_NAME="safeme-ingest-scheduler"
 INGEST_SA_EMAIL="${INGEST_SA_NAME}@${PROJECT}.iam.gserviceaccount.com"
 SERVICE_URL=$(gcloud run services describe "$SERVICE_NAME" --region "$REGION" --format 'value(status.url)' 2>/dev/null || true)
 
-ENV_VARS="NODE_ENV=production,GIT_SHA=$(git rev-parse --short HEAD 2>/dev/null || echo unknown),THREAT_STORE=firestore,INGEST_SA_EMAIL=${INGEST_SA_EMAIL},INGEST_AUDIENCE=${SERVICE_URL},INGEST_CONTACT=${INGEST_CONTACT:-https://safemeai.in/},INGEST_SOURCES_DISABLE=${INGEST_SOURCES_DISABLE:-openphish},GOOGLE_CLOUD_PROJECT=${PROJECT},VERTEX_LOCATION=${VERTEX_LOCATION},GEMINI_MODEL=${GEMINI_MODEL}"
+ENV_VARS="NODE_ENV=production,AUDIT_BIGQUERY_TABLE=${AUDIT_BIGQUERY_TABLE},GIT_SHA=$(git rev-parse --short HEAD 2>/dev/null || echo unknown),THREAT_STORE=firestore,INGEST_SA_EMAIL=${INGEST_SA_EMAIL},INGEST_AUDIENCE=${SERVICE_URL},INGEST_CONTACT=${INGEST_CONTACT:-https://safemeai.in/},INGEST_SOURCES_DISABLE=${INGEST_SOURCES_DISABLE:-openphish},GOOGLE_CLOUD_PROJECT=${PROJECT},VERTEX_LOCATION=${VERTEX_LOCATION},GEMINI_MODEL=${GEMINI_MODEL}"
 [ -n "${DOCUMENT_AI_PROCESSOR:-}" ] && ENV_VARS="$ENV_VARS,DOCUMENT_AI_PROCESSOR=${DOCUMENT_AI_PROCESSOR}"
-[ -n "${BIGQUERY_DATASET:-}" ] && ENV_VARS="$ENV_VARS,BIGQUERY_DATASET=${BIGQUERY_DATASET}"
 
 echo "Deploying from source..."
 gcloud run deploy "$SERVICE_NAME" \

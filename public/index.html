@@ -42,10 +42,10 @@
         <span class="dot dot-grey" aria-hidden="true"></span><span class="stack-label">Web Risk</span><span class="stack-state sr-only">checking</span>
       </div>
       <div class="stack-item" id="svc-docai" title="Checking...">
-        <span class="dot dot-grey" aria-hidden="true"></span><span class="stack-label">Document AI</span><span class="stack-state">demo</span>
+        <span class="dot dot-grey" aria-hidden="true"></span><span class="stack-label">Document AI</span><span class="stack-state sr-only">checking</span>
       </div>
       <div class="stack-item" id="svc-bigquery" title="Checking...">
-        <span class="dot dot-grey" aria-hidden="true"></span><span class="stack-label">BigQuery</span><span class="stack-state">demo</span>
+        <span class="dot dot-grey" aria-hidden="true"></span><span class="stack-label">BigQuery</span><span class="stack-state sr-only">checking</span>
       </div>
     </div>
 
@@ -98,8 +98,7 @@
       </button>
       <button class="nav-tab" data-tab="tab-bigquery-matrix" id="nav-btn-bq" aria-controls="tab-bigquery-matrix">
         <span class="tab-icon" aria-hidden="true">📊</span>
-        <span data-i18n="Scam trends">Scam trends</span>
-        <span class="badge-demo" data-i18n="Demo">Demo</span>
+        <span data-i18n="Live analytics">Live analytics</span>
       </button>
     </nav>
   </div>
@@ -127,30 +126,25 @@
         </a>
       </div>
 
-      <!-- Illustrative figures only, each tile carries its own badge -->
-      <div class="hero-metrics-bar" aria-label="Demo figures, not real measurements">
-        <div class="metric-pill">
-          <span class="demo-ribbon" data-i18n="Demo figure">Demo figure</span>
-          <span class="metric-num">₹18.42 Cr+</span>
-          <span class="metric-lbl" data-i18n="Fraud loss prevented (example)">Fraud loss prevented (example)</span>
+      <!-- Real counters, fetched from the API (store stats, feed status, BigQuery audit table) -->
+      <div class="hero-metrics-bar" aria-label="Live platform counters" id="hero-metrics">
+        <div class="metric-pill" id="metric-indicators">
+          <span class="metric-num" id="metric-indicators-num">...</span>
+          <span class="metric-lbl" data-i18n="Threat indicators loaded">Threat indicators loaded</span>
         </div>
-        <div class="metric-pill">
-          <span class="demo-ribbon" data-i18n="Demo figure">Demo figure</span>
-          <span class="metric-num">24,510</span>
-          <span class="metric-lbl" data-i18n="Protected devices (example)">Protected devices (example)</span>
+        <div class="metric-pill" id="metric-feeds">
+          <span class="metric-num" id="metric-feeds-num">...</span>
+          <span class="metric-lbl" data-i18n="Live data feeds">Live data feeds</span>
         </div>
-        <div class="metric-pill">
-          <span class="demo-ribbon" data-i18n="Demo figure">Demo figure</span>
-          <span class="metric-num">100%</span>
-          <span class="metric-lbl" data-i18n="Fake-police calls caught (example)">Fake-police calls caught (example)</span>
+        <div class="metric-pill" id="metric-langs">
+          <span class="metric-num">2</span>
+          <span class="metric-lbl" data-i18n="Languages (English, Hindi)">Languages (English, Hindi)</span>
         </div>
-        <div class="metric-pill">
-          <span class="demo-ribbon" data-i18n="Demo figure">Demo figure</span>
-          <span class="metric-num">&lt; 50 ms</span>
-          <span class="metric-lbl" data-i18n="On-phone reaction time (target)">On-phone reaction time (target)</span>
+        <div class="metric-pill" id="metric-checks" hidden>
+          <span class="metric-num" id="metric-checks-num">...</span>
+          <span class="metric-lbl" data-i18n="Checks processed in the last 7 days">Checks processed in the last 7 days</span>
         </div>
       </div>
-      <p class="datasource-note" data-i18n="kpi-note">The four figures above are examples for demonstration. They are not measured results.</p>
     </div>
   </section>
 
@@ -619,59 +613,60 @@
     </section>
 
     <!-- ========================================================
-         TAB: SCAM TRENDS (DEMO)
+         TAB: LIVE ANALYTICS (real BigQuery audit data)
          ======================================================== -->
     <section id="tab-bigquery-matrix" class="tab-content-panel" aria-labelledby="nav-btn-bq">
       <div class="section-lead-header">
         <div>
-          <span class="section-kicker" data-i18n="FOR BANKS AND ANALYSTS (DEMO)">FOR BANKS AND ANALYSTS (DEMO)</span>
-          <h2 data-i18n="Scam trends and money-mule networks">Scam trends and money-mule networks</h2>
-          <p data-i18n="bq-lead">A sample dashboard of how a bank team could view scam trends. <strong>All numbers here are made-up demo data</strong> unless the server is connected to BigQuery (see the note below).</p>
-          <p class="datasource-note" id="bq-source-note">Loading data source...</p>
+          <span class="section-kicker" data-i18n="FOR BANKS AND ANALYSTS">FOR BANKS AND ANALYSTS</span>
+          <h2 data-i18n="Live analytics">Live analytics</h2>
+          <p data-i18n="bq-lead">Every number here is computed live from the anonymised audit log of checks in Google BigQuery. No message text, phone numbers or UPI IDs are stored or shown, only counts.</p>
+          <p class="datasource-note" id="bq-source-note" aria-live="polite">Loading...</p>
         </div>
       </div>
 
-      <div class="bq-dashboard-grid">
-        <div class="glass-box">
-          <div class="box-header">
-            <h3 data-i18n="Most common scam types (sample)">Most common scam types (sample)</h3>
-            <span class="tag-tech" data-i18n="Demo data">Demo data</span>
-          </div>
-          <div class="threat-bars-list" id="threat-bars-container"></div>
-          <div class="insight-box">
-            <strong data-i18n="Example insight (demo data):">Example insight (demo data):</strong> <span data-i18n="the sample shows fake-police calls and UPI refund traps as the biggest groups.">the sample shows fake-police calls and UPI refund traps as the biggest groups.</span>
-          </div>
-        </div>
+      <div id="an-empty" class="state-block" hidden></div>
 
-        <div class="glass-box">
-          <div class="box-header">
-            <h3 data-i18n="Suspected mule-account groups (sample)">Suspected mule-account groups (sample)</h3>
-            <span class="tag-tech" data-i18n="Demo data">Demo data</span>
+      <div id="an-content" hidden>
+        <div class="an-kpis" id="an-kpis"></div>
+        <div class="bq-dashboard-grid">
+          <div class="glass-box">
+            <div class="box-header"><h3 data-i18n="Checks per day (last 14 days)">Checks per day (last 14 days)</h3></div>
+            <div id="an-daily"></div>
           </div>
-          <div class="mule-clusters-table-wrap">
-            <table class="mule-table" id="mule-clusters-table">
-              <thead>
-                <tr>
-                  <th>Group</th><th>Accounts</th><th>24h amount</th><th>Risk</th><th>Status</th>
-                </tr>
-              </thead>
-              <tbody id="mule-table-body"></tbody>
-            </table>
+          <div class="glass-box">
+            <div class="box-header"><h3 data-i18n="Risk levels (last 30 days)">Risk levels (last 30 days)</h3></div>
+            <div class="threat-bars-list" id="an-risk"></div>
           </div>
-          <details class="tech-details">
-            <summary data-i18n="Technical details (for experts)">Technical details (for experts)</summary>
-            <div class="bq-sql-preview">
-              <span class="sql-label">Illustrative detection query (sample, not executed):</span>
-              <pre class="sql-code">SELECT payer_vpa, payee_vpa, amount,
-  ML.DETECT_ANOMALIES(MODEL `safeme_bfsi.mule_isolation_forest`,
-    TABLE `safeme_bfsi.realtime_upi_stream`) AS anomaly_status
-FROM `safeme_bfsi.realtime_upi_stream`
-WHERE DATE(timestamp) = CURRENT_DATE()
-ORDER BY anomaly_score DESC LIMIT 50;</pre>
-            </div>
-          </details>
+          <div class="glass-box">
+            <div class="box-header"><h3 data-i18n="What people check (by type)">What people check (by type)</h3></div>
+            <div class="threat-bars-list" id="an-input"></div>
+          </div>
+          <div class="glass-box">
+            <div class="box-header"><h3 data-i18n="Checks by service">Checks by service</h3></div>
+            <div class="threat-bars-list" id="an-endpoint"></div>
+          </div>
+          <div class="glass-box">
+            <div class="box-header"><h3 data-i18n="Response time (p50 / p95)">Response time (p50 / p95)</h3></div>
+            <div class="mule-clusters-table-wrap"><table class="mule-table" id="an-latency"><thead></thead><tbody></tbody></table></div>
+          </div>
+          <div class="glass-box">
+            <div class="box-header"><h3 data-i18n="Most common outcomes">Most common outcomes</h3></div>
+            <div class="threat-bars-list" id="an-verdicts"></div>
+          </div>
         </div>
       </div>
+
+      <div class="glass-box an-intel">
+        <div class="box-header"><h3 data-i18n="Threat intelligence loaded now">Threat intelligence loaded now</h3><span class="tag-live" data-i18n="Live">Live</span></div>
+        <div class="an-kpis" id="an-intel-kpis"></div>
+        <div class="threat-bars-list" id="an-intel-sources"></div>
+      </div>
+
+      <details class="tech-details an-sql" id="an-sql-wrap" hidden>
+        <summary data-i18n="Show the BigQuery SQL">Show the BigQuery SQL</summary>
+        <div class="bq-sql-preview" id="an-sql"></div>
+      </details>
     </section>
 
     <!-- ========================================================
@@ -770,7 +765,7 @@ ORDER BY anomaly_score DESC LIMIT 50;</pre>
           <li>⚡ <strong>Google Cloud Run</strong></li>
           <li>🧠 <strong>Gemini on Vertex AI</strong> <span data-i18n="(used when available)">(used when available)</span></li>
           <li>🛡️ <strong>Google Web Risk</strong> <span data-i18n="(when configured)">(when configured)</span></li>
-          <li>📄📊 <strong>Document AI, BigQuery</strong> <span data-i18n="(demo only for now)">(demo only for now)</span></li>
+          <li>📄📊 <strong>Document AI, BigQuery</strong> <span data-i18n="(when configured)">(when configured)</span></li>
         </ul>
       </div>
     </div>

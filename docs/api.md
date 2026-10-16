@@ -18,6 +18,8 @@ Hash comparison is constant-time. Tiers: `free` (x1), `pilot` (x5 of the base li
 `POST /api/v1/message/check {text}`, `POST /api/v1/domain/check {url|domain|input}`,
 `POST /api/v1/batch {items:[string|{input,type?:"domain"}] (1..20)}` (concurrency 4, per-item results, costs `1 + ceil(n/10)` check-quota units),
 legacy routes unchanged. Ops: `GET /health`, `/api/health` (`/healthz` is swallowed by Cloud Run's front end),
+`GET /api/bigquery/analytics` (live aggregates from the BigQuery audit table, cached 60 s; `available:false` + reason when BigQuery cannot answer) and `GET /api/analytics/threat-intel` (indicators per source, last refresh, live feeds, RBI/SEBI counts from the in-process threat store).
+
 `GET /api/system/status` (cached 30 s; truthful liveness of Gemini, Web Risk, Document AI, BigQuery, threat store, audit sink).
 
 ## Rate limits (token bucket, per instance)
