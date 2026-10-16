@@ -241,7 +241,7 @@ test('textAi: text is PII-redacted before it is sent', async () => {
   for (const bad of ['9876543210', 'ravi@gmail.com', 'ravi@ybl', '2345 6789 0123', '4111 1111 1111 1111', '482913']) assert.ok(!sent.includes(bad), bad + ' leaked: ' + sent);
 });
 test('textAi: escalates a scam opinion, labels the model honestly', async () => {
-  const v = { ...ambiguous(), riskScore: 45, riskLevel: 'MEDIUM', _meta: { category: 'unknown', signals: { link: false } } };
+  const v = { ...ambiguous(), riskScore: 45, riskLevel: 'MEDIUM', _meta: { category: 'unknown', signals: { link: true } } };
   const o = await textAi.secondOpinion('x', v, { generate: gen({ verdict: 'SCAM', confidence: 0.9, reason: 'Classic fee trap.' }), levelFor: textEngine.levelFor });
   assert.ok(o.riskScore >= 72); assert.equal(o.riskLevel, 'HIGH');
   assert.equal(o.aiSecondOpinion.status, 'escalated');
@@ -350,4 +350,11 @@ test('a bare personal UPI id is "not sure" (>= MEDIUM), never LOOKS OK; a UPI id
   const t = require('../lib/textEngine');
   assert.ok(t.analyze('scammer123@okaxis', {}).riskScore >= 40);
   assert.ok(t.analyze('pay me at rahul@oksbi for lunch', {}).riskScore < 40);
+});
+
+test('textAi: a scam opinion alone never escalates a routine alert with no concrete risk signal (genuine debit SMS + toll-free helpline regression)', async () => {
+  const v = { riskScore: 36, riskLevel: 'LOW', flags: ['Customer-care / helpline reference'], _meta: { category: 'unknown', signals: { link: false, credential: false, payment: false, mobile: false, upi: false, install: false, secrecy: false } } };
+  const o = await textAi.secondOpinion('Rs 450 debited at SWIGGY. Not you? Call 1800 1080 (toll free) - SBI', v, { generate: gen({ verdict: 'SCAM', confidence: 0.95, reason: 'fake care number' }), levelFor: textEngine.levelFor });
+  assert.equal(o.riskScore, 36);
+  assert.match(o.aiSecondOpinion.status, /^noted/);
 });

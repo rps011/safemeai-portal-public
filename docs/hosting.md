@@ -17,5 +17,6 @@ Pre-migration site (Sept 2025 marketing page) = version `59f79f11d173a3a7`:
 The old home page is kept at `/about`, and `/delete-account` (needed for Play Store policy) is preserved.
 
 ## Known gaps
-- `www.safemeai.in` has no DNS record (Firebase reports DNS_MISSING): add a CNAME `www` -> `fraudshield-daa79c8e.web.app` at the DNS provider.
+- `www.safemeai.in`: CNAME `www` -> `fraudshield-daa79c8e.web.app` is set at Hostinger; Firebase may take a few hours to see it and issue the certificate.
+- Placeholder mailboxes `security@safemeai.in` / `grievance@safemeai.in` must exist (marked TODO on the pages).
 - `safemeai.com` / `www.safemeai.com` are attached to the site but have lost verification.
