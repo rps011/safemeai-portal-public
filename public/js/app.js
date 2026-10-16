@@ -377,6 +377,7 @@ function applyLang(lang) {
   try { localStorage.setItem('safemeai_lang', LANG); } catch (_) { /* storage may be blocked */ }
   applyPills();
   rerenderAll();
+  if (window.SafeTheme) window.SafeTheme.refresh();
   if (LANG !== prevLang) refetchForLang();
 }
 
