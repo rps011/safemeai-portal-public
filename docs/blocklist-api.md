@@ -1,4 +1,6 @@
-# Blocklist & app-report API
+# Client API (optional): blocklist & client report
+
+These endpoints are for optional third-party/native clients. The SafeMeAI website does not use or advertise them.
 
 ## GET /api/v1/blocklist/delta?since=<ts>
 

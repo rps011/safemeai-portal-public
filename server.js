@@ -42,7 +42,7 @@ app.use((req, res, next) => {
     "script-src 'self'",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
-    "img-src 'self' data: https://api.qrserver.com",
+    "img-src 'self' data:",
     "connect-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",
@@ -516,7 +516,7 @@ app.get('/api/bigquery/analytics', async (req, res) => {
     topVectors: [
       { vector: "UPI Collect / Fake Refund", share: 38, count: 1448 },
       { vector: "Digital Arrest Video Extortion", share: 29, count: 1105 },
-      { vector: "Predatory Instant Loan APKs", share: 18, count: 686 },
+      { vector: "Predatory Instant Loan Apps", share: 18, count: 686 },
       { vector: "Task / Mule Account Job Lures", share: 11, count: 419 },
       { vector: "SIM Swap / Banking Phishing", share: 4, count: 154 }
     ],
@@ -1442,7 +1442,7 @@ app.post('/api/scam/check', async (req, res) => {
         "🚨 HANG UP IMMEDIATELY. Disconnect Skype or WhatsApp video call.",
         "🛑 UNDER INDIAN LAW: No police or court ever arrests citizens over video calls or demands money.",
         "📞 Dial 1930 immediately (National Cyber Crime Helpline) or report on cybercrime.gov.in.",
-        "🛡️ SafeMeAI Android app automatically detects and blocks these fraudulent video overlay streams."
+        "🛡️ Report the caller's profile or number to the platform (WhatsApp/Skype) and to cybercrime.gov.in."
       ],
       protectionLaw: "BNSS 2023 & IT Act Section 66D (Cheating by Impersonation)"
     };
@@ -1464,7 +1464,7 @@ app.post('/api/scam/check', async (req, res) => {
         "🛑 DO NOT ENTER YOUR UPI PIN: Entering your UPI PIN ALWAYS DEDUCTS money from your account.",
         "❌ Decline the collect request on Google Pay / PhonePe / Paytm immediately.",
         "🚫 You NEVER need a PIN or QR code to receive money in India.",
-        "🛡️ SafeMeAI's on-device sensor places a protective barrier over fraudulent UPI collect windows."
+        "🛡️ Report the request in your UPI app and on cybercrime.gov.in or 1930."
       ],
       protectionLaw: "NPCI UPI Safety Guidelines & RBI Master Directions on Fraud Prevention"
     };

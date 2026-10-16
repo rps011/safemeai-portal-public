@@ -63,10 +63,6 @@
         <span class="helpline-icon" aria-hidden="true">📞</span>
         <span class="helpline-text"><span data-i18n="Cyber Helpline:">Cyber Helpline:</span> <strong>1930</strong></span>
       </a>
-      <a href="#android-showcase" data-switch-tab="tab-android-app" class="btn-app-link">
-        <span class="phone-icon" aria-hidden="true">📱</span>
-        <span data-i18n="Android app">Android app</span>
-      </a>
     </div>
   </header>
 
@@ -105,10 +101,6 @@
         <span data-i18n="Scam trends">Scam trends</span>
         <span class="badge-demo" data-i18n="Demo">Demo</span>
       </button>
-      <button class="nav-tab" data-tab="tab-android-app" id="nav-btn-app" aria-controls="tab-android-app">
-        <span class="tab-icon" aria-hidden="true">📱</span>
-        <span data-i18n="Android app">Android app</span>
-      </button>
     </nav>
   </div>
 
@@ -132,9 +124,6 @@
         </a>
         <a href="#tab-scam-checker" data-switch-tab="tab-scam-checker" class="btn-hero-primary">
           <span>🔍 <span data-i18n="Check a message or link">Check a message or link</span></span>
-        </a>
-        <a href="#android-showcase" data-switch-tab="tab-android-app" class="btn-hero-secondary">
-          <span>📲 <span data-i18n="Get the Android app">Get the Android app</span></span>
         </a>
       </div>
 
@@ -743,89 +732,6 @@ ORDER BY anomaly_score DESC LIMIT 50;</pre>
       </div>
     </section>
 
-    <!-- ========================================================
-         TAB: ANDROID APP
-         ======================================================== -->
-    <section id="tab-android-app" class="tab-content-panel" aria-labelledby="nav-btn-app">
-      <div class="section-lead-header">
-        <div>
-          <span class="section-kicker" data-i18n="ANDROID APP">ANDROID APP</span>
-          <h2 data-i18n="SafeMeAI for Android (v1.8)">SafeMeAI for Android (v1.8)</h2>
-          <p data-i18n="android-lead">The Android app is designed to check messages on your phone and warn you about risky calls, links and loan apps.</p>
-          <p class="dataflow-note" data-i18n="dataflow-note"><strong>Data note:</strong> the on-device claim applies to the Android app only. The checkers on this website send the text you paste to the SafeMeAI server in India (asia-south1) to be analysed. See the <a href="/privacy">privacy notice</a>.</p>
-        </div>
-      </div>
-
-      <div class="app-showcase-grid" id="android-showcase">
-        <div class="glass-box phone-card">
-          <p class="sample-label" data-i18n="Illustration only. These are not real detections.">Illustration only. These are not real detections.</p>
-          <div class="phone-frame">
-            <div class="phone-notch"></div>
-            <div class="phone-screen">
-              <div class="phone-app-header">
-                <span class="app-icon" aria-hidden="true">🛡️</span>
-                <span class="app-title">SafeMeAI Protection</span>
-                <span class="app-live-dot">SAMPLE</span>
-              </div>
-              <div class="simulated-shield">
-                <div class="shield-badge-danger">🚨 SAMPLE ALERT</div>
-                <h4>Fake police video call</h4>
-                <p>Example of the kind of warning the app is designed to show.</p>
-              </div>
-              <div class="simulated-notification">
-                <div class="notif-header"><span>⚡ UPI warning (sample)</span><span>example</span></div>
-                <div class="notif-body"><strong>Collect request for a "refund"</strong><p>Example: do not enter your PIN to receive money.</p></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="glass-box download-details-card">
-          <div class="release-badge">
-            <span class="tag-version">Version 1.8 (Build 10)</span>
-            <span class="tag-target">Android 15 ready</span>
-          </div>
-          <h3 data-i18n="Install SafeMeAI on your Android phone">Install SafeMeAI on your Android phone</h3>
-          <p data-i18n="android-install-lead">Free for citizens. This is a direct download (APK), not from Google Play. Read the safety note below before installing.</p>
-
-          <div class="features-checklist">
-            <div class="check-item"><span class="check-icon" aria-hidden="true">✓</span><div><strong data-i18n="Fake police call warning:">Fake police call warning:</strong> <span data-i18n="designed to spot police/CBI impersonation on WhatsApp and Skype.">designed to spot police/CBI impersonation on WhatsApp and Skype.</span></div></div>
-            <div class="check-item"><span class="check-icon" aria-hidden="true">✓</span><div><strong data-i18n="UPI refund trap warning:">UPI refund trap warning:</strong> <span data-i18n="warns before you approve a collect request.">warns before you approve a collect request.</span></div></div>
-            <div class="check-item"><span class="check-icon" aria-hidden="true">✓</span><div><strong data-i18n="Risky app warning:">Risky app warning:</strong> <span data-i18n="flags loan apps that ask for contacts and photos.">flags loan apps that ask for contacts and photos.</span></div></div>
-            <div class="check-item"><span class="check-icon" aria-hidden="true">✓</span><div><strong data-i18n="Privacy by design:">Privacy by design:</strong> <span data-i18n="the app checks messages on your phone. Only the website checker sends text to our server.">the app checks messages on your phone. Only the website checker sends text to our server.</span></div></div>
-          </div>
-
-          <div class="download-action-row">
-            <a href="downloads/safemeai-app.apk" download class="btn-download-apk">
-              <span class="dl-icon" aria-hidden="true">📥</span>
-              <div class="dl-text">
-                <span class="dl-title" data-i18n="Download SafeMeAI (APK)">Download SafeMeAI (APK)</span>
-                <span class="dl-sub">~2.9 MB • v1.8</span>
-              </div>
-            </a>
-          </div>
-
-          <div class="apk-verify" id="apk-verify">
-            <strong data-i18n="Verify your download">Verify your download</strong>
-            <p><span data-i18n="SHA-256 of this file:">SHA-256 of this file:</span></p>
-            <code class="apk-hash" id="apk-sha256">6699d2abe56dfb16d6e094edca284b383fe0261ea5160d4cd4922c072e7935ea</code>
-            <p class="apk-note" data-i18n="apk-sign-note">The file carries an Android signature block, but it is not published on Google Play and the signing certificate fingerprint is not published yet. Compare the SHA-256 above with the file you downloaded before installing.</p>
-            <p class="apk-caution" data-i18n="apk-caution"><strong>Caution:</strong> scammers also send fake APK links. Only install from this official page, never from a link in an SMS or WhatsApp message.</p>
-          </div>
-
-          <div class="qr-code-box">
-            <div class="qr-placeholder">
-              <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=https://safemeai.in/downloads/safemeai-app.apk" alt="QR code for the SafeMeAI APK download" width="140" height="140">
-            </div>
-            <div class="qr-info">
-              <strong data-i18n="Scan with your phone camera:">Scan with your phone camera:</strong>
-              <p data-i18n="qr-note">Opens the same download on your phone. The QR image is made by a third-party service (api.qrserver.com).</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
   </main>
 
   <!-- ==============================================
@@ -845,7 +751,6 @@ ORDER BY anomaly_score DESC LIMIT 50;</pre>
           <li><a href="/how-it-works" data-i18n="How it works">How it works</a></li>
           <li><a href="/security" data-i18n="Security">Security</a></li>
           <li><a href="/contact" data-i18n="Contact">Contact</a></li>
-          <li><a href="/about" data-i18n="About">About</a></li>
         </ul>
       </div>
 
