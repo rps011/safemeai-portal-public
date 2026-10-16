@@ -28,6 +28,7 @@ const PORT = process.env.PORT || 8080;
 // ---- Hardening: proxy trust, security headers, CORS, body limits, rate limiting ----
 app.set('trust proxy', 1);          // Cloud Run: exactly one trusted hop (Google front end)
 app.disable('x-powered-by');
+app.use(require('./lib/clientIp').middleware()); // real visitor IP behind Firebase Hosting (rate limits, audit hashing)
 app.use(audit.middleware());        // requestId (x-request-id in/out), response augmentation, audit log line
 
 app.use((req, res, next) => {
