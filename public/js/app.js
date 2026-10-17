@@ -1313,19 +1313,24 @@ function renderSql(d) {
   el.innerHTML = `<p class="an-sql-note">${esc(t('These fixed, parameterised queries run as the service account. Time windows are passed as query parameters. Billing is capped at 100 MB per query.'))}</p>` +
     Object.entries(d.sql).map(([k, q]) => `<h4>${esc(k)}</h4><pre class="sql-code"><code>${esc(q)}</code></pre>`).join('');
 }
-async function initBigQueryMatrix() {
+async function initBigQueryMatrix(attempt = 0) {
   try {
     lastAnalytics = await api('bq', '/api/bigquery/analytics', { method: 'GET', timeoutMs: 15000 });
   } catch (err) { lastAnalytics = null; }
   renderAnalytics(lastAnalytics);
   renderHeroMetrics(lastAnalytics);
+  // A freshly started server instance can answer before its threat database has loaded (it then reports 0).
+  // Never show that as a real number: retry a few times so the counters fill in.
+  const ti = lastAnalytics && lastAnalytics.threatIntel;
+  if ((!ti || !ti.totalIndicators) && attempt < 5) setTimeout(() => initBigQueryMatrix(attempt + 1), 3000);
 }
 // Hero counters: all fetched from the API (threat store, feed status, BigQuery audit table). Nothing is hard-coded.
 function renderHeroMetrics(an) {
   const setNum = (id, v) => { const el = $(id); if (el) el.textContent = v; };
   const ti = an && an.threatIntel;
-  setNum('metric-indicators-num', ti ? nfmt(ti.totalIndicators) : '-');
-  setNum('metric-feeds-num', ti ? nfmt(ti.liveFeeds) : '-');
+  const loaded = Boolean(ti && ti.totalIndicators > 0);
+  setNum('metric-indicators-num', loaded ? nfmt(ti.totalIndicators) : '-');
+  setNum('metric-feeds-num', loaded ? nfmt(ti.liveFeeds) : '-');
   const box = $('metric-checks');
   if (box) {
     const ok = Boolean(an && an.available && an.totals);

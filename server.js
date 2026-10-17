@@ -30,6 +30,14 @@ app.set('trust proxy', 1);          // Cloud Run: exactly one trusted hop (Googl
 app.disable('x-powered-by');
 app.use(require('./lib/clientIp').middleware()); // real visitor IP behind Firebase Hosting (rate limits, audit hashing)
 app.use(audit.middleware());        // requestId (x-request-id in/out), response augmentation, audit log line
+// Cold Cloud Run instance: wait (bounded) for the in-memory feed index so the first verdicts and the counters are not made blind.
+// Registered early so it runs before every route it protects.
+app.use(['/api/domain/check', '/api/scam/check', '/api/bigquery/analytics', '/api/analytics', '/api/system/status', '/api/threat-feed/status'], async (req, res, next) => {
+  try {
+    if (!threatStore.ready) await Promise.race([threatWarm, new Promise(r => setTimeout(r, 12000))]);
+  } catch (_) { /* fail open: serve with whatever is loaded */ }
+  next();
+});
 
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -691,13 +699,6 @@ let threatWarm = Promise.resolve();
 if (process.env.DISABLE_THREAT_INTEL !== '1') {
   threatWarm = threatPlatform.start().catch(err => console.warn('[ThreatIntel] start failed:', err.message));
 }
-// Cold Cloud Run instance: wait (bounded) for the in-memory feed index so the first verdicts are not made blind.
-app.use(['/api/domain/check', '/api/scam/check'], async (req, res, next) => {
-  if (!threatStore.ready) {
-    await Promise.race([threatWarm, new Promise(r => setTimeout(r, 12000))]);
-  }
-  next();
-});
 const securityDns = process.env.DISABLE_CLOUDFLARE_DNS === '1' ? null : createCloudflareCheck();
 
 // Legacy-shaped adapter so the engine's OpenPhish path keeps working (O(1) in-memory lookups only).
