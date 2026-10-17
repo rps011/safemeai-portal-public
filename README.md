@@ -6,7 +6,7 @@ Cloud Run URL: https://safemeai-bfsi-846801666760.asia-south1.run.app | API docs
 Deck, video script and checklist: `docs/submission/` | Evaluation reports: `docs/EVALUATION.md`, `docs/EVALUATION_V2.md`
 
 **Build window:** this web platform was built between 14 and 16 October 2026 (see the commit history, which is unmodified apart from the
-removal of unrelated binary files, a legacy page and an unrelated app-audit note). **Disclosure:** SafeMeAI also has a separate, earlier Android app. It is
+removal of unrelated binary files, a legacy page and an unrelated app-audit note). **Disclosure:** SafeMeAI also has a separate, earlier Android app that used simple rule-based detection, including matching domains against a list of verified domains. It is
 not part of this submission and is not included in this repository. Everything here (web portal, API, Gemini / Document AI / Web Risk
 integration, threat-intelligence pipeline, crowd-report pipeline, Hindi support, audit trail, BigQuery analytics, evaluations) was built in the hackathon window.
 
