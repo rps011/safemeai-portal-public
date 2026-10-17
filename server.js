@@ -45,6 +45,10 @@ app.use((req, res, next) => {
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  if (/^\/delete-account(\.html)?$/.test(req.path)) {
+    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'");
+    return next();
+  }
   res.setHeader('Content-Security-Policy', [
     "default-src 'self'",
     "script-src 'self'",
@@ -117,7 +121,8 @@ app.use(rateLimit.middleware(limiter, TIERS));
 // Hindi responses (X-Lang: hi | body.lang; auto-detected for Devanagari/Hinglish when unset): translated as the last step before res.json.
 app.use(require('./lib/i18n').middleware());
 
-app.use(express.static(path.join(__dirname, 'public'), { dotfiles: 'ignore', index: 'index.html' }));
+// extensions:['html'] gives clean URLs (/privacy, /terms, ...) like Firebase Hosting, so the Cloud Run address works too.
+app.use(express.static(path.join(__dirname, 'public'), { dotfiles: 'ignore', index: 'index.html', extensions: ['html'] }));
 
 // robots/security.txt: served only when public/ does not provide its own (static above wins).
 const SECURITY_CONTACT = process.env.SECURITY_CONTACT || 'mailto:support@safemeai.in';
