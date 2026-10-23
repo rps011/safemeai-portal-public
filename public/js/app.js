@@ -13,7 +13,7 @@ const show = (el, on) => { if (el) el.hidden = !on; };
 // Keys are the English strings used in index.html (data-i18n) or in this file (t()). No external service.
 const HI = {
   'Skip to main content': 'मुख्य सामग्री पर जाएँ',
-  'Free scam checker for India (prototype)': 'भारत के लिए मुफ़्त स्कैम चेकर (प्रोटोटाइप)',
+  'Free scam checker for India': 'भारत के लिए मुफ़्त स्कैम चेकर',
   'I am on a suspicious call right now': 'मैं अभी एक संदिग्ध कॉल पर हूँ',
   'Cyber Helpline:': 'साइबर हेल्पलाइन:',
   'Check a message or link': 'संदेश या लिंक जाँचें',
@@ -24,7 +24,7 @@ const HI = {
   'Ask the AI advisor': 'AI सलाहकार से पूछें',
   'Report a scam': 'स्कैम की रिपोर्ट करें',
   'Live analytics': 'लाइव विश्लेषण',
-  'Free prototype. Not a government service.': 'मुफ़्त प्रोटोटाइप। यह सरकारी सेवा नहीं है।',
+  'Free service. Not a government service.': 'मुफ़्त सेवा। यह सरकारी सेवा नहीं है।',
   'Got a strange message, link or call? Check it here first.': 'कोई अजीब संदेश, लिंक या कॉल आया? पहले यहाँ जाँचें।',
   'hero-sub': 'कोई संदेश, लिंक, UPI आईडी या फ़ोन नंबर पेस्ट करें। आपको सीधा जवाब मिलेगा: स्कैम, सही लगता है, या पक्का नहीं, और आगे क्या करना है। फ़र्ज़ी पुलिस "डिजिटल अरेस्ट" कॉल, UPI रिफंड जाल, लोन-ऐप की धमकी और नकली नौकरी के ऑफ़र के लिए।',
   'Threat indicators loaded': 'लोड किए गए ख़तरे के संकेतक',
